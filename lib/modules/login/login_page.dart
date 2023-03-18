@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/shared/themes/app_text_styles.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 import 'package:mobile/shared/widgets/text_input/text_input.dart';
 
@@ -25,7 +26,10 @@ class _LoginPageState extends State<LoginPage> {
                   'assets/images/ALARMOUSE-LOGO-INVERTIDO-FUNDO-TRANSPARENTE.png',
                   height: 250,
                 ),
-                const Text('Alarmouse'),
+                Text('Alarmouse', style: TextStyles.titleBig),
+                const SizedBox(
+                  height: 30,
+                ),
                 TextInputWidget(label: "E-mail", onChanged: (e) {}),
                 TextInputWidget(label: "Senha", onChanged: (e) {}),
                 const SizedBox(
@@ -36,7 +40,11 @@ class _LoginPageState extends State<LoginPage> {
                   height: 20,
                 ),
                 LabelButtonWidget(
-                    label: 'CADASTRAR', reversed: true, onPressed: () {})
+                    label: 'CADASTRAR',
+                    reversed: true,
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/register');
+                    })
               ],
             ),
           ),

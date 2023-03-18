@@ -5,9 +5,9 @@ import 'app_colors.dart';
 
 class TextStyles {
   static final titleBig = GoogleFonts.notoSans(
-    fontSize: 80,
+    fontSize: 50,
     fontWeight: FontWeight.w200,
-    color: Colors.white,
+    color: AppColors.primary,
   );
   static final subtitleLogin = GoogleFonts.notoSans(
     fontSize: 22,
@@ -17,7 +17,7 @@ class TextStyles {
   static final welcome = GoogleFonts.notoSans(
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    color: Colors.white,
+    color: AppColors.primary,
   );
   static final input = GoogleFonts.notoSans(
     fontSize: 15,
