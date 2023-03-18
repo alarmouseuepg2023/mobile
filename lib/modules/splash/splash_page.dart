@@ -6,6 +6,12 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(const Duration(seconds: 2))
+        .then((_) => Navigator.pushReplacementNamed(
+              context,
+              '/login',
+            ));
+
     return Container(
       decoration: const BoxDecoration(color: AppColors.primary),
       child: Column(
