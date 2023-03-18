@@ -35,7 +35,11 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(
                   height: 30,
                 ),
-                LabelButtonWidget(label: 'ENTRAR', onPressed: () {}),
+                LabelButtonWidget(
+                    label: 'ENTRAR',
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/home');
+                    }),
                 const SizedBox(
                   height: 20,
                 ),
