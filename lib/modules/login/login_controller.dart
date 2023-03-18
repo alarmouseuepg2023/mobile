@@ -1,0 +1,22 @@
+// class LoginController {
+//   UserRequestModel model = UserRequestModel();
+
+//   void onChange({String? accessCode, String? userName, String? password}) {
+//     model = model.copyWith(
+//         accessCode: accessCode, userName: userName, password: password);
+//   }
+
+//   Future<LoginResponseModel> signIn() async {
+//     final formData = {
+//       'accessCode': int.parse(model.accessCode!),
+//       'userName': model.userName,
+//       'password': model.password
+//     };
+
+//     final response = await dio.post('auth',
+//         data: formData, options: Options(followRedirects: true));
+//     LoginResponseModel data = LoginResponseModel.fromJson(response.data);
+
+//     return data;
+//   }
+// }
