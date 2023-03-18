@@ -21,16 +21,9 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text("Bem-vindo, Usuário", style: TextStyles.welcome),
+          automaticallyImplyLeading: false,
           flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                  //     gradient: LinearGradient(
-                  //         begin: Alignment.centerLeft,
-                  //         end: Alignment.centerRight,
-                  //         colors: <Color>[
-                  //   AppColors.primary,
-                  //   AppColors.secondary
-                  // ])
-                  )),
+              decoration: const BoxDecoration(color: AppColors.primary)),
         ),
         body: [
           DevicesPage(key: UniqueKey()),
