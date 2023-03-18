@@ -2,6 +2,7 @@ import 'package:animated_card/animated_card.dart';
 import 'package:flutter/material.dart';
 
 import '../../themes/app_colors.dart';
+import '../../themes/app_text_styles.dart';
 
 class TextInputWidget extends StatefulWidget {
   final String label;
@@ -62,7 +63,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
               obscureText: hiddenPassword,
               enableSuggestions: !hiddenPassword,
               autocorrect: !hiddenPassword,
-              // style: TextStyles.input,
+              style: TextStyles.input,
               decoration: InputDecoration(
                   suffix: widget.label == 'Senha'
                       ? InkWell(
@@ -91,7 +92,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
                           BorderSide(color: AppColors.primary, width: 1)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   labelText: widget.label,
-                  // labelStyle: TextStyles.input,
+                  labelStyle: TextStyles.input,
                   prefixIcon: widget.icon != null
                       ? Icon(
                           widget.icon,
