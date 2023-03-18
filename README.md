@@ -1,16 +1,9 @@
-# mobile
+# ***Alarmouse***
 
-A new Flutter project.
+# Sobre
 
-## Getting Started
+Engenharia de Computação, UEPG - 9º período
 
-This project is a starting point for a Flutter application.
+Projeto realizado para disciplina Projeto de Sistemas de Computação
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[Marcos Renan Krul](https://github.com/MarcosKrul) - [Renato Cristiano Ruppel](https://github.com/HERuppel)
