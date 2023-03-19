@@ -36,4 +36,9 @@ class TextStyles {
 
   static final primaryLabel = GoogleFonts.notoSans(
       fontSize: 15, fontWeight: FontWeight.w400, color: AppColors.primary);
+  static final profileName = GoogleFonts.notoSans(
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
 }
