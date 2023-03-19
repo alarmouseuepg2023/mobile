@@ -65,44 +65,49 @@ class _TextInputWidgetState extends State<TextInputWidget> {
               autocorrect: !hiddenPassword,
               style: TextStyles.input,
               decoration: InputDecoration(
-                  suffix: widget.label == 'Senha'
-                      ? InkWell(
-                          onTap: togglePasswordView,
-                          child: Icon(
-                              hiddenPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: AppColors.primary))
-                      : widget.loading != null && widget.loading == true
-                          ? const Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: AppColors.primary,
-                                  strokeWidth: 2,
-                                ),
+                suffix: widget.label == 'Senha'
+                    ? InkWell(
+                        onTap: togglePasswordView,
+                        child: Icon(
+                            hiddenPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: AppColors.primary))
+                    : widget.loading != null && widget.loading == true
+                        ? const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                                strokeWidth: 2,
                               ),
-                            )
-                          : null,
-                  focusedBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
-                      borderSide:
-                          BorderSide(color: AppColors.primary, width: 1)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  labelText: widget.label,
-                  labelStyle: TextStyles.input,
-                  prefixIcon: widget.icon != null
-                      ? Icon(
-                          widget.icon,
-                          color: AppColors.primary,
-                        )
-                      : null,
-                  enabledBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
-                      borderSide:
-                          BorderSide(color: AppColors.primary, width: 1))),
+                            ),
+                          )
+                        : null,
+                focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                labelText: widget.label,
+                labelStyle: TextStyles.input,
+                prefixIcon: widget.icon != null
+                    ? Icon(
+                        widget.icon,
+                        color: AppColors.primary,
+                      )
+                    : null,
+                enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                errorBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                focusedErrorBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+              ),
             )
           ],
         ),
