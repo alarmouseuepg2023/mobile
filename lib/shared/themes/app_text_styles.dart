@@ -19,6 +19,8 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: Colors.white,
   );
+  static final register = GoogleFonts.notoSans(
+      fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.primary);
   static final input = GoogleFonts.notoSans(
     fontSize: 15,
     fontWeight: FontWeight.w400,
