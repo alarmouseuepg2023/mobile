@@ -23,7 +23,7 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final loginController = LoginController();
+  final _loginController = LoginController();
   bool loading = false;
 
   Future<void> handleSignIn(BuildContext context) async {
@@ -32,22 +32,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         loading = true;
       });
 
-      final res = await loginController.signIn();
-      Map<String, dynamic> decodedAccessToken =
-          JwtDecoder.decode(res.content.accessToken);
+      final res = await _loginController.signIn();
 
-      User userData = User.fromMap(decodedAccessToken);
+      if (res != null) {
+        Map<String, dynamic> decodedAccessToken =
+            JwtDecoder.decode(res.content.accessToken);
 
-      dio.options.headers[HttpHeaders.authorizationHeader] =
-          "bearer ${res.content.accessToken}";
+        User userData = User.fromMap(decodedAccessToken);
 
-      ref
-          .read(authProvider)
-          .setUser(userData, res.content.refreshToken, res.content.accessToken);
+        dio.options.headers[HttpHeaders.authorizationHeader] =
+            "bearer ${res.content.accessToken}";
 
-      if (!mounted) return;
-      Navigator.of(context)
-          .pushReplacementNamed("/home", arguments: res.content);
+        ref.read(authProvider).setUser(
+            userData, res.content.refreshToken, res.content.accessToken);
+
+        if (!mounted) return;
+        Navigator.of(context)
+            .pushReplacementNamed("/home", arguments: res.content);
+      }
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
@@ -86,16 +88,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 const SizedBox(
                   height: 30,
                 ),
-                TextInputWidget(
-                    label: "E-mail",
-                    onChanged: (value) {
-                      loginController.onChange(email: value);
-                    }),
-                TextInputWidget(
-                    label: "Senha",
-                    onChanged: (value) {
-                      loginController.onChange(password: value);
-                    }),
+                Form(
+                    key: _loginController.formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      children: [
+                        TextInputWidget(
+                            label: "E-mail",
+                            validator: _loginController.validateEmail,
+                            onChanged: (value) {
+                              _loginController.onChange(email: value);
+                            }),
+                        TextInputWidget(
+                            label: "Senha",
+                            validator: _loginController.validatePassword,
+                            onChanged: (value) {
+                              _loginController.onChange(password: value);
+                            }),
+                      ],
+                    )),
                 const SizedBox(
                   height: 30,
                 ),
