@@ -1,22 +1,22 @@
-// class LoginController {
-//   UserRequestModel model = UserRequestModel();
+import 'package:dio/dio.dart';
+import 'package:mobile/shared/models/Login/login_request_model.dart';
+import 'package:mobile/shared/models/Login/login_response_model.dart';
 
-//   void onChange({String? accessCode, String? userName, String? password}) {
-//     model = model.copyWith(
-//         accessCode: accessCode, userName: userName, password: password);
-//   }
+import '../../service/index.dart';
 
-//   Future<LoginResponseModel> signIn() async {
-//     final formData = {
-//       'accessCode': int.parse(model.accessCode!),
-//       'userName': model.userName,
-//       'password': model.password
-//     };
+class LoginController {
+  LoginRequest model = LoginRequest();
 
-//     final response = await dio.post('auth',
-//         data: formData, options: Options(followRedirects: true));
-//     LoginResponseModel data = LoginResponseModel.fromJson(response.data);
+  void onChange({String? email, String? password}) {
+    model = model.copyWith(email: email, password: password);
+  }
 
-//     return data;
-//   }
-// }
+  Future<LoginResponse> signIn() async {
+    final formData = model.toJson();
+
+    final response = await dio.post('auth', data: formData, options: Options());
+    print(response);
+    LoginResponse data = LoginResponse.fromJson(response.data);
+    return data;
+  }
+}
