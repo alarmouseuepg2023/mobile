@@ -33,17 +33,16 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     setState(() {
       user = hasUser;
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     Future.delayed(const Duration(seconds: 2)).then((_) {
       Navigator.pushReplacementNamed(
         context,
         user ? '/home' : '/login',
       );
     });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(color: AppColors.primary),
       child: Column(
