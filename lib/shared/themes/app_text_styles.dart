@@ -51,4 +51,24 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );
+  static final deviceCardName = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
+  static final deviceStatusSub = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textFaded,
+  );
+  static final deviceCardStatus = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
+  static final deviceCardOwnership = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textFaded,
+  );
 }

@@ -14,13 +14,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final homeController = HomeController();
+  final _homeController = HomeController();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: homeController.currentPage == 0
+        appBar: _homeController.currentPage == 0
             ? AppBar(
                 title: Text("Bem-vindo, Usuário", style: TextStyles.welcome),
                 automaticallyImplyLeading: false,
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
         body: [
           DevicesPage(key: UniqueKey()),
           ProfilePage(key: UniqueKey()),
-        ][homeController.currentPage],
+        ][_homeController.currentPage],
         bottomNavigationBar: Container(
             height: 60,
             decoration: const BoxDecoration(
@@ -44,25 +44,25 @@ class _HomePageState extends State<HomePage> {
                 IconButton(
                     onPressed: () {
                       // if (ref.read(homeProvider).loading) return;
-                      homeController.setPage(0);
+                      _homeController.setPage(0);
                       setState(() {});
                     },
                     icon: Icon(
                       Icons.sensors,
                       size: 30,
-                      color: homeController.currentPage == 0
+                      color: _homeController.currentPage == 0
                           ? AppColors.primary
                           : AppColors.text,
                     )),
                 IconButton(
                     onPressed: () {
                       // if (ref.read(homeProvider).loading) return;
-                      homeController.setPage(1);
+                      _homeController.setPage(1);
                       setState(() {});
                     },
                     icon: Icon(Icons.person,
                         size: 30,
-                        color: homeController.currentPage == 1
+                        color: _homeController.currentPage == 1
                             ? AppColors.primary
                             : AppColors.text)),
               ],
