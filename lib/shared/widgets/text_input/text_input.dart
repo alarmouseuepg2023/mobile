@@ -65,7 +65,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
               autocorrect: !hiddenPassword,
               style: TextStyles.input,
               decoration: InputDecoration(
-                suffix: widget.label == 'Senha'
+                suffixIcon: widget.label == 'Senha'
                     ? InkWell(
                         onTap: togglePasswordView,
                         child: Icon(
@@ -74,15 +74,12 @@ class _TextInputWidgetState extends State<TextInputWidget> {
                                 : Icons.visibility,
                             color: AppColors.primary))
                     : widget.loading != null && widget.loading == true
-                        ? const Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: AppColors.primary,
-                                strokeWidth: 2,
-                              ),
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                              strokeWidth: 2,
                             ),
                           )
                         : null,
