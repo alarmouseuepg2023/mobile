@@ -81,7 +81,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               children: [
                 Image.asset(
                   'assets/images/ALARMOUSE-LOGO-INVERTIDO-FUNDO-TRANSPARENTE.png',
-                  height: 250,
+                  height: 230,
                 ),
                 Text('Alarmouse', style: TextStyles.titleBig),
                 const SizedBox(
