@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
 
-class ServerResponse<T> {
+class ServerResponse {
   final String message;
   final bool success;
 
@@ -10,13 +9,9 @@ class ServerResponse<T> {
     required this.success,
   });
 
-  factory ServerResponse.fromMap(Map<String, dynamic> map) {
-    return ServerResponse(
-      message: map['message'] as String,
-      success: map['success'] as bool,
-    );
-  }
+  factory ServerResponse.fromJson(Map<String, dynamic> json) =>
+      ServerResponse(message: json['message'], success: json['success']);
 
-  factory ServerResponse.fromJson(String source) =>
-      ServerResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+  @override
+  String toString() => '{ message: $message, success: $success }';
 }
