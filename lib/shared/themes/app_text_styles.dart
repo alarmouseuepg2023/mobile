@@ -41,4 +41,14 @@ class TextStyles {
     fontWeight: FontWeight.w600,
     color: AppColors.primary,
   );
+  static final profileEmail = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textFaded,
+  );
+  static final profileMenuItem = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
 }
