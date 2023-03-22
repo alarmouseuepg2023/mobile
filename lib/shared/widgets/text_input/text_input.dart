@@ -2,6 +2,7 @@ import 'package:animated_card/animated_card.dart';
 import 'package:flutter/material.dart';
 
 import '../../themes/app_colors.dart';
+import '../../themes/app_text_styles.dart';
 
 class TextInputWidget extends StatefulWidget {
   final String label;
@@ -35,7 +36,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
   @override
   void initState() {
     setState(() {
-      hiddenPassword = widget.label == 'Senha' ? true : false;
+      hiddenPassword = widget.passwordType == true ? true : false;
     });
     super.initState();
   }
@@ -62,46 +63,48 @@ class _TextInputWidgetState extends State<TextInputWidget> {
               obscureText: hiddenPassword,
               enableSuggestions: !hiddenPassword,
               autocorrect: !hiddenPassword,
-              // style: TextStyles.input,
+              style: TextStyles.input,
               decoration: InputDecoration(
-                  suffix: widget.label == 'Senha'
-                      ? InkWell(
-                          onTap: togglePasswordView,
-                          child: Icon(
-                              hiddenPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: AppColors.primary))
-                      : widget.loading != null && widget.loading == true
-                          ? const Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: AppColors.primary,
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            )
-                          : null,
-                  focusedBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
-                      borderSide:
-                          BorderSide(color: AppColors.primary, width: 1)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  labelText: widget.label,
-                  // labelStyle: TextStyles.input,
-                  prefixIcon: widget.icon != null
-                      ? Icon(
-                          widget.icon,
-                          color: AppColors.primary,
-                        )
-                      : null,
-                  enabledBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
-                      borderSide:
-                          BorderSide(color: AppColors.primary, width: 1))),
+                suffixIcon: widget.passwordType == true
+                    ? InkWell(
+                        onTap: togglePasswordView,
+                        child: Icon(
+                            hiddenPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: AppColors.primary))
+                    : widget.loading != null && widget.loading == true
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : null,
+                focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                labelText: widget.label,
+                labelStyle: TextStyles.input,
+                prefixIcon: widget.icon != null
+                    ? Icon(
+                        widget.icon,
+                        color: AppColors.primary,
+                      )
+                    : null,
+                enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                errorBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                focusedErrorBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+              ),
             )
           ],
         ),

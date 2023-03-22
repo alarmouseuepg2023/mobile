@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
+import 'package:mobile/shared/themes/app_text_styles.dart';
 
 class LabelButtonWidget extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
   final bool? onLoading;
   final bool? reversed;
+  final bool? disabled;
   final TextStyle? style;
   const LabelButtonWidget(
       {super.key,
@@ -13,7 +15,8 @@ class LabelButtonWidget extends StatelessWidget {
       required this.onPressed,
       this.style,
       this.onLoading,
-      this.reversed});
+      this.reversed,
+      this.disabled});
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +47,13 @@ class LabelButtonWidget extends StatelessWidget {
               ],
             )
           : TextButton(
-              onPressed: onPressed,
+              onPressed: disabled == true ? null : onPressed,
               child: Text(
                 label,
-                // style: style ?? TextStyles.whiteLabel,
+                style: style ??
+                    (reversed == true
+                        ? TextStyles.primaryLabel
+                        : TextStyles.whiteLabel),
               )),
     );
   }
