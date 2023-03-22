@@ -47,8 +47,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             userData, res.content.refreshToken, res.content.accessToken);
 
         if (!mounted) return;
-        Navigator.of(context)
-            .pushReplacementNamed("/home", arguments: res.content);
+        Navigator.pushReplacementNamed(context, "/home");
       }
     } catch (e) {
       if (e is DioError) {

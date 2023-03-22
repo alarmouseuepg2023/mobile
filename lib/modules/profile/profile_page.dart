@@ -51,7 +51,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               style: TextStyles.primaryLabel,
               onPressed: () {
                 ref.read(authProvider).clearUser();
-                Navigator.of(context).pushReplacementNamed('/login');
+                Navigator.pushReplacementNamed(context, '/login');
               }),
         ],
       ),
