@@ -36,7 +36,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
   @override
   void initState() {
     setState(() {
-      hiddenPassword = widget.label == 'Senha' ? true : false;
+      hiddenPassword = widget.passwordType == true ? true : false;
     });
     super.initState();
   }
@@ -65,7 +65,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
               autocorrect: !hiddenPassword,
               style: TextStyles.input,
               decoration: InputDecoration(
-                suffixIcon: widget.label == 'Senha'
+                suffixIcon: widget.passwordType == true
                     ? InkWell(
                         onTap: togglePasswordView,
                         child: Icon(
