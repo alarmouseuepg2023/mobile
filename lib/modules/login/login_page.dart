@@ -89,7 +89,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 Form(
                     key: _loginController.formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
                       children: [
                         TextInputWidget(
@@ -100,6 +99,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             }),
                         TextInputWidget(
                             label: "Senha",
+                            passwordType: true,
                             validator: _loginController.validatePassword,
                             onChanged: (value) {
                               _loginController.onChange(password: value);
