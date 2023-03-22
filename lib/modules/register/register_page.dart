@@ -1,10 +1,13 @@
+import 'package:dio/dio.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/register/register_controller.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/themes/app_text_styles.dart';
 
+import '../../shared/models/Response/response_model.dart';
 import '../../shared/widgets/label_button/label_button.dart';
+import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -15,9 +18,45 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final registerController = RegisterController();
+  final _registerController = RegisterController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
+  bool loading = false;
+
+  Future<void> handleSignUp() async {
+    try {
+      setState(() {
+        loading = true;
+      });
+
+      final res = await _registerController.createUser();
+
+      if (res != null) {
+        _password.clear();
+        _confirmPassword.clear();
+        if (!mounted) return;
+        GlobalSnackBar.show(context,
+            res.message != "" ? res.message : "Usuário criado com sucesso!");
+      }
+    } catch (e) {
+      print(e);
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalSnackBar.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao entrar. Tente novamente.");
+      } else {
+        GlobalSnackBar.show(
+            context, "Ocorreu um erro ao entrar. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Form(
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              key: registerController.formKey,
+              key: _registerController.formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -47,14 +85,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextInputWidget(
                     label: "Nome",
                     onChanged: (value) {
-                      registerController.onChange(name: value);
+                      _registerController.onChange(name: value);
                     },
-                    validator: registerController.validateName,
+                    validator: _registerController.validateName,
                   ),
                   TextInputWidget(
                     label: "E-mail",
                     onChanged: (value) {
-                      registerController.onChange(email: value);
+                      _registerController.onChange(email: value);
                     },
                     validator: (value) => EmailValidator.validate(value ?? '')
                         ? null
@@ -62,27 +100,28 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   TextInputWidget(
                       label: "Senha",
+                      passwordType: true,
                       onChanged: (value) {
-                        registerController.onChange(password: value);
+                        _registerController.onChange(password: value);
                       },
                       controller: _password,
-                      validator: registerController.validatePassword),
+                      validator: _registerController.validatePassword),
                   TextInputWidget(
                       label: "Confirme a senha",
+                      passwordType: true,
                       onChanged: (value) {
-                        registerController.onChange(confirmPassword: value);
+                        _registerController.onChange(confirmPassword: value);
                       },
                       controller: _confirmPassword,
-                      validator: (value) => registerController
+                      validator: (value) => _registerController
                           .validateConfirmPassword(value, _password.text)),
                   const SizedBox(
                     height: 30,
                   ),
                   LabelButtonWidget(
+                      onLoading: loading,
                       label: 'CADASTRAR',
-                      onPressed: () async {
-                        await registerController.createUser();
-                      }),
+                      onPressed: handleSignUp),
                 ],
               ),
             ),

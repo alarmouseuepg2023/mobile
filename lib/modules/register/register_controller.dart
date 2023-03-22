@@ -1,10 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/shared/models/User/user_register_model.dart';
+import 'package:mobile/shared/models/Register/register_request_model.dart';
+import 'package:mobile/shared/models/Register/register_response_model.dart';
+
+import '../../service/index.dart';
 
 class RegisterController {
   final formKey = GlobalKey<FormState>();
-  UserRegister model =
-      UserRegister(name: '', email: '', password: '', confirmPassword: '');
+  RegisterRequest model =
+      RegisterRequest(name: '', email: '', password: '', confirmPassword: '');
 
   String? validateName(String? value) =>
       value?.isEmpty ?? true ? "O nome não pode ser vazio" : null;
@@ -43,22 +47,24 @@ class RegisterController {
         confirmPassword: confirmPassword);
   }
 
-  Future<void> signUp() async {
+  Future<RegisterResponse> signUp() async {
     final formData = model.toJson();
-    print(formData);
 
-    //final response = await dio.post('auth', data: formData, options: Options());
+    final response = await dio.post('user', data: formData, options: Options());
 
-    //LoginResponseModel data = LoginResponseModel.fromJson(response.data);
+    RegisterResponse data = RegisterResponse.fromJson(response.data);
 
-    return;
+    formKey.currentState!.reset();
+
+    return data;
   }
 
-  Future<void> createUser() async {
+  Future<RegisterResponse?> createUser() async {
     final form = formKey.currentState;
 
     if (form!.validate()) {
       return signUp();
     }
+    return null;
   }
 }
