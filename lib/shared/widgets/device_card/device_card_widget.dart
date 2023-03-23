@@ -45,7 +45,7 @@ class _DeviceCardWidgetState extends State<DeviceCardWidget> {
                       text: widget.device.status,
                       style: TextStyles.deviceCardStatus)
                 ])),
-                Text(_getDeviceOwnership(widget.device.status),
+                Text(_getDeviceOwnership(widget.device.role),
                     style: TextStyles.deviceCardOwnership),
               ],
             ),
@@ -55,7 +55,7 @@ class _DeviceCardWidgetState extends State<DeviceCardWidget> {
               children: [
                 IconButton(
                     onPressed: () {},
-                    icon: const Icon(Icons.power_settings_new, size: 50))
+                    icon: const Icon(Icons.power_settings_new, size: 40))
               ],
             )
           ],
