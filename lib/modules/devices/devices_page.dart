@@ -48,18 +48,14 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   Future<void> getDevices() async {
+    if (!mounted || loading) return;
     try {
-      if (!mounted || loading) return;
       setState(() {
         loading = true;
       });
-      // final hasUser = await ref.read(authProvider).getUserData();
-      // if (hasUser) {
-      //   final accessToken = ref.read(authProvider).accessToken;
-      //   dio.options.headers[HttpHeaders.authorizationHeader] =
-      //       "bearer $accessToken";
-      // }
+
       final res = await _devicesController.getDevices(_pageNumber, _size);
+      if (!mounted) return;
       setState(() {
         devices.addAll(res.content.items);
         if (res.content.items.length < _size) {
@@ -82,6 +78,8 @@ class _DevicesPageState extends State<DevicesPage> {
             context, "Ocorreu um erro ao recuperar os dispositivos.");
       }
     } finally {
+      // ignore: control_flow_in_finally
+      if (!mounted) return;
       setState(() {
         loading = false;
       });
@@ -103,19 +101,24 @@ class _DevicesPageState extends State<DevicesPage> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(15),
-      child: SizedBox(
-        height: double.maxFinite,
-        width: double.maxFinite,
-        child: Stack(children: [
-          RefreshIndicator(
+      child: Column(children: [
+        Expanded(
+          flex: 1,
+          child: RefreshIndicator(
             onRefresh: refresh,
             child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
               controller: scrollController,
               itemCount: devices.length + 1,
               itemBuilder: (context, index) {
                 if (index < devices.length) {
                   final device = devices[index];
-                  return DeviceCardWidget(device: device);
+                  return Column(children: [
+                    DeviceCardWidget(device: device),
+                    const SizedBox(
+                      height: 20,
+                    )
+                  ]);
                 } else {
                   return _hasMore
                       ? const Center(
@@ -132,24 +135,16 @@ class _DevicesPageState extends State<DevicesPage> {
               },
             ),
           ),
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: InkWell(
-              onTap: () {},
-              borderRadius: BorderRadius.circular(30),
-              splashColor: AppColors.darker,
-              child: Ink(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(30)),
-                  child: const Icon(Icons.add, color: Colors.white, size: 30)),
-            ),
-          )
-        ]),
-      ),
+        ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: FloatingActionButton(
+            onPressed: loading ? null : () {},
+            backgroundColor: AppColors.primary,
+            child: const Icon(Icons.add, color: Colors.white, size: 30),
+          ),
+        ),
+      ]),
     );
   }
 }
