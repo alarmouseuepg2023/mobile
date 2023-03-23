@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/home/home_controller.dart';
+import 'package:mobile/modules/notifications/notifications_page.dart';
 import 'package:mobile/modules/profile/profile_page.dart';
 
 import '../../shared/themes/app_colors.dart';
@@ -30,6 +31,7 @@ class _HomePageState extends State<HomePage> {
             : null,
         body: [
           DevicesPage(key: UniqueKey()),
+          NotificationsPage(key: UniqueKey()),
           ProfilePage(key: UniqueKey()),
         ][_homeController.currentPage],
         bottomNavigationBar: Container(
@@ -60,9 +62,22 @@ class _HomePageState extends State<HomePage> {
                       _homeController.setPage(1);
                       setState(() {});
                     },
+                    icon: Icon(
+                      Icons.notifications,
+                      size: 30,
+                      color: _homeController.currentPage == 1
+                          ? AppColors.primary
+                          : AppColors.text,
+                    )),
+                IconButton(
+                    onPressed: () {
+                      // if (ref.read(homeProvider).loading) return;
+                      _homeController.setPage(2);
+                      setState(() {});
+                    },
                     icon: Icon(Icons.person,
                         size: 30,
-                        color: _homeController.currentPage == 1
+                        color: _homeController.currentPage == 2
                             ? AppColors.primary
                             : AppColors.text)),
               ],
