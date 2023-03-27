@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/home/home_controller.dart';
 import 'package:mobile/modules/notifications/notifications_page.dart';
 import 'package:mobile/modules/profile/profile_page.dart';
+import 'package:mobile/providers/auth/auth_provider.dart';
 
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   final _homeController = HomeController();
+
+  String displayUserName(String name) => name.split(" ")[0];
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +27,9 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: _homeController.currentPage == 0
             ? AppBar(
-                title: Text("Bem-vindo, Usuário", style: TextStyles.welcome),
+                title: Text(
+                    "Bem-vindo, ${displayUserName(ref.read(authProvider).user?.name ?? "")}",
+                    style: TextStyles.welcome),
                 automaticallyImplyLeading: false,
                 flexibleSpace: Container(
                     decoration: const BoxDecoration(color: AppColors.primary)),
