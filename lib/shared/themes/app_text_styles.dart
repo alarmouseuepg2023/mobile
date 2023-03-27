@@ -71,4 +71,9 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.textFaded,
   );
+  static final deviceActivities = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
 }
