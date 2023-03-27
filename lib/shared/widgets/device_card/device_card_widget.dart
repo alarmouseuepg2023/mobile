@@ -4,7 +4,9 @@ import 'package:mobile/shared/themes/app_text_styles.dart';
 
 class DeviceCardWidget extends StatefulWidget {
   final Device device;
-  const DeviceCardWidget({super.key, required this.device});
+  final VoidCallback onTap;
+  const DeviceCardWidget(
+      {super.key, required this.device, required this.onTap});
 
   @override
   State<DeviceCardWidget> createState() => _DeviceCardWidgetState();
@@ -17,7 +19,7 @@ class _DeviceCardWidgetState extends State<DeviceCardWidget> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: widget.onTap,
       child: Ink(
           decoration: BoxDecoration(
             boxShadow: [

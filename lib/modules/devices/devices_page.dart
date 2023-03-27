@@ -114,7 +114,13 @@ class _DevicesPageState extends State<DevicesPage> {
                 if (index < devices.length) {
                   final device = devices[index];
                   return Column(children: [
-                    DeviceCardWidget(device: device),
+                    DeviceCardWidget(
+                      device: device,
+                      onTap: () {
+                        Navigator.pushNamed(context, "/device",
+                            arguments: device);
+                      },
+                    ),
                     const SizedBox(
                       height: 20,
                     )
