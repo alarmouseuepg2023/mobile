@@ -76,4 +76,9 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );
+  static final inviteAGuest = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
 }

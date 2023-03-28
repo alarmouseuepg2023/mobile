@@ -1,9 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/modules/device/device_controller.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 
+import '../../shared/models/Response/response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
+import '../../shared/widgets/snackbar/snackbar_widget.dart';
+import '../../shared/widgets/text_input/text_input.dart';
 
 class DevicePage extends StatefulWidget {
   final Device device;
@@ -14,10 +19,111 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> {
+  final deviceController = DeviceController();
+  bool loading = false;
+  bool bottomload = false;
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
   bool _ownerPermissions(String role) => role == 'DEVICE_OWNER' ? true : false;
+
+  Future<void> handleInvite(StateSetter bottomState) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      bottomState(() {});
+      final res = await deviceController.inviteGuest(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+        GlobalSnackBar.show(context,
+            res.message != "" ? res.message : "Usuário criado com sucesso!");
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalSnackBar.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao entrar. Tente novamente.");
+      } else {
+        GlobalSnackBar.show(
+            context, "Ocorreu um erro ao entrar. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+
+      bottomState(() {});
+    }
+  }
+
+  void showBottomSheet(context, String feature) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext bc) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter bottomState) {
+            if (feature == 'SHARE') {
+              return Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      left: 20,
+                      right: 20,
+                      top: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Insira um e-mail para compartilhar",
+                        style: TextStyles.inviteAGuest,
+                      ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: deviceController.formKey,
+                        child: TextInputWidget(
+                            label: "E-mail",
+                            validator: deviceController.validateEmail,
+                            onChanged: (value) {
+                              deviceController.onChange(email: value);
+                            }),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      LabelButtonWidget(
+                          label: "ENVIAR",
+                          onLoading: loading,
+                          onPressed: () {
+                            handleInvite(bottomState);
+                          }),
+                      const SizedBox(
+                        height: 30,
+                      )
+                    ],
+                  ));
+            }
+            if (feature == 'WIFI') {
+              return const FittedBox(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                    child: Text('WIFI')),
+              );
+            }
+            if (feature == 'PASSWORD') {
+              return const FittedBox(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                    child: Text('pass')),
+              );
+            }
+            return const SizedBox();
+          });
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +202,9 @@ class _DevicePageState extends State<DevicePage> {
                 _ownerPermissions(widget.device.role)
                     ? Ink(
                         child: InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              showBottomSheet(context, 'SHARE');
+                            },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
@@ -120,7 +228,9 @@ class _DevicePageState extends State<DevicePage> {
                 ),
                 Ink(
                   child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        showBottomSheet(context, 'WIFI');
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -143,7 +253,9 @@ class _DevicePageState extends State<DevicePage> {
                 ),
                 Ink(
                   child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        showBottomSheet(context, 'PASSWORD');
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
