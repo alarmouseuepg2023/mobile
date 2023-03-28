@@ -122,13 +122,22 @@ class _DevicePageState extends State<DevicePage> {
                       ),
                       const SizedBox(height: 30),
                       Form(
-                        key: deviceController.formKey,
-                        child: TextInputWidget(
-                            label: "E-mail",
-                            validator: deviceController.validateEmail,
-                            onChanged: (value) {
-                              deviceController.onChange(email: value);
-                            }),
+                        key: deviceController.wifiFormKey,
+                        child: Column(children: [
+                          TextInputWidget(
+                              label: "Nome da rede",
+                              validator: deviceController.validateSsid,
+                              onChanged: (value) {
+                                deviceController.onChangeWifi(ssid: value);
+                              }),
+                          TextInputWidget(
+                              label: "Senha",
+                              passwordType: true,
+                              validator: deviceController.validatePassword,
+                              onChanged: (value) {
+                                deviceController.onChangeWifi(password: value);
+                              }),
+                        ]),
                       ),
                       const SizedBox(
                         height: 40,
@@ -137,7 +146,7 @@ class _DevicePageState extends State<DevicePage> {
                           label: "ALTERAR",
                           onLoading: loading,
                           onPressed: () {
-                            handleInvite(bottomState);
+                            deviceController.changeWifi(widget.device.id);
                           }),
                       const SizedBox(
                         height: 30,
