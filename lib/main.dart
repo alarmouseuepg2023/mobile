@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile/modules/device/device_page.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
+import 'package:mobile/modules/events/events_page.dart';
 import 'package:mobile/modules/home/home_page.dart';
 import 'package:mobile/modules/login/login_page.dart';
 import 'package:mobile/modules/notifications/notifications_page.dart';
@@ -35,6 +36,9 @@ class MyApp extends StatelessWidget {
         "/register": (context) => const RegisterPage(),
         "/devices": (context) => const DevicesPage(),
         "/device": (context) => DevicePage(
+              device: ModalRoute.of(context)!.settings.arguments as Device,
+            ),
+        "/events": (context) => EventsPage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
         "/notifications": (context) => const NotificationsPage(),
