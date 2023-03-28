@@ -107,18 +107,96 @@ class _DevicePageState extends State<DevicePage> {
                   ));
             }
             if (feature == 'WIFI') {
-              return const FittedBox(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-                    child: Text('WIFI')),
-              );
+              return Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      left: 20,
+                      right: 20,
+                      top: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Insira os dados da nova rede",
+                        style: TextStyles.inviteAGuest,
+                      ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: deviceController.formKey,
+                        child: TextInputWidget(
+                            label: "E-mail",
+                            validator: deviceController.validateEmail,
+                            onChanged: (value) {
+                              deviceController.onChange(email: value);
+                            }),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      LabelButtonWidget(
+                          label: "ALTERAR",
+                          onLoading: loading,
+                          onPressed: () {
+                            handleInvite(bottomState);
+                          }),
+                      const SizedBox(
+                        height: 30,
+                      )
+                    ],
+                  ));
             }
             if (feature == 'PASSWORD') {
-              return const FittedBox(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-                    child: Text('pass')),
-              );
+              return Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      left: 20,
+                      right: 20,
+                      top: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Complete os campos de senha",
+                        style: TextStyles.inviteAGuest,
+                      ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: deviceController.formKey,
+                        child: Column(children: [
+                          TextInputWidget(
+                              label: "Senha antiga",
+                              validator: deviceController.validateEmail,
+                              onChanged: (value) {
+                                deviceController.onChange(email: value);
+                              }),
+                          TextInputWidget(
+                              label: "Nova senha",
+                              validator: deviceController.validateEmail,
+                              onChanged: (value) {
+                                deviceController.onChange(email: value);
+                              }),
+                          TextInputWidget(
+                              label: "Confirme a nova senha",
+                              validator: deviceController.validateEmail,
+                              onChanged: (value) {
+                                deviceController.onChange(email: value);
+                              }),
+                        ]),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      LabelButtonWidget(
+                          label: "ALTERAR",
+                          onLoading: loading,
+                          onPressed: () {
+                            handleInvite(bottomState);
+                          }),
+                      const SizedBox(
+                        height: 30,
+                      )
+                    ],
+                  ));
             }
             return const SizedBox();
           });
@@ -178,7 +256,10 @@ class _DevicePageState extends State<DevicePage> {
                 ),
                 Ink(
                   child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, "/events",
+                            arguments: widget.device);
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -189,7 +270,7 @@ class _DevicePageState extends State<DevicePage> {
                               width: 20,
                             ),
                             Text(
-                              "Atividades",
+                              "Eventos",
                               style: TextStyles.deviceActivities,
                             )
                           ],
