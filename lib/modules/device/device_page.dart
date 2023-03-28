@@ -73,18 +73,21 @@ class _DevicePageState extends State<DevicePage> {
                 Ink(
                   child: InkWell(
                       onTap: () {},
-                      child: Row(
-                        children: [
-                          const Icon(Icons.analytics,
-                              size: 40, color: AppColors.primary),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Text(
-                            "Atividades",
-                            style: TextStyles.deviceActivities,
-                          )
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.description,
+                                size: 30, color: AppColors.primary),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Text(
+                              "Atividades",
+                              style: TextStyles.deviceActivities,
+                            )
+                          ],
+                        ),
                       )),
                 ),
                 const SizedBox(
@@ -94,18 +97,21 @@ class _DevicePageState extends State<DevicePage> {
                     ? Ink(
                         child: InkWell(
                             onTap: () {},
-                            child: Row(
-                              children: [
-                                const Icon(Icons.people,
-                                    size: 40, color: AppColors.primary),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                Text(
-                                  "Compartilhar dispositivo",
-                                  style: TextStyles.deviceActivities,
-                                )
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.people,
+                                      size: 30, color: AppColors.primary),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Text(
+                                    "Compartilhar dispositivo",
+                                    style: TextStyles.deviceActivities,
+                                  )
+                                ],
+                              ),
                             )),
                       )
                     : const SizedBox(),
@@ -115,18 +121,21 @@ class _DevicePageState extends State<DevicePage> {
                 Ink(
                   child: InkWell(
                       onTap: () {},
-                      child: Row(
-                        children: [
-                          const Icon(Icons.wifi,
-                              size: 40, color: AppColors.primary),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Text(
-                            "Alterar rede Wifi",
-                            style: TextStyles.deviceActivities,
-                          )
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.wifi,
+                                size: 30, color: AppColors.primary),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Text(
+                              "Alterar rede Wifi",
+                              style: TextStyles.deviceActivities,
+                            )
+                          ],
+                        ),
                       )),
                 ),
                 const SizedBox(
@@ -135,18 +144,21 @@ class _DevicePageState extends State<DevicePage> {
                 Ink(
                   child: InkWell(
                       onTap: () {},
-                      child: Row(
-                        children: [
-                          const Icon(Icons.lock,
-                              size: 40, color: AppColors.primary),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Text(
-                            "Alterar senha do alarme",
-                            style: TextStyles.deviceActivities,
-                          )
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.lock,
+                                size: 30, color: AppColors.primary),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Text(
+                              "Alterar senha do alarme",
+                              style: TextStyles.deviceActivities,
+                            )
+                          ],
+                        ),
                       )),
                 ),
               ],
