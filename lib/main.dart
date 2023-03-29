@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile/modules/change_password/change_password_page.dart';
 import 'package:mobile/modules/device/device_page.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/events/events_page.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
             ),
         "/notifications": (context) => const NotificationsPage(),
         "/profile": (context) => const ProfilePage(),
+        "/change_password": (context) => const ChangePasswordPage(),
       },
     );
   }
