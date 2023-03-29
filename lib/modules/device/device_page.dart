@@ -4,7 +4,7 @@ import 'package:mobile/modules/device/device_controller.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 
-import '../../shared/models/Response/response_model.dart';
+import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../shared/widgets/snackbar/snackbar_widget.dart';

@@ -5,7 +5,7 @@ import 'package:mobile/modules/register/register_controller.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/themes/app_text_styles.dart';
 
-import '../../shared/models/Response/response_model.dart';
+import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';

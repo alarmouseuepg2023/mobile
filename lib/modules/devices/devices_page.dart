@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/devices/devices_controller.dart';
-import 'package:mobile/shared/models/Response/response_model.dart';
+import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/widgets/device_card/device_card_widget.dart';
 
