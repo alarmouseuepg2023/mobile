@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/modules/forgot_password/forgot_password_controller.dart';
+import 'package:mobile/modules/reset_password/reset_password_controller.dart';
+import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
@@ -10,16 +11,19 @@ import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
-class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
+class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({super.key});
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
   bool loading = false;
-  final _forgotPasswordController = ForgotPasswordController();
+  final _resetPasswordController = ResetPasswordContorller();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _confirmPassword = TextEditingController();
+  final TextEditingController _pin = TextEditingController();
 
   Future<void> handleSignUp() async {
     try {
@@ -27,12 +31,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         loading = true;
       });
 
-      final res = await _forgotPasswordController.createUser();
+      final res = await _resetPasswordController.createResetPassword();
 
       if (res != null) {
+        _password.clear();
+        _confirmPassword.clear();
+        _pin.clear();
         if (!mounted) return;
         GlobalSnackBar.show(context,
-            res.message != "" ? res.message : "Usuário criado com sucesso!");
+            res.message != "" ? res.message : "Senha redefinida com sucesso!");
       }
     } catch (e) {
       print(e);
@@ -64,7 +71,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           elevation: 0,
           iconTheme: const IconThemeData(color: AppColors.primary),
           title: Text(
-            "Esqueci a senha",
+            "Redefinir a senha",
             style: TextStyles.register,
           ),
           centerTitle: true,
@@ -73,37 +80,51 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Form(
-              key: _forgotPasswordController.formKey,
+              key: _resetPasswordController.formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  PinInputWidget(
+                    validator: _resetPasswordController.validatePin,
+                    controller: _pin,
+                    onChanged: (value) {
+                      _resetPasswordController.onChange(pin: value);
+                    },
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
                   TextInputWidget(
                     label: "E-mail",
                     onChanged: (value) {
-                      _forgotPasswordController.onChange(email: value);
+                      _resetPasswordController.onChange(email: value);
                     },
                     validator: (value) => EmailValidator.validate(value ?? '')
                         ? null
                         : "Insira um e-mail válido",
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Align(
-                      alignment: FractionalOffset.bottomRight,
-                      child: Ink(
-                        child: InkWell(
-                            onTap: () {
-                              Navigator.pushNamed(context, '/reset_password');
-                            },
-                            child: Text("Já possuo um código",
-                                style: TextStyles.input)),
-                      ),
-                    ),
-                  ),
+                  TextInputWidget(
+                      label: "Senha",
+                      passwordType: true,
+                      onChanged: (value) {
+                        _resetPasswordController.onChange(password: value);
+                      },
+                      controller: _password,
+                      validator: _resetPasswordController.validatePassword),
+                  TextInputWidget(
+                      label: "Confirme a senha",
+                      passwordType: true,
+                      onChanged: (value) {
+                        _resetPasswordController.onChange(
+                            confirmPassword: value);
+                      },
+                      controller: _confirmPassword,
+                      validator: (value) => _resetPasswordController
+                          .validateConfirmPassword(value, _password.text)),
                   const SizedBox(
                     height: 30,
                   ),

@@ -12,6 +12,7 @@ import 'package:mobile/modules/login/login_page.dart';
 import 'package:mobile/modules/notifications/notifications_page.dart';
 import 'package:mobile/modules/profile/profile_page.dart';
 import 'package:mobile/modules/register/register_page.dart';
+import 'package:mobile/modules/reset_password/reset_password_page.dart';
 import 'package:mobile/modules/splash/splash_page.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         "/login": (context) => const LoginPage(),
         "/register": (context) => const RegisterPage(),
         "/forgot_password": (context) => const ForgotPasswordPage(),
+        "/reset_password": (context) => const ResetPasswordPage(),
         "/devices": (context) => const DevicesPage(),
         "/device": (context) => DevicePage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
