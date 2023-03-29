@@ -107,6 +107,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ],
                     )),
                 const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: Align(
+                    alignment: FractionalOffset.bottomRight,
+                    child: Ink(
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/forgot_password');
+                          },
+                          child: Text("Esqueceu a senha?",
+                              style: TextStyles.input)),
+                    ),
+                  ),
+                ),
+                const SizedBox(
                   height: 30,
                 ),
                 LabelButtonWidget(
