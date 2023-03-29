@@ -1,42 +1,41 @@
 import 'package:dio/dio.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/modules/register/register_controller.dart';
-import 'package:mobile/shared/themes/app_colors.dart';
-import 'package:mobile/shared/themes/app_text_styles.dart';
+import 'package:mobile/modules/change_password/change_password_controller.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
+import '../../shared/themes/app_colors.dart';
+import '../../shared/themes/app_text_styles.dart';
 import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class ChangePasswordPage extends StatefulWidget {
+  const ChangePasswordPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<ChangePasswordPage> createState() => _ChangePasswordState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final _registerController = RegisterController();
+class _ChangePasswordState extends State<ChangePasswordPage> {
+  final _changePasswordController = ChangePasswordController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
   bool loading = false;
 
-  Future<void> handleSignUp() async {
+  Future<void> handleChangePassword() async {
     try {
       setState(() {
         loading = true;
       });
 
-      final res = await _registerController.createUser();
+      final res = await _changePasswordController.createNewPassword();
 
       if (res != null) {
         _password.clear();
         _confirmPassword.clear();
         if (!mounted) return;
         GlobalSnackBar.show(context,
-            res.message != "" ? res.message : "Usuário criado com sucesso!");
+            res.message != "" ? res.message : "Senha alterada com sucesso!");
       }
     } catch (e) {
       print(e);
@@ -68,7 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
           elevation: 0,
           iconTheme: const IconThemeData(color: AppColors.primary),
           title: Text(
-            "Cadastro",
+            "Alterar senha",
             style: TextStyles.register,
           ),
           centerTitle: true,
@@ -77,51 +76,44 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Form(
-              key: _registerController.formKey,
+              key: _changePasswordController.formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   TextInputWidget(
-                    label: "Nome",
+                    label: "Senha antiga",
+                    passwordType: true,
                     onChanged: (value) {
-                      _registerController.onChange(name: value);
+                      _changePasswordController.onChange(oldPassword: value);
                     },
-                    validator: _registerController.validateName,
+                    validator: _changePasswordController.validatePassword,
                   ),
                   TextInputWidget(
-                    label: "E-mail",
-                    onChanged: (value) {
-                      _registerController.onChange(email: value);
-                    },
-                    validator: (value) => EmailValidator.validate(value ?? '')
-                        ? null
-                        : "Insira um e-mail válido",
-                  ),
-                  TextInputWidget(
-                      label: "Senha",
+                      label: "Nova senha",
                       passwordType: true,
                       onChanged: (value) {
-                        _registerController.onChange(password: value);
+                        _changePasswordController.onChange(password: value);
                       },
                       controller: _password,
-                      validator: _registerController.validatePassword),
+                      validator: _changePasswordController.validatePassword),
                   TextInputWidget(
                       label: "Confirme a senha",
                       passwordType: true,
                       onChanged: (value) {
-                        _registerController.onChange(confirmPassword: value);
+                        _changePasswordController.onChange(
+                            confirmPassword: value);
                       },
                       controller: _confirmPassword,
-                      validator: (value) => _registerController
+                      validator: (value) => _changePasswordController
                           .validateConfirmPassword(value, _password.text)),
                   const SizedBox(
                     height: 30,
                   ),
                   LabelButtonWidget(
                       onLoading: loading,
-                      label: 'CADASTRAR',
-                      onPressed: handleSignUp),
+                      label: 'ALTERAR',
+                      onPressed: handleChangePassword),
                 ],
               ),
             ),

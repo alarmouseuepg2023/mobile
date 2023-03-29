@@ -5,4 +5,6 @@ class AppColors {
   static const secondary = Color(0xFF004B80);
   static const darker = Color(0xFF004B80);
   static const text = Color(0xFF303030);
+  static const textFaded = Color(0xFF747474);
+  static const warning = Color.fromARGB(255, 182, 51, 51);
 }

@@ -41,4 +41,49 @@ class TextStyles {
     fontWeight: FontWeight.w600,
     color: AppColors.primary,
   );
+  static final profileEmail = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textFaded,
+  );
+  static final profileMenuItem = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
+  static final deviceCardName = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
+  static final deviceStatusSub = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textFaded,
+  );
+  static final deviceCardStatus = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
+  static final deviceCardOwnership = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textFaded,
+  );
+  static final deviceActivities = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
+  static final inviteAGuest = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
+  static final pinInput = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
 }

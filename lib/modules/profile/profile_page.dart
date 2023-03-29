@@ -13,6 +13,11 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
+  void handleSignOut() {
+    ref.read(authProvider).clearUser();
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -39,20 +44,48 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             height: 20,
           ),
           Center(
-              child: Text("Henrique Hartmann", style: TextStyles.profileName)),
+              child: Text(ref.watch(authProvider).user!.name,
+                  style: TextStyles.profileName)),
+          Center(
+              child: Text(
+                  ref.watch(authProvider).user!.email ?? "matusas@email.com",
+                  style: TextStyles.profileEmail)),
           const SizedBox(
             height: 30,
           ),
-          Column(),
+          Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, "/change_password");
+                },
+                child: Ink(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.lock,
+                            size: 30, color: AppColors.primary),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Alterar senha",
+                          style: TextStyles.profileMenuItem,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           Expanded(child: Container()),
           LabelButtonWidget(
               label: "SAIR",
               reversed: true,
               style: TextStyles.primaryLabel,
-              onPressed: () {
-                ref.read(authProvider).clearUser();
-                Navigator.pushReplacementNamed(context, '/login');
-              }),
+              onPressed: handleSignOut),
         ],
       ),
     );

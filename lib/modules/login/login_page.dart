@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/modules/login/login_controller.dart';
 import 'package:mobile/providers/auth/auth_provider.dart';
-import 'package:mobile/shared/models/Response/response_model.dart';
+import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/models/User/user_model.dart';
 import 'package:mobile/shared/themes/app_text_styles.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
@@ -106,6 +106,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             }),
                       ],
                     )),
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: Align(
+                    alignment: FractionalOffset.bottomRight,
+                    child: Ink(
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/forgot_password');
+                          },
+                          child: Text("Esqueceu a senha?",
+                              style: TextStyles.input)),
+                    ),
+                  ),
+                ),
                 const SizedBox(
                   height: 30,
                 ),

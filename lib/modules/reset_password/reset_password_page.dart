@@ -1,27 +1,29 @@
 import 'package:dio/dio.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/modules/register/register_controller.dart';
-import 'package:mobile/shared/themes/app_colors.dart';
-import 'package:mobile/shared/themes/app_text_styles.dart';
+import 'package:mobile/modules/reset_password/reset_password_controller.dart';
+import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
+import '../../shared/themes/app_colors.dart';
+import '../../shared/themes/app_text_styles.dart';
 import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final _registerController = RegisterController();
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
+  bool loading = false;
+  final _resetPasswordController = ResetPasswordContorller();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
-  bool loading = false;
+  final TextEditingController _pin = TextEditingController();
 
   Future<void> handleSignUp() async {
     try {
@@ -29,14 +31,15 @@ class _RegisterPageState extends State<RegisterPage> {
         loading = true;
       });
 
-      final res = await _registerController.createUser();
+      final res = await _resetPasswordController.createResetPassword();
 
       if (res != null) {
         _password.clear();
         _confirmPassword.clear();
+        _pin.clear();
         if (!mounted) return;
         GlobalSnackBar.show(context,
-            res.message != "" ? res.message : "Usuário criado com sucesso!");
+            res.message != "" ? res.message : "Senha redefinida com sucesso!");
       }
     } catch (e) {
       print(e);
@@ -68,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
           elevation: 0,
           iconTheme: const IconThemeData(color: AppColors.primary),
           title: Text(
-            "Cadastro",
+            "Redefinir a senha",
             style: TextStyles.register,
           ),
           centerTitle: true,
@@ -77,22 +80,28 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Form(
-              key: _registerController.formKey,
+              key: _resetPasswordController.formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  TextInputWidget(
-                    label: "Nome",
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  PinInputWidget(
+                    validator: _resetPasswordController.validatePin,
+                    controller: _pin,
                     onChanged: (value) {
-                      _registerController.onChange(name: value);
+                      _resetPasswordController.onChange(pin: value);
                     },
-                    validator: _registerController.validateName,
+                  ),
+                  const SizedBox(
+                    height: 50,
                   ),
                   TextInputWidget(
                     label: "E-mail",
                     onChanged: (value) {
-                      _registerController.onChange(email: value);
+                      _resetPasswordController.onChange(email: value);
                     },
                     validator: (value) => EmailValidator.validate(value ?? '')
                         ? null
@@ -102,25 +111,26 @@ class _RegisterPageState extends State<RegisterPage> {
                       label: "Senha",
                       passwordType: true,
                       onChanged: (value) {
-                        _registerController.onChange(password: value);
+                        _resetPasswordController.onChange(password: value);
                       },
                       controller: _password,
-                      validator: _registerController.validatePassword),
+                      validator: _resetPasswordController.validatePassword),
                   TextInputWidget(
                       label: "Confirme a senha",
                       passwordType: true,
                       onChanged: (value) {
-                        _registerController.onChange(confirmPassword: value);
+                        _resetPasswordController.onChange(
+                            confirmPassword: value);
                       },
                       controller: _confirmPassword,
-                      validator: (value) => _registerController
+                      validator: (value) => _resetPasswordController
                           .validateConfirmPassword(value, _password.text)),
                   const SizedBox(
                     height: 30,
                   ),
                   LabelButtonWidget(
                       onLoading: loading,
-                      label: 'CADASTRAR',
+                      label: 'ENVIAR',
                       onPressed: handleSignUp),
                 ],
               ),
