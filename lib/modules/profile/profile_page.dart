@@ -56,28 +56,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           Column(
             children: [
               InkWell(
-                onTap: () {},
-                child: Ink(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.notifications,
-                            size: 30, color: AppColors.primary),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "Notificações",
-                          style: TextStyles.profileMenuItem,
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, "/change_password");
+                },
                 child: Ink(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
