@@ -3,15 +3,16 @@
 class ServerResponse {
   final String message;
   final bool success;
+  final bool? content;
 
-  ServerResponse({
-    required this.message,
-    required this.success,
-  });
+  ServerResponse({required this.message, required this.success, this.content});
 
-  factory ServerResponse.fromJson(Map<String, dynamic> json) =>
-      ServerResponse(message: json['message'], success: json['success']);
+  factory ServerResponse.fromJson(Map<String, dynamic> json) => ServerResponse(
+      message: json['message'],
+      success: json['success'],
+      content: json['content']);
 
   @override
-  String toString() => '{ message: $message, success: $success }';
+  String toString() =>
+      '{ message: $message, success: $success, content: $content }';
 }
