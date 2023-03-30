@@ -2,7 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/device/device_controller.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
+import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
@@ -102,6 +104,44 @@ class _DevicePageState extends State<DevicePage> {
         builder: (BuildContext bc) {
           return StatefulBuilder(
               builder: (BuildContext context, StateSetter bottomState) {
+            if (feature == 'STATUS') {
+              return Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      left: 20,
+                      right: 20,
+                      top: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Insira a senha do dispositivo",
+                        style: TextStyles.inviteAGuest,
+                      ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: deviceController.statusFormKey,
+                        child: PinInputWidget(
+                          onChanged: (value) =>
+                              deviceController.onChangeStatus(password: value),
+                          validator: validatePin,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      LabelButtonWidget(
+                          label: "ENVIAR",
+                          onLoading: loading,
+                          onPressed: () {
+                            handleInvite(bottomState);
+                          }),
+                      const SizedBox(
+                        height: 30,
+                      )
+                    ],
+                  ));
+            }
             if (feature == 'SHARE') {
               return Padding(
                   padding: EdgeInsets.only(
@@ -118,12 +158,12 @@ class _DevicePageState extends State<DevicePage> {
                       ),
                       const SizedBox(height: 30),
                       Form(
-                        key: deviceController.formKey,
+                        key: deviceController.inviteFormKey,
                         child: TextInputWidget(
                             label: "E-mail",
-                            validator: deviceController.validateEmail,
+                            validator: validateEmail,
                             onChanged: (value) {
-                              deviceController.onChange(email: value);
+                              deviceController.onChangeInvite(email: value);
                             }),
                       ),
                       const SizedBox(
@@ -161,14 +201,14 @@ class _DevicePageState extends State<DevicePage> {
                         child: Column(children: [
                           TextInputWidget(
                               label: "Nome da rede",
-                              validator: deviceController.validateSsid,
+                              validator: validateSsid,
                               onChanged: (value) {
                                 deviceController.onChangeWifi(ssid: value);
                               }),
                           TextInputWidget(
                               label: "Senha",
                               passwordType: true,
-                              validator: deviceController.validatePassword,
+                              validator: validatePassword,
                               onChanged: (value) {
                                 deviceController.onChangeWifi(password: value);
                               }),
@@ -209,7 +249,7 @@ class _DevicePageState extends State<DevicePage> {
                         child: Column(children: [
                           TextInputWidget(
                               label: "Senha antiga",
-                              validator: deviceController.validatePassword,
+                              validator: validatePassword,
                               passwordType: true,
                               onChanged: (value) {
                                 deviceController.onChangePassword(
@@ -217,7 +257,7 @@ class _DevicePageState extends State<DevicePage> {
                               }),
                           TextInputWidget(
                               label: "Nova senha",
-                              validator: deviceController.validatePassword,
+                              validator: validatePassword,
                               passwordType: true,
                               controller: _password,
                               onChanged: (value) {
@@ -226,9 +266,8 @@ class _DevicePageState extends State<DevicePage> {
                               }),
                           TextInputWidget(
                               label: "Confirme a nova senha",
-                              validator: (value) =>
-                                  deviceController.validateConfirmPassword(
-                                      value, _password.text),
+                              validator: (value) => validateConfirmPassword(
+                                  value, _password.text),
                               passwordType: true,
                               controller: _confirmPassword,
                               onChanged: (value) {
@@ -285,7 +324,9 @@ class _DevicePageState extends State<DevicePage> {
                 child: Ink(
                   child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(50)),
-                      onTap: () {},
+                      onTap: () {
+                        showBottomSheet(context, 'STATUS');
+                      },
                       child: const Icon(Icons.power_settings_new,
                           color: AppColors.primary, size: 100)),
                 ),
