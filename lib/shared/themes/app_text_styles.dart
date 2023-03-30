@@ -81,6 +81,11 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );
+  static final inviteAGuestBold = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
   static final pinInput = GoogleFonts.notoSans(
     fontSize: 20,
     fontWeight: FontWeight.w600,

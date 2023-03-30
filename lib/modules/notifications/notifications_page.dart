@@ -6,6 +6,8 @@ import 'package:mobile/shared/widgets/notification_card/notification_card_widget
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
+import '../../shared/themes/app_text_styles.dart';
+import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/snackbar/snackbar_widget.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -96,6 +98,50 @@ class _NotificationsPageState extends State<NotificationsPage> {
     getNotifications();
   }
 
+  void showBottomSheet(context, NotificationModel notification) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext bc) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter bottomState) {
+            return Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                    left: 20,
+                    right: 20,
+                    top: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text.rich(
+                      TextSpan(children: [
+                        TextSpan(
+                            text: 'Convite para ',
+                            style: TextStyles.inviteAGuest),
+                        TextSpan(
+                            text: notification.device.nickname,
+                            style: TextStyles.inviteAGuestBold)
+                      ]),
+                    ),
+                    const SizedBox(height: 30),
+                    LabelButtonWidget(
+                        label: "ACEITAR", onLoading: loading, onPressed: () {}),
+                    const SizedBox(height: 20),
+                    LabelButtonWidget(
+                        label: "REJEITAR",
+                        reversed: true,
+                        onLoading: loading,
+                        onPressed: () {}),
+                    const SizedBox(
+                      height: 30,
+                    )
+                  ],
+                ));
+          });
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -114,7 +160,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   final notification = notifications[index];
                   return Column(children: [
                     NotificationCardWidget(
-                        notification: notification, onTap: () {}),
+                        notification: notification,
+                        onTap: () {
+                          showBottomSheet(context, notification);
+                        }),
                     const SizedBox(
                       height: 20,
                     )
