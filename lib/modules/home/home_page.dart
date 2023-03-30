@@ -1,13 +1,18 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/home/home_controller.dart';
+import 'package:mobile/modules/notifications/notifications_controller.dart';
 import 'package:mobile/modules/notifications/notifications_page.dart';
 import 'package:mobile/modules/profile/profile_page.dart';
 import 'package:mobile/providers/auth/auth_provider.dart';
+import 'package:mobile/providers/notifications/notifications_provider.dart';
 
+import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
+import '../../shared/widgets/snackbar/snackbar_widget.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -18,8 +23,38 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final _homeController = HomeController();
+  final _notificationsController = NotificationsController();
 
   String displayUserName(String name) => name.split(" ")[0];
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      getNotifications();
+    });
+    super.initState();
+  }
+
+  Future<void> getNotifications() async {
+    try {
+      final res = await _notificationsController.getNotifications(0, 10);
+
+      ref.read(notificationsProvider).setNotifications(res.content.totalItems);
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+
+        GlobalSnackBar.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao recuperar as notificações.");
+      } else {
+        GlobalSnackBar.show(
+            context, "Ocorreu um erro ao recuperar as notificações.");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,16 +124,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ? AppColors.primary
                           : AppColors.text,
                     ),
-                    Positioned(
-                        right: 0,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              color: AppColors.warning,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
-                          height: 10,
-                          width: 10,
-                        ))
+                    ref.watch(notificationsProvider).notificationsCount != 0
+                        ? Positioned(
+                            right: 0,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                  color: AppColors.warning,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              height: 10,
+                              width: 10,
+                            ))
+                        : const SizedBox()
                   ]),
                 )),
                 Ink(
