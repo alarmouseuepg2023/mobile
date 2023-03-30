@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/notifications/notifications_controller.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
+import 'package:mobile/shared/widgets/notification_card/notification_card_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
@@ -112,8 +113,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 if (index < notifications.length) {
                   final notification = notifications[index];
                   return Column(children: [
-                    Text(
-                        "${notification.device.nickname} ${notification.inviter.name}"),
+                    NotificationCardWidget(
+                        notification: notification, onTap: () {}),
                     const SizedBox(
                       height: 20,
                     )
