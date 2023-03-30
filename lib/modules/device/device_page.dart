@@ -22,6 +22,8 @@ class _DevicePageState extends State<DevicePage> {
   final deviceController = DeviceController();
   bool loading = false;
   bool bottomload = false;
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _confirmPassword = TextEditingController();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
@@ -46,10 +48,43 @@ class _DevicePageState extends State<DevicePage> {
             context,
             response.message != ""
                 ? response.message
-                : "Ocorreu um erro ao entrar. Tente novamente.");
+                : "Ocorreu um erro ao alterar a rede Wifi. Tente novamente.");
+      } else {
+        GlobalSnackBar.show(context,
+            "Ocorreu um erro ao alterar a rede Wifi. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+
+      bottomState(() {});
+    }
+  }
+
+  Future<void> handleChangePassword(StateSetter bottomState) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      bottomState(() {});
+      final res = await deviceController.changePassword(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+        GlobalSnackBar.show(context,
+            res.message != "" ? res.message : "Senha alterada com sucesso!");
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalSnackBar.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao alterar a senha. Tente novamente.");
       } else {
         GlobalSnackBar.show(
-            context, "Ocorreu um erro ao entrar. Tente novamente.");
+            context, "Ocorreu um erro ao alterar a senha. Tente novamente.");
       }
     } finally {
       setState(() {
@@ -170,25 +205,35 @@ class _DevicePageState extends State<DevicePage> {
                       ),
                       const SizedBox(height: 30),
                       Form(
-                        key: deviceController.formKey,
+                        key: deviceController.passwordFormKey,
                         child: Column(children: [
                           TextInputWidget(
                               label: "Senha antiga",
-                              validator: deviceController.validateEmail,
+                              validator: deviceController.validatePassword,
+                              passwordType: true,
                               onChanged: (value) {
-                                deviceController.onChange(email: value);
+                                deviceController.onChangePassword(
+                                    oldPassword: value);
                               }),
                           TextInputWidget(
                               label: "Nova senha",
-                              validator: deviceController.validateEmail,
+                              validator: deviceController.validatePassword,
+                              passwordType: true,
+                              controller: _password,
                               onChanged: (value) {
-                                deviceController.onChange(email: value);
+                                deviceController.onChangePassword(
+                                    password: value);
                               }),
                           TextInputWidget(
                               label: "Confirme a nova senha",
-                              validator: deviceController.validateEmail,
+                              validator: (value) =>
+                                  deviceController.validateConfirmPassword(
+                                      value, _password.text),
+                              passwordType: true,
+                              controller: _confirmPassword,
                               onChanged: (value) {
-                                deviceController.onChange(email: value);
+                                deviceController.onChangePassword(
+                                    confirmPassword: value);
                               }),
                         ]),
                       ),
@@ -199,7 +244,7 @@ class _DevicePageState extends State<DevicePage> {
                           label: "ALTERAR",
                           onLoading: loading,
                           onPressed: () {
-                            handleInvite(bottomState);
+                            handleChangePassword(bottomState);
                           }),
                       const SizedBox(
                         height: 30,
