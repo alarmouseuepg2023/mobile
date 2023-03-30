@@ -3,7 +3,7 @@ import 'package:mobile/shared/models/Notifications/notification_model.dart';
 
 class NotificationsList {
   final int totalItems;
-  final List<Notification> items;
+  final List<NotificationModel> items;
 
   NotificationsList({
     required this.totalItems,
@@ -14,7 +14,7 @@ class NotificationsList {
       NotificationsList(
           totalItems: json['totalItems'],
           items: List<dynamic>.from(json['items'])
-              .map((item) => Notification.fromJson(item))
+              .map((item) => NotificationModel.fromJson(item))
               .toList());
 
   @override

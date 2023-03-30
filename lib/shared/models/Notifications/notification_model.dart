@@ -3,20 +3,21 @@
 import 'package:mobile/shared/models/Notifications/notification_inviter_model.dart';
 import 'package:mobile/shared/models/Notifications/notifications_device_model.dart';
 
-class Notification {
+class NotificationModel {
   final String id;
   final NotificationDevice device;
   final String invitedAt;
   final NotificationInviter inviter;
 
-  Notification({
+  NotificationModel({
     required this.id,
     required this.device,
     required this.invitedAt,
     required this.inviter,
   });
 
-  factory Notification.fromJson(Map<String, dynamic> json) => Notification(
+  factory NotificationModel.fromJson(Map<String, dynamic> json) =>
+      NotificationModel(
         id: json['id'],
         device: NotificationDevice.fromJson(json['device']),
         invitedAt: json['invitedAt'],
