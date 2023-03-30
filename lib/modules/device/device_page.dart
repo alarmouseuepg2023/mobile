@@ -41,7 +41,7 @@ class _DevicePageState extends State<DevicePage> {
       if (res != null) {
         if (!mounted) return;
         GlobalSnackBar.show(context,
-            res.message != "" ? res.message : "Usuário criado com sucesso!");
+            res.message != "" ? res.message : "Usuário convidado com sucesso!");
       }
     } catch (e) {
       if (e is DioError) {
@@ -122,6 +122,7 @@ class _DevicePageState extends State<DevicePage> {
                       Form(
                         key: deviceController.statusFormKey,
                         child: PinInputWidget(
+                          autoFocus: true,
                           onChanged: (value) =>
                               deviceController.onChangeStatus(password: value),
                           validator: validatePin,

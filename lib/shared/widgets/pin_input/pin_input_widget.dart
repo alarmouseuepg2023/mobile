@@ -7,13 +7,15 @@ class PinInputWidget extends StatelessWidget {
   final Function(String?) onChanged;
   final Function(String?)? onComplete;
   final String? Function(String?)? validator;
+  final bool? autoFocus;
   final TextEditingController? controller;
   const PinInputWidget(
       {super.key,
       required this.onChanged,
       this.onComplete,
       required this.validator,
-      this.controller});
+      this.controller,
+      this.autoFocus});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,7 @@ class PinInputWidget extends StatelessWidget {
       validator: validator,
       length: 6,
       onChanged: onChanged,
+      autofocus: autoFocus ?? false,
       onCompleted: onComplete,
       controller: controller,
       defaultPinTheme: PinTheme(
