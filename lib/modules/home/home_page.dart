@@ -34,7 +34,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                 flexibleSpace: Container(
                     decoration: const BoxDecoration(color: AppColors.primary)),
               )
-            : null,
+            : _homeController.currentPage == 1
+                ? AppBar(
+                    title: Text("Notificações", style: TextStyles.welcome),
+                    automaticallyImplyLeading: false,
+                    flexibleSpace: Container(
+                        decoration:
+                            const BoxDecoration(color: AppColors.primary)),
+                  )
+                : null,
         body: [
           DevicesPage(key: UniqueKey()),
           NotificationsPage(key: UniqueKey()),
