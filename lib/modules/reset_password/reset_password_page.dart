@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/reset_password/reset_password_controller.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
@@ -89,7 +90,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     height: 50,
                   ),
                   PinInputWidget(
-                    validator: _resetPasswordController.validatePin,
+                    validator: validatePin,
                     controller: _pin,
                     onChanged: (value) {
                       _resetPasswordController.onChange(pin: value);
@@ -114,7 +115,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         _resetPasswordController.onChange(password: value);
                       },
                       controller: _password,
-                      validator: _resetPasswordController.validatePassword),
+                      validator: validatePassword),
                   TextInputWidget(
                       label: "Confirme a senha",
                       passwordType: true,
@@ -123,8 +124,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             confirmPassword: value);
                       },
                       controller: _confirmPassword,
-                      validator: (value) => _resetPasswordController
-                          .validateConfirmPassword(value, _password.text)),
+                      validator: (value) =>
+                          validateConfirmPassword(value, _password.text)),
                   const SizedBox(
                     height: 30,
                   ),

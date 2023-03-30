@@ -9,6 +9,7 @@ import 'package:mobile/providers/auth/auth_provider.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/models/User/user_model.dart';
 import 'package:mobile/shared/themes/app_text_styles.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 import 'package:mobile/shared/widgets/text_input/text_input.dart';
 
@@ -93,14 +94,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       children: [
                         TextInputWidget(
                             label: "E-mail",
-                            validator: _loginController.validateEmail,
+                            validator: validateEmail,
                             onChanged: (value) {
                               _loginController.onChange(email: value);
                             }),
                         TextInputWidget(
                             label: "Senha",
                             passwordType: true,
-                            validator: _loginController.validatePassword,
+                            validator: validatePassword,
                             onChanged: (value) {
                               _loginController.onChange(password: value);
                             }),

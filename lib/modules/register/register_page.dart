@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/modules/register/register_controller.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/themes/app_text_styles.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/widgets/label_button/label_button.dart';
@@ -87,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     onChanged: (value) {
                       _registerController.onChange(name: value);
                     },
-                    validator: _registerController.validateName,
+                    validator: validateName,
                   ),
                   TextInputWidget(
                     label: "E-mail",
@@ -105,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         _registerController.onChange(password: value);
                       },
                       controller: _password,
-                      validator: _registerController.validatePassword),
+                      validator: validatePassword),
                   TextInputWidget(
                       label: "Confirme a senha",
                       passwordType: true,
@@ -113,8 +114,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         _registerController.onChange(confirmPassword: value);
                       },
                       controller: _confirmPassword,
-                      validator: (value) => _registerController
-                          .validateConfirmPassword(value, _password.text)),
+                      validator: (value) =>
+                          validateConfirmPassword(value, _password.text)),
                   const SizedBox(
                     height: 30,
                   ),

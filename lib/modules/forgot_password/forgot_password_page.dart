@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/forgot_password/forgot_password_controller.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
@@ -79,14 +79,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   TextInputWidget(
-                    label: "E-mail",
-                    onChanged: (value) {
-                      _forgotPasswordController.onChange(email: value);
-                    },
-                    validator: (value) => EmailValidator.validate(value ?? '')
-                        ? null
-                        : "Insira um e-mail válido",
-                  ),
+                      label: "E-mail",
+                      onChanged: (value) {
+                        _forgotPasswordController.onChange(email: value);
+                      },
+                      validator: validateEmail),
                   const SizedBox(
                     height: 10,
                   ),
