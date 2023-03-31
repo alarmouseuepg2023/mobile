@@ -27,6 +27,17 @@ String? validateConfirmPassword(String? value, String? passwordValue) {
   return null;
 }
 
+String? validateConfirmPin(String? value, String? passwordValue) {
+  if (value!.isEmpty) return "O código não pode ser vazio";
+
+  if (value.length < 6) {
+    return "O código deve ter 6 dígitos";
+  }
+  if (value != passwordValue) return "As senhas não coincidem";
+
+  return null;
+}
+
 String? validateSsid(String? value) =>
     value?.isEmpty ?? true ? "O nome da rede não pode ser vazio" : null;
 
