@@ -8,6 +8,7 @@ import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/events/events_page.dart';
 import 'package:mobile/modules/forgot_password/forgot_password_page.dart';
 import 'package:mobile/modules/home/home_page.dart';
+import 'package:mobile/modules/invite/invite_page.dart';
 import 'package:mobile/modules/login/login_page.dart';
 import 'package:mobile/modules/notifications/notifications_page.dart';
 import 'package:mobile/modules/profile/profile_page.dart';
@@ -15,6 +16,7 @@ import 'package:mobile/modules/register/register_page.dart';
 import 'package:mobile/modules/reset_password/reset_password_page.dart';
 import 'package:mobile/modules/splash/splash_page.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
+import 'package:mobile/shared/models/Notifications/notification_model.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -47,6 +49,10 @@ class MyApp extends StatelessWidget {
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
         "/notifications": (context) => const NotificationsPage(),
+        "/invite": (context) => InvitePage(
+              notification: ModalRoute.of(context)!.settings.arguments
+                  as NotificationModel,
+            ),
         "/profile": (context) => const ProfilePage(),
         "/change_password": (context) => const ChangePasswordPage(),
       },

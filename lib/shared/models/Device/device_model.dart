@@ -7,7 +7,7 @@ class Device {
   final String status;
   final String macAddress;
   final String wifiSsid;
-  final String ownerName;
+  //final String ownerName;
 
   Device({
     required this.id,
@@ -16,7 +16,7 @@ class Device {
     required this.wifiSsid,
     required this.role,
     required this.status,
-    required this.ownerName,
+    // required this.ownerName,
   });
 
   factory Device.fromJson(Map<String, dynamic> json) => Device(
@@ -26,11 +26,11 @@ class Device {
         nickname: json['nickname'],
         role: json['role'],
         status: json['status'],
-        ownerName: json['ownerName'],
+        // ownerName: json['ownerName'],
       );
 
   @override
   String toString() {
-    return '{ id: $id, nickname: $nickname, wifiSsid: $wifiSsid, macAddress: $macAddress, role: $role, status: $status, ownerName: $ownerName }';
+    return '{ id: $id, nickname: $nickname, wifiSsid: $wifiSsid, macAddress: $macAddress, role: $role, status: $status }';
   }
 }
