@@ -55,4 +55,16 @@ class InviteController {
     }
     return null;
   }
+
+  bool validateStepInput(bool answer) {
+    if (answer) {
+      final form = acceptFormKey.currentState;
+      if (form!.validate()) return true;
+    } else {
+      final form = rejectFormKey.currentState;
+      if (form!.validate()) return true;
+    }
+
+    return false;
+  }
 }
