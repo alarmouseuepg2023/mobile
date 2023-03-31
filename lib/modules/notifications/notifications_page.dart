@@ -2,7 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/notifications/notifications_controller.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/notification_card/notification_card_widget.dart';
+import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
+import 'package:mobile/shared/widgets/text_input/text_input.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
@@ -19,6 +22,8 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   final _notificationsController = NotificationsController();
+  final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
   bool loading = false;
   List<NotificationModel> notifications = [];
   int totalItems = 0;
@@ -26,6 +31,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   int _pageNumber = 0;
   final int _size = 10;
   final scrollController = ScrollController();
+  int _answerMode = 0;
 
   @override
   void initState() {
@@ -87,6 +93,48 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
   }
 
+  Future<void> handleAnswerInvite(bool answer, String notificationId) async {
+    if (!mounted || loading) return;
+    try {
+      setState(() {
+        loading = true;
+      });
+
+      if (answer) {
+        await _notificationsController.acceptInvite();
+      } else {
+        await _notificationsController.rejectInvite();
+      }
+      if (!mounted) return;
+      setState(() {
+        notifications.removeWhere((item) => item.id == notificationId);
+        totalItems = totalItems - 1;
+      });
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+
+        GlobalSnackBar.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao responder ao convite.");
+      } else {
+        GlobalSnackBar.show(
+            context, "Ocorreu um erro ao responder ao convite.");
+      }
+    } finally {
+      // ignore: control_flow_in_finally
+      if (!mounted) return;
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  String getBottomTitle(int mode) =>
+      mode == 1 ? 'Aceitar convite' : 'Rejeitar convite';
+
   Future refresh() async {
     setState(() {
       loading = false;
@@ -114,31 +162,149 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text.rich(
-                      TextSpan(children: [
-                        TextSpan(
-                            text: 'Convite para ',
-                            style: TextStyles.inviteAGuest),
-                        TextSpan(
-                            text: notification.device.nickname,
-                            style: TextStyles.inviteAGuestBold)
-                      ]),
+                    SizedBox(
+                      width: double.maxFinite,
+                      child: Stack(
+                        children: [
+                          _answerMode != 0
+                              ? Ink(
+                                  child: InkWell(
+                                    onTap: (() {
+                                      bottomState(() {
+                                        _answerMode = 0;
+                                      });
+                                    }),
+                                    child: const Icon(
+                                      Icons.arrow_back,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox(),
+                          Align(
+                            alignment: FractionalOffset.center,
+                            child: _answerMode == 0
+                                ? Text.rich(
+                                    TextSpan(children: [
+                                      TextSpan(
+                                          text: 'Convite para ',
+                                          style: TextStyles.inviteAGuest),
+                                      TextSpan(
+                                          text: notification.device.nickname,
+                                          style: TextStyles.inviteAGuestBold)
+                                    ]),
+                                  )
+                                : Text(
+                                    getBottomTitle(_answerMode),
+                                    style: TextStyles.inviteAGuest,
+                                  ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 30),
-                    LabelButtonWidget(
-                        label: "ACEITAR", onLoading: loading, onPressed: () {}),
-                    const SizedBox(height: 20),
-                    LabelButtonWidget(
-                        label: "REJEITAR",
-                        reversed: true,
-                        onLoading: loading,
-                        onPressed: () {}),
-                    const SizedBox(
-                      height: 30,
-                    )
+                    _answerMode == 0
+                        ? Column(
+                            children: [
+                              LabelButtonWidget(
+                                  label: "ACEITAR",
+                                  onLoading: loading,
+                                  onPressed: () {
+                                    _notificationsController.onChangeAccept(
+                                        id: notification.id);
+                                    bottomState(() {
+                                      _answerMode = 1;
+                                    });
+                                  }),
+                              const SizedBox(height: 20),
+                              LabelButtonWidget(
+                                  label: "REJEITAR",
+                                  reversed: true,
+                                  onLoading: loading,
+                                  onPressed: () {
+                                    _notificationsController.onChangeReject(
+                                        id: notification.id);
+                                    bottomState(() {
+                                      _answerMode = 2;
+                                    });
+                                  }),
+                              const SizedBox(
+                                height: 30,
+                              )
+                            ],
+                          )
+                        : _answerMode == 1
+                            ? Column(
+                                children: [
+                                  PinInputWidget(
+                                      onChanged: (value) {
+                                        _notificationsController.onChangeAccept(
+                                            token: value);
+                                      },
+                                      validator: validatePin),
+                                  const SizedBox(height: 20),
+                                  TextInputWidget(
+                                      label: "Senha",
+                                      passwordType: true,
+                                      validator: validatePassword,
+                                      onChanged: (value) {
+                                        _notificationsController.onChangeAccept(
+                                            password: value);
+                                      }),
+                                  TextInputWidget(
+                                      label: "Confirme a senha",
+                                      passwordType: true,
+                                      validator: (value) =>
+                                          validateConfirmPassword(
+                                              value, _password.text),
+                                      onChanged: (value) {
+                                        _notificationsController.onChangeAccept(
+                                            confirmPassword: value);
+                                      }),
+                                  const SizedBox(height: 20),
+                                  LabelButtonWidget(
+                                      label: "ACEITAR",
+                                      onLoading: loading,
+                                      onPressed: () {
+                                        handleAnswerInvite(
+                                            true, notification.id);
+                                      }),
+                                  const SizedBox(
+                                    height: 30,
+                                  )
+                                ],
+                              )
+                            : _answerMode == 2
+                                ? Column(
+                                    children: [
+                                      PinInputWidget(
+                                          onChanged: (value) {
+                                            _notificationsController
+                                                .onChangeReject(token: value);
+                                          },
+                                          validator: validatePin),
+                                      const SizedBox(height: 20),
+                                      LabelButtonWidget(
+                                          label: "REJEITAR",
+                                          reversed: true,
+                                          onLoading: loading,
+                                          onPressed: () {
+                                            handleAnswerInvite(
+                                                false, notification.id);
+                                          }),
+                                      const SizedBox(
+                                        height: 30,
+                                      )
+                                    ],
+                                  )
+                                : const SizedBox()
                   ],
                 ));
           });
+        }).whenComplete(() => {
+          setState(() {
+            _answerMode = 0;
+          })
         });
   }
 
