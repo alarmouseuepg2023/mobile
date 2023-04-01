@@ -92,7 +92,7 @@ class TextStyles {
     color: AppColors.primary,
   );
   static final inviteText = GoogleFonts.notoSans(
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );

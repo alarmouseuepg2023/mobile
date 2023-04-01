@@ -17,6 +17,7 @@ import 'package:mobile/modules/reset_password/reset_password_page.dart';
 import 'package:mobile/modules/splash/splash_page.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
+import 'package:mobile/shared/themes/app_colors.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -32,6 +33,10 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
           primarySwatch: Colors.blue,
+          primaryColor: AppColors.primary,
+          colorScheme: Theme.of(context)
+              .colorScheme
+              .copyWith(primary: AppColors.primary),
           textTheme: GoogleFonts.notoSansTextTheme()),
       initialRoute: "/splash",
       routes: {
