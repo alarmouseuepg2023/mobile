@@ -4,13 +4,13 @@ import 'package:mobile/modules/invite/invite_controller.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
 import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/step_button/step_button_widget.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/pin_input/pin_input_widget.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
 
 class InvitePage extends StatefulWidget {
   final NotificationModel notification;
@@ -44,14 +44,13 @@ class _InviteAcceptPageState extends State<InvitePage> {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
 
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
                 : "Ocorreu um erro ao responder ao convite.");
       } else {
-        GlobalSnackBar.show(
-            context, "Ocorreu um erro ao responder ao convite.");
+        GlobalToast.show(context, "Ocorreu um erro ao responder ao convite.");
       }
     } finally {
       // ignore: control_flow_in_finally

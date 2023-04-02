@@ -12,9 +12,9 @@ import 'package:mobile/shared/themes/app_text_styles.dart';
 import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 import 'package:mobile/shared/widgets/text_input/text_input.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../service/index.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -53,13 +53,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
                 : "Ocorreu um erro ao entrar. Tente novamente.");
       } else {
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context, "Ocorreu um erro ao entrar. Tente novamente.");
       }
     } finally {

@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/device/device_controller.dart';
@@ -5,11 +6,11 @@ import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
 class DevicePage extends StatefulWidget {
@@ -40,19 +41,20 @@ class _DevicePageState extends State<DevicePage> {
       final res = await deviceController.inviteGuest(widget.device.id);
       if (res != null) {
         if (!mounted) return;
-        GlobalSnackBar.show(context,
+
+        GlobalToast.show(context,
             res.message != "" ? res.message : "Usuário convidado com sucesso!");
       }
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        GlobalSnackBar.show(
-            context,
-            response.message != ""
-                ? response.message
-                : "Ocorreu um erro ao convidar o usuário. Tente novamente.");
+        Flushbar(
+          backgroundColor: Colors.red,
+          message: "Usuário convidado com sucesso",
+          duration: const Duration(seconds: 3),
+        ).show(context);
       } else {
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context, "Ocorreu um erro ao convidar o usuário. Tente novamente.");
       }
     } finally {
@@ -73,19 +75,19 @@ class _DevicePageState extends State<DevicePage> {
       final res = await deviceController.changePassword(widget.device.id);
       if (res != null) {
         if (!mounted) return;
-        GlobalSnackBar.show(context,
+        GlobalToast.show(context,
             res.message != "" ? res.message : "Senha alterada com sucesso!");
       }
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
                 : "Ocorreu um erro ao alterar a senha. Tente novamente.");
       } else {
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context, "Ocorreu um erro ao alterar a senha. Tente novamente.");
       }
     } finally {
