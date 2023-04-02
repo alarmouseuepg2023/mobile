@@ -45,6 +45,7 @@ dependencies:
   email_validator: ^2.1.17
   jwt_decoder: ^2.0.1
   pinput: ^2.2.21
+  another_flushbar: ^1.12.29
 
 dev_dependencies:
   flutter_test:
