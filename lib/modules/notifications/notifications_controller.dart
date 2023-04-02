@@ -5,7 +5,6 @@ import '../../service/index.dart';
 
 class NotificationsController {
   Future<NotificationsResponse> getNotifications(int page, int size) async {
-    print('get notifications');
     final response =
         await dio.get('invite?page=$page&size=$size', options: Options());
     NotificationsResponse data = NotificationsResponse.fromJson(response.data);
