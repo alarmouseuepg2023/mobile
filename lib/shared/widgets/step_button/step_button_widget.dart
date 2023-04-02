@@ -6,6 +6,7 @@ import '../../themes/app_text_styles.dart';
 class StepButtonWidget extends StatelessWidget {
   final bool? disabled;
   final bool? reversed;
+  final bool? loading;
   final String label;
   final VoidCallback onPressed;
   const StepButtonWidget(
@@ -13,7 +14,8 @@ class StepButtonWidget extends StatelessWidget {
       required this.label,
       required this.onPressed,
       this.disabled,
-      this.reversed});
+      this.reversed,
+      this.loading});
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +33,21 @@ class StepButtonWidget extends StatelessWidget {
       width: 100,
       child: TextButton(
           onPressed: disabled == true ? null : onPressed,
-          child: Text(
-            label,
-            style: (reversed == true
-                ? TextStyles.primaryLabel
-                : TextStyles.whiteLabel),
-          )),
+          child: loading != null && loading == true
+              ? const SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: (reversed == true
+                      ? TextStyles.primaryLabel
+                      : TextStyles.whiteLabel),
+                )),
     );
   }
 }

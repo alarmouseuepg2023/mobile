@@ -40,11 +40,6 @@ class _InviteAcceptPageState extends State<InvitePage> {
       } else {
         await _inviteController.rejectInvite();
       }
-      // if (!mounted) return;
-      // setState(() {
-      //   notifications.removeWhere((item) => item.id == notificationId);
-      //   totalItems = totalItems - 1;
-      // });
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
@@ -293,46 +288,57 @@ class _InviteAcceptPageState extends State<InvitePage> {
                     ]),
                   )
                 : _answerMode == 1
-                    ? Stepper(
-                        type: StepperType.vertical,
-                        currentStep: currentStep,
-                        onStepCancel: () => currentStep == 0
-                            ? null
-                            : setState(() {
-                                currentStep -= 1;
-                              }),
-                        onStepContinue: () {
-                          bool isLastStep =
-                              (currentStep == acceptSteps().length - 1);
-                          if (isLastStep) {
-                            //Do something with this information
-                          } else {
+                    ? Form(
+                        key: _inviteController.acceptFormKey,
+                        child: Stepper(
+                          type: StepperType.vertical,
+                          currentStep: currentStep,
+                          onStepCancel: () => currentStep == 0
+                              ? null
+                              : setState(() {
+                                  currentStep -= 1;
+                                }),
+                          onStepContinue: () {
+                            bool isLastStep =
+                                (currentStep == acceptSteps().length - 1);
+                            if (isLastStep) {
+                              handleAnswerInvite(true, widget.notification.id);
+                            } else {
+                              setState(() {
+                                currentStep += 1;
+                              });
+                            }
+                          },
+                          onStepTapped: (step) {
                             setState(() {
-                              currentStep += 1;
+                              currentStep = step;
                             });
-                          }
-                        },
-                        onStepTapped: (step) => setState(() {
-                          currentStep = step;
-                        }),
-                        steps: acceptSteps(),
-                        controlsBuilder: (context, details) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              StepButtonWidget(
-                                  label: "PRÓXIMO",
-                                  onPressed: details.onStepContinue!),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              StepButtonWidget(
-                                  label: "ANTERIOR",
-                                  reversed: true,
-                                  onPressed: details.onStepCancel!),
-                            ],
-                          );
-                        },
+                          },
+                          steps: acceptSteps(),
+                          controlsBuilder: (context, details) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                StepButtonWidget(
+                                    loading: loading,
+                                    disabled: loading,
+                                    label:
+                                        currentStep == acceptSteps().length - 1
+                                            ? "CONCLUIR"
+                                            : "PRÓXIMO",
+                                    onPressed: details.onStepContinue!),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                StepButtonWidget(
+                                    disabled: loading,
+                                    label: "ANTERIOR",
+                                    reversed: true,
+                                    onPressed: details.onStepCancel!),
+                              ],
+                            );
+                          },
+                        ),
                       )
                     : Stepper(
                         type: StepperType.vertical,
@@ -362,12 +368,17 @@ class _InviteAcceptPageState extends State<InvitePage> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               StepButtonWidget(
-                                  label: "PRÓXIMO",
+                                  loading: loading,
+                                  disabled: loading,
+                                  label: currentStep == rejectSteps().length - 1
+                                      ? "CONCLUIR"
+                                      : "PRÓXIMO",
                                   onPressed: details.onStepContinue!),
                               const SizedBox(
                                 width: 10,
                               ),
                               StepButtonWidget(
+                                  disabled: loading,
                                   label: "ANTERIOR",
                                   reversed: true,
                                   onPressed: details.onStepCancel!),
