@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile/modules/notifications/notifications_controller.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
 import 'package:mobile/shared/widgets/notification_card/notification_card_widget.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -70,13 +70,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
 
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
                 : "Ocorreu um erro ao recuperar as notificações.");
       } else {
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context, "Ocorreu um erro ao recuperar as notificações.");
       }
     } finally {
