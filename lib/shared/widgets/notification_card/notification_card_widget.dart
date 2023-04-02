@@ -45,7 +45,8 @@ class _DeviceCardWidgetState extends State<NotificationCardWidget> {
                         text: "Proprietário: ",
                         style: TextStyles.deviceStatusSub),
                     TextSpan(
-                        text: widget.notification.inviter.name,
+                        text:
+                            "${widget.notification.inviter.name.split(" ")[0]} ${widget.notification.inviter.name.split(" ")[1]}",
                         style: TextStyles.deviceCardStatus)
                   ])),
                   Text(widget.notification.invitedAt,
