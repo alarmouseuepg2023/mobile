@@ -50,10 +50,10 @@ class _DevicePageState extends State<DevicePage> {
             context,
             response.message != ""
                 ? response.message
-                : "Ocorreu um erro ao alterar a rede Wifi. Tente novamente.");
+                : "Ocorreu um erro ao convidar o usuário. Tente novamente.");
       } else {
-        GlobalSnackBar.show(context,
-            "Ocorreu um erro ao alterar a rede Wifi. Tente novamente.");
+        GlobalSnackBar.show(
+            context, "Ocorreu um erro ao convidar o usuário. Tente novamente.");
       }
     } finally {
       setState(() {
