@@ -46,6 +46,8 @@ dependencies:
   jwt_decoder: ^2.0.1
   pinput: ^2.2.21
   another_flushbar: ^1.12.29
+  esp_smartconfig: ^1.1.11
+  mqtt_client: ^9.8.1
 
 dev_dependencies:
   flutter_test:
