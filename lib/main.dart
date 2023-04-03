@@ -54,10 +54,15 @@ class MyApp extends StatelessWidget {
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
         "/notifications": (context) => const NotificationsPage(),
-        "/invite": (context) => InvitePage(
-              notification: ModalRoute.of(context)!.settings.arguments
-                  as NotificationModel,
-            ),
+        "/invite": (context) {
+          final args = (ModalRoute.of(context)?.settings.arguments ??
+              <String, dynamic>{}) as Map;
+
+          return InvitePage(
+            notification: args['notification'] as NotificationModel,
+            notificationsCount: args['notificationsCount'] as int,
+          );
+        },
         "/profile": (context) => const ProfilePage(),
         "/change_password": (context) => const ChangePasswordPage(),
       },

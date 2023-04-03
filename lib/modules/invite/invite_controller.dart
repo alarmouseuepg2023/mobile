@@ -1,13 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:mobile/shared/models/Invite/invite_answer_response_model.dart';
 
 import '../../service/index.dart';
 import '../../shared/models/Invite/invite_accept_request_model.dart';
 import '../../shared/models/Invite/invite_reject_request_model.dart';
-import '../../shared/models/Response/server_response_model.dart';
 
 class InviteController {
-  final acceptFormKey = GlobalKey<FormState>();
+  List<GlobalKey<FormState>> acceptFormKeys = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>()
+  ];
   final rejectFormKey = GlobalKey<FormState>();
   InviteAcceptRequest inviteAcceptModel =
       InviteAcceptRequest(token: '', id: '', password: '', confirmPassword: '');
@@ -30,41 +34,30 @@ class InviteController {
     );
   }
 
-  Future<ServerResponse?> acceptInvite() async {
+  Future<InviteAnswerResponse?> acceptInvite() async {
     final formData = inviteAcceptModel.toJson();
-    final form = acceptFormKey.currentState;
+    final allFormValid =
+        acceptFormKeys.every((element) => element.currentState!.validate());
 
-    if (form!.validate()) {
+    if (allFormValid) {
       final response =
           await dio.post('invite/accept', data: formData, options: Options());
-      ServerResponse data = ServerResponse.fromJson(response.data);
+      InviteAnswerResponse data = InviteAnswerResponse.fromJson(response.data);
       return data;
     }
     return null;
   }
 
-  Future<ServerResponse?> rejectInvite() async {
+  Future<InviteAnswerResponse?> rejectInvite() async {
     final formData = inviteRejectModel.toJson();
     final form = rejectFormKey.currentState;
 
     if (form!.validate()) {
       final response =
           await dio.post('invite/reject', data: formData, options: Options());
-      ServerResponse data = ServerResponse.fromJson(response.data);
+      InviteAnswerResponse data = InviteAnswerResponse.fromJson(response.data);
       return data;
     }
     return null;
-  }
-
-  bool validateStepInput(bool answer) {
-    if (answer) {
-      final form = acceptFormKey.currentState;
-      if (form!.validate()) return true;
-    } else {
-      final form = rejectFormKey.currentState;
-      if (form!.validate()) return true;
-    }
-
-    return false;
   }
 }
