@@ -28,7 +28,7 @@ String? validateConfirmPassword(String? value, String? passwordValue) {
 }
 
 String? validatePinPassword(String? value) {
-  if (value!.isEmpty) return "O senha não pode ser vazia";
+  if (value!.isEmpty) return "A senha não pode ser vazia";
 
   if (value.length < 6) return "A senha deve ter 6 dígitos";
 
@@ -36,11 +36,10 @@ String? validatePinPassword(String? value) {
 }
 
 String? validateConfirmPin(String? value, String? passwordValue) {
-  if (value!.isEmpty) return "O código não pode ser vazio";
+  if (value!.isEmpty) return "A senha não pode ser vazia";
 
-  if (value.length < 6) {
-    return "O código deve ter 6 dígitos";
-  }
+  if (value.length < 6) return "A senha deve ter 6 dígitos";
+
   if (value != passwordValue) return "As senhas não coincidem";
 
   return null;
