@@ -145,7 +145,11 @@ class _DevicesPageState extends State<DevicesPage> {
         Align(
           alignment: Alignment.bottomRight,
           child: FloatingActionButton(
-            onPressed: loading ? null : () {},
+            onPressed: loading
+                ? null
+                : () {
+                    Navigator.pushNamed(context, "/add_device");
+                  },
             backgroundColor: AppColors.primary,
             child: const Icon(Icons.add, color: Colors.white, size: 30),
           ),
