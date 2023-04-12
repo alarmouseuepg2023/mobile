@@ -11,9 +11,6 @@ class MQTTClientManager {
       int.parse(dotenv.env['MQTT_PORT'] ?? '8000'));
 
   Future<int> connect() async {
-    print(
-        "${dotenv.env['MQTT_HOST']}, ${dotenv.env['MQTT_USER']}, ${dotenv.env['MQTT_PORT']}");
-
     client.logging(on: true);
     client.keepAlivePeriod = 60;
     client.onConnected = onConnected;
