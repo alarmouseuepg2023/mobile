@@ -8,6 +8,7 @@ import 'package:mobile/modules/device/device_page.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/events/events_page.dart';
 import 'package:mobile/modules/forgot_password/forgot_password_page.dart';
+import 'package:mobile/modules/guests/guests_page.dart';
 import 'package:mobile/modules/home/home_page.dart';
 import 'package:mobile/modules/invite/invite_page.dart';
 import 'package:mobile/modules/login/login_page.dart';
@@ -50,6 +51,9 @@ class MyApp extends StatelessWidget {
         "/devices": (context) => const DevicesPage(),
         "/add_device": (context) => const AddDevicePage(),
         "/device": (context) => DevicePage(
+              device: ModalRoute.of(context)!.settings.arguments as Device,
+            ),
+        "/guests": (context) => GuestsPage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
         "/events": (context) => EventsPage(
