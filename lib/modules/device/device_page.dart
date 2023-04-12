@@ -352,58 +352,68 @@ class _DevicePageState extends State<DevicePage> {
                 const SizedBox(
                   height: 30,
                 ),
-                Ink(
-                  child: InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, "/events",
-                            arguments: widget.device);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.description,
-                                size: 30, color: AppColors.primary),
-                            const SizedBox(
-                              width: 20,
+                Column(
+                  children: [
+                    Ink(
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, "/events",
+                                arguments: widget.device);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.description,
+                                    size: 30, color: AppColors.primary),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                Text(
+                                  "Eventos",
+                                  style: TextStyles.deviceActivities,
+                                )
+                              ],
                             ),
-                            Text(
-                              "Eventos",
-                              style: TextStyles.deviceActivities,
-                            )
-                          ],
-                        ),
-                      )),
+                          )),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Ink(
-                  child: InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, "/guests",
-                            arguments: widget.device);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.people,
-                                size: 30, color: AppColors.primary),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            Text(
-                              "Convidados",
-                              style: TextStyles.deviceActivities,
-                            )
-                          ],
-                        ),
-                      )),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
+                _ownerPermissions(widget.device.role)
+                    ? Column(
+                        children: [
+                          Ink(
+                            child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, "/guests",
+                                      arguments: widget.device);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.people,
+                                          size: 30, color: AppColors.primary),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      Text(
+                                        "Convidados",
+                                        style: TextStyles.deviceActivities,
+                                      )
+                                    ],
+                                  ),
+                                )),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                        ],
+                      )
+                    : const SizedBox(),
                 _ownerPermissions(widget.device.role)
                     ? Ink(
                         child: InkWell(
