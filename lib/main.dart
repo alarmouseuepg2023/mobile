@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile/modules/add_device/add_device_page.dart';
 import 'package:mobile/modules/change_password/change_password_page.dart';
 import 'package:mobile/modules/device/device_page.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         "/forgot_password": (context) => const ForgotPasswordPage(),
         "/reset_password": (context) => const ResetPasswordPage(),
         "/devices": (context) => const DevicesPage(),
+        "/add_device": (context) => const AddDevicePage(),
         "/device": (context) => DevicePage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),

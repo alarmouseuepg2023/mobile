@@ -378,6 +378,32 @@ class _DevicePageState extends State<DevicePage> {
                 const SizedBox(
                   height: 10,
                 ),
+                Ink(
+                  child: InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, "/guests",
+                            arguments: widget.device);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.people,
+                                size: 30, color: AppColors.primary),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Text(
+                              "Convidados",
+                              style: TextStyles.deviceActivities,
+                            )
+                          ],
+                        ),
+                      )),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 _ownerPermissions(widget.device.role)
                     ? Ink(
                         child: InkWell(
@@ -388,7 +414,7 @@ class _DevicePageState extends State<DevicePage> {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.people,
+                                  const Icon(Icons.send_to_mobile,
                                       size: 30, color: AppColors.primary),
                                   const SizedBox(
                                     width: 20,
