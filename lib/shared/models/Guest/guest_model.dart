@@ -12,4 +12,11 @@ class Guest {
     required this.user,
     required this.device,
   });
+
+  factory Guest.fromJson(Map<String, dynamic> json) => Guest(
+      id: json['id'],
+      device: Device.fromJson(json['device']),
+      user: User.fromJson(json['user'])
+      // ownerName: json['ownerName'],
+      );
 }
