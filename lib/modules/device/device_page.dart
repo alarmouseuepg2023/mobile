@@ -249,35 +249,58 @@ class _DevicePageState extends State<DevicePage> {
                       const SizedBox(height: 30),
                       Form(
                         key: deviceController.passwordFormKey,
-                        child: Column(children: [
-                          TextInputWidget(
-                              label: "Senha antiga",
-                              validator: validatePassword,
-                              passwordType: true,
-                              onChanged: (value) {
-                                deviceController.onChangePassword(
-                                    oldPassword: value);
-                              }),
-                          TextInputWidget(
-                              label: "Nova senha",
-                              validator: validatePassword,
-                              passwordType: true,
-                              controller: _password,
-                              onChanged: (value) {
-                                deviceController.onChangePassword(
-                                    password: value);
-                              }),
-                          TextInputWidget(
-                              label: "Confirme a nova senha",
-                              validator: (value) => validateConfirmPassword(
-                                  value, _password.text),
-                              passwordType: true,
-                              controller: _confirmPassword,
-                              onChanged: (value) {
-                                deviceController.onChangePassword(
-                                    confirmPassword: value);
-                              }),
-                        ]),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Senha antiga",
+                                style: TextStyles.inputFocus,
+                                textAlign: TextAlign.start,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              PinInputWidget(
+                                onChanged: (value) {
+                                  deviceController.onChangePassword(
+                                      oldPassword: value);
+                                },
+                                validator: validatePinPassword,
+                              ),
+                              Text(
+                                "Nova senha",
+                                style: TextStyles.inputFocus,
+                                textAlign: TextAlign.start,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              PinInputWidget(
+                                onChanged: (value) {
+                                  deviceController.onChangePassword(
+                                      password: value);
+                                },
+                                validator: validatePinPassword,
+                                controller: _password,
+                              ),
+                              Text(
+                                "Confirme a nova senha",
+                                style: TextStyles.inputFocus,
+                                textAlign: TextAlign.start,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              PinInputWidget(
+                                onChanged: (value) {
+                                  deviceController.onChangePassword(
+                                      confirmPassword: value);
+                                },
+                                validator: (value) =>
+                                    validateConfirmPin(value, _password.text),
+                                controller: _confirmPassword,
+                              ),
+                            ]),
                       ),
                       const SizedBox(
                         height: 40,
