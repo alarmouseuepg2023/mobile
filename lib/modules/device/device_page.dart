@@ -1,4 +1,3 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/device/device_controller.dart';
@@ -25,6 +24,7 @@ class _DevicePageState extends State<DevicePage> {
   final deviceController = DeviceController();
   bool loading = false;
   bool bottomload = false;
+  String _status = "0";
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
   String _getDeviceOwnership(String role) =>
@@ -48,11 +48,7 @@ class _DevicePageState extends State<DevicePage> {
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        Flushbar(
-          backgroundColor: Colors.red,
-          message: "Usuário convidado com sucesso",
-          duration: const Duration(seconds: 3),
-        ).show(context);
+        GlobalToast.show(context, response.message);
       } else {
         GlobalToast.show(
             context, "Ocorreu um erro ao convidar o usuário. Tente novamente.");
@@ -117,17 +113,41 @@ class _DevicePageState extends State<DevicePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "Insira a senha do dispositivo",
+                        "Mudar o estado do dispositivo",
                         style: TextStyles.inviteAGuest,
                       ),
                       const SizedBox(height: 30),
                       Form(
                         key: deviceController.statusFormKey,
-                        child: PinInputWidget(
-                          autoFocus: true,
-                          onChanged: (value) =>
-                              deviceController.onChangeStatus(password: value),
-                          validator: validatePin,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PinInputWidget(
+                              autoFocus: true,
+                              onChanged: (value) => deviceController
+                                  .onChangeStatus(password: value),
+                              validator: validatePin,
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              "Estado: ",
+                              style: TextStyles.input,
+                            ),
+                            Switch(
+                              value: _status == '1' ? true : false,
+                              activeColor: AppColors.primary,
+                              onChanged: (bool value) {
+                                deviceController.onChangeStatus(
+                                    status: value ? '1' : '2');
+                                setState(() {
+                                  _status = value ? '1' : '2';
+                                });
+                                bottomState(() {});
+                              },
+                            )
+                          ],
                         ),
                       ),
                       const SizedBox(

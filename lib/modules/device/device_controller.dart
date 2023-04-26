@@ -45,6 +45,11 @@ class DeviceController {
     final formData = statusModel.toJson();
     final form = statusFormKey.currentState;
 
+    // UNCONFIGURED = 0,
+    // LOCKED = 1,
+    // UNLOCKED = 2,
+    // TRIGGERED = 3,
+
     if (form!.validate()) {
       final response = await dio.post('device/status/$deviceId',
           data: formData, options: Options());
