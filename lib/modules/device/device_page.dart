@@ -10,6 +10,7 @@ import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
+import '../../shared/utils/device_status/device_status_map.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
 class DevicePage extends StatefulWidget {
@@ -24,13 +25,20 @@ class _DevicePageState extends State<DevicePage> {
   final deviceController = DeviceController();
   bool loading = false;
   bool bottomload = false;
-  String _status = "0";
+  String _status = '0';
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
   bool _ownerPermissions(String role) => role == 'DEVICE_OWNER' ? true : false;
+
+  @override
+  @override
+  void initState() {
+    _status = widget.device.status;
+    super.initState();
+  }
 
   Future<void> handleInvite(StateSetter bottomState) async {
     try {
@@ -44,6 +52,42 @@ class _DevicePageState extends State<DevicePage> {
 
         GlobalToast.show(context,
             res.message != "" ? res.message : "Usuário convidado com sucesso!");
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(context, response.message);
+      } else {
+        GlobalToast.show(
+            context, "Ocorreu um erro ao convidar o usuário. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+
+      bottomState(() {});
+    }
+  }
+
+  Future<void> handleChangeStatus(StateSetter bottomState) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      bottomState(() {});
+      final res = await deviceController.changeStatus(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+
+        final newStatus = _status == '2' ? '1' : '2';
+
+        setState(() {
+          _status = newStatus;
+        });
+
+        GlobalToast.show(context,
+            res.message != "" ? res.message : "Estado alterado com sucesso!");
       }
     } catch (e) {
       if (e is DioError) {
@@ -128,25 +172,6 @@ class _DevicePageState extends State<DevicePage> {
                                   .onChangeStatus(password: value),
                               validator: validatePin,
                             ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Estado: ",
-                              style: TextStyles.input,
-                            ),
-                            Switch(
-                              value: _status == '1' ? true : false,
-                              activeColor: AppColors.primary,
-                              onChanged: (bool value) {
-                                deviceController.onChangeStatus(
-                                    status: value ? '1' : '2');
-                                setState(() {
-                                  _status = value ? '1' : '2';
-                                });
-                                bottomState(() {});
-                              },
-                            )
                           ],
                         ),
                       ),
@@ -157,7 +182,7 @@ class _DevicePageState extends State<DevicePage> {
                           label: "ENVIAR",
                           onLoading: loading,
                           onPressed: () {
-                            handleInvite(bottomState);
+                            handleChangeStatus(bottomState);
                           }),
                       const SizedBox(
                         height: 30,
@@ -371,6 +396,10 @@ class _DevicePageState extends State<DevicePage> {
                   child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(50)),
                       onTap: () {
+                        final newStatus = _status == '2' ? '1' : '2';
+
+                        deviceController.onChangeStatus(status: newStatus);
+
                         showBottomSheet(context, 'STATUS');
                       },
                       child: const Icon(Icons.power_settings_new,
@@ -387,7 +416,7 @@ class _DevicePageState extends State<DevicePage> {
                 Text.rich(TextSpan(children: [
                   TextSpan(text: "Estado: ", style: TextStyles.deviceStatusSub),
                   TextSpan(
-                      text: widget.device.status,
+                      text: getDeviceStatusLabel(_status),
                       style: TextStyles.deviceCardStatus)
                 ])),
                 Text(_getDeviceOwnership(widget.device.role),
