@@ -13,4 +13,15 @@ class AlarmEvent {
     required this.createdAt,
     required this.device,
   });
+
+  factory AlarmEvent.fromJson(Map<String, dynamic> json) => AlarmEvent(
+      id: json['id'],
+      message: json['message'],
+      createdAt: json['createdAt'],
+      device: Device.fromJson(json['device']));
+
+  @override
+  String toString() {
+    return '{ id: $id, message: $message, createdAt: $createdAt, device: $device }';
+  }
 }
