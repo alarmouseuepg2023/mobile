@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart' as location_lib;
+import 'package:mobile/modules/add_device/add_device_controller.dart';
 import 'package:mobile/providers/auth/auth_provider.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 import 'package:mobile/shared/widgets/snackbar/snackbar_widget.dart';
 import 'package:mobile/shared/widgets/text_input/text_input.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,6 +40,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   late Timer _timer;
   int _pageMode = 0;
   String qrCode = "";
+  final _addDeviceController = AddDeviceController();
 
   @override
   void initState() {
@@ -117,11 +121,32 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     });
   }
 
-  void seefuture() {
-    setState(() {
-      _pageMode = 2;
-    });
-    //_startTimer();
+  void setSteps() {
+    switch (_pageMode) {
+      case 0:
+        {
+          if (_addDeviceController.validateDeviceForm() == true) {
+            setState(() {
+              _pageMode = 2;
+            });
+          }
+          //_startTimer();
+          break;
+        }
+      case 1:
+        {
+          if (_addDeviceController.validateDeviceForm() == true) {
+            setState(() {
+              _pageMode = 2;
+            });
+          }
+          break;
+        }
+      case 2:
+        {
+          break;
+        }
+    }
   }
 
   Future<void> espTouch() async {
@@ -194,6 +219,11 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     }
   }
 
+  Future<bool> getLocationStatus() async {
+    final location = location_lib.Location();
+    return await location.serviceEnabled();
+  }
+
   @override
   void dispose() {
     mqttClientManager.disconnect();
@@ -220,9 +250,19 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
           child: _pageMode == 0
               ? Column(
                   children: [
-                    Text(
-                      "Certifique-se de que a localização está ativada para iniciar o processo de adição do dispositivo.",
-                      style: TextStyles.inviteAGuestBold,
+                    Text.rich(
+                      TextSpan(children: [
+                        TextSpan(
+                            text: "Certifique-se de que a ",
+                            style: TextStyles.addDeviceIntro),
+                        TextSpan(
+                            text: "localização ",
+                            style: TextStyles.addDeviceIntroBold),
+                        TextSpan(
+                            text:
+                                " está ativada para iniciar o processo de adição do dispositivo.",
+                            style: TextStyles.addDeviceIntro),
+                      ]),
                       textAlign: TextAlign.justify,
                     ),
                     const SizedBox(
@@ -233,18 +273,33 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                       TextSpan(
                           text: wifiSsid, style: TextStyles.inviteAGuestBold)
                     ])),
-                    TextInputWidget(
-                        label: "Senha da rede",
-                        passwordType: true,
-                        controller: wifiPassword,
-                        onChanged: (value) {}),
+                    Form(
+                      key: _addDeviceController.formKey,
+                      child: TextInputWidget(
+                          label: "Senha da rede",
+                          passwordType: true,
+                          controller: wifiPassword,
+                          validator: validatePassword,
+                          onChanged: (value) {
+                            _addDeviceController.onChange(wifiPassword: value);
+                          }),
+                    ),
                     Expanded(child: Container()),
                     LabelButtonWidget(
                         label: "COMEÇAR",
                         disabled: allStepsCompleted,
-                        onPressed: () {
-                          seefuture();
-                        })
+                        onPressed: () async {
+                          final locationCheck = await getLocationStatus();
+                          if (!locationCheck && mounted) {
+                            GlobalToast.show(context,
+                                "É necessário ativar a localização para prosseguir");
+                            return;
+                          }
+                          setSteps();
+                        }),
+                    const SizedBox(
+                      height: 35,
+                    )
                   ],
                 )
               : _pageMode == 1
