@@ -51,6 +51,7 @@ dependencies:
   network_info_plus: ^3.0.2
   permission_handler: ^10.2.0
   location: ^4.4.0
+  flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:
   flutter_test:

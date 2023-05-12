@@ -116,4 +116,9 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.text,
   );
+  static final scanQrCode = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: Colors.white,
+  );
 }
