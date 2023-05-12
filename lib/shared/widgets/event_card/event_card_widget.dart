@@ -38,7 +38,10 @@ class _AlarmEventCardWidgetState extends State<AlarmEventCardWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.event.user.name,
+                  Text(
+                      widget.event.user != null
+                          ? widget.event.user!.name
+                          : "Controle remoto",
                       style: TextStyles.deviceCardName),
                   Text.rich(TextSpan(children: [
                     TextSpan(
@@ -47,7 +50,10 @@ class _AlarmEventCardWidgetState extends State<AlarmEventCardWidget> {
                         text: widget.event.readableDate,
                         style: TextStyles.deviceCardStatus)
                   ])),
-                  Text(widget.event.user.name,
+                  Text(
+                      widget.event.user != null
+                          ? widget.event.user!.name
+                          : "Controle remoto",
                       style: TextStyles.deviceCardOwnership),
                 ],
               ),

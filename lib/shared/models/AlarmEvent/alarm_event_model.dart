@@ -6,14 +6,14 @@ class AlarmEvent {
   final String message;
   final String createdAt;
   final String readableDate;
-  final AlarmEventUser user;
+  final AlarmEventUser? user;
 
   AlarmEvent({
     required this.id,
     required this.message,
     required this.createdAt,
     required this.readableDate,
-    required this.user,
+    this.user,
   });
 
   factory AlarmEvent.fromJson(Map<String, dynamic> json) => AlarmEvent(
