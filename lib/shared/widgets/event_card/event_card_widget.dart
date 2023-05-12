@@ -38,15 +38,16 @@ class _AlarmEventCardWidgetState extends State<AlarmEventCardWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.event.id, style: TextStyles.deviceCardName),
+                  Text(widget.event.user.name,
+                      style: TextStyles.deviceCardName),
                   Text.rich(TextSpan(children: [
                     TextSpan(
                         text: "Estado: ", style: TextStyles.deviceStatusSub),
                     TextSpan(
-                        text: widget.event.message,
+                        text: widget.event.readableDate,
                         style: TextStyles.deviceCardStatus)
                   ])),
-                  Text(widget.event.device.nickname,
+                  Text(widget.event.user.name,
                       style: TextStyles.deviceCardOwnership),
                 ],
               ),
