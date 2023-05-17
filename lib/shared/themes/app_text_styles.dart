@@ -96,6 +96,16 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );
+  static final addDeviceIntro = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.text,
+  );
+  static final addDeviceIntroBold = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
   static final inviteTextBold = GoogleFonts.notoSans(
     fontSize: 18,
     fontWeight: FontWeight.w600,
@@ -115,5 +125,10 @@ class TextStyles {
     fontSize: 18,
     fontWeight: FontWeight.w400,
     color: AppColors.text,
+  );
+  static final scanQrCode = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: Colors.white,
   );
 }

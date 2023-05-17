@@ -1,14 +1,22 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
+int getUserId() {
+  Random rand = Random();
+  return rand.nextInt(1000);
+}
+
+final userId = getUserId();
+
 class MQTTClientManager {
   MqttServerClient client = MqttServerClient.withPort(
       dotenv.env['MQTT_HOST'] ?? '',
-      dotenv.env['MQTT_USER'] ?? 'alarmouse_mobile',
-      int.parse(dotenv.env['MQTT_PORT'] ?? '8000'));
+      '$userId',
+      int.parse(dotenv.env['MQTT_PORT'] ?? '1883'));
 
   Future<int> connect() async {
     client.logging(on: true);
@@ -18,8 +26,11 @@ class MQTTClientManager {
     client.onSubscribed = onSubscribed;
     client.pongCallback = pong;
 
-    final connMessage =
-        MqttConnectMessage().startClean().withWillQos(MqttQos.atLeastOnce);
+    final connMessage = MqttConnectMessage()
+        .startClean()
+        .withWillQos(MqttQos.atLeastOnce)
+        .authenticateAs(dotenv.env['MQTT_USER'], dotenv.env['MQTT_PASSWORD'])
+        .withClientIdentifier('$userId');
     client.connectionMessage = connMessage;
 
     try {
@@ -44,7 +55,7 @@ class MQTTClientManager {
   }
 
   void onConnected() {
-    print('MQTTClient::Connected');
+    print('CONECTEI MESMO PUTA VADIA DE MERDA');
   }
 
   void onDisconnected() {

@@ -131,10 +131,6 @@ class _EventsPageState extends State<EventsPage> {
                         return Column(children: [
                           AlarmEventCardWidget(
                             event: event,
-                            onTap: () {
-                              Navigator.pushNamed(context, "/device",
-                                  arguments: event);
-                            },
                           ),
                           const SizedBox(
                             height: 20,

@@ -1,13 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/modules/notifications/notifications_controller.dart';
+import 'package:mobile/providers/auth/auth_provider.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
 import 'package:mobile/shared/widgets/notification_card/notification_card_widget.dart';
 import 'package:mobile/shared/widgets/toast/toast_widget.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
+import '../../shared/utils/mqtt/mqtt_client.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -25,11 +29,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   int _pageNumber = 0;
   final int _size = 10;
   final scrollController = ScrollController();
+  MQTTClientManager mqttClientManager = MQTTClientManager();
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       getNotifications();
+      setupMqttClient();
+      setupUpdatesListener();
       scrollController.addListener(() {
         if (scrollController.position.maxScrollExtent ==
             scrollController.offset) {
@@ -98,6 +105,25 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     });
 
     getNotifications();
+  }
+
+  Future<void> setupMqttClient() async {
+    await mqttClientManager.connect().then((value) {
+      final userId = ref.read(authProvider).user!.id;
+      mqttClientManager.subscribe(
+          "/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/invite/$userId");
+    });
+  }
+
+  void setupUpdatesListener() {
+    mqttClientManager
+        .getMessagesStream()!
+        .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMess = c![0].payload as MqttPublishMessage;
+      final pt =
+          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      print('<${c[0].topic}> is $pt\n');
+    });
   }
 
   @override
