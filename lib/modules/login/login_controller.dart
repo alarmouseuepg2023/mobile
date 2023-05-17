@@ -9,12 +9,6 @@ class LoginController {
   final formKey = GlobalKey<FormState>();
   LoginRequest model = LoginRequest();
 
-  String? validateEmail(String? value) =>
-      value?.isEmpty ?? true ? "O e-mail não pode ser vazio" : null;
-
-  String? validatePassword(String? value) =>
-      value?.isEmpty ?? true ? "A senha não pode ser vazia" : null;
-
   void onChange({String? email, String? password}) {
     model = model.copyWith(email: email, password: password);
   }

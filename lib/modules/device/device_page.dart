@@ -2,12 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/device/device_controller.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
+import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
+import '../../shared/utils/device_status/device_status_map.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
 class DevicePage extends StatefulWidget {
@@ -22,10 +25,20 @@ class _DevicePageState extends State<DevicePage> {
   final deviceController = DeviceController();
   bool loading = false;
   bool bottomload = false;
+  String _status = '0';
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _confirmPassword = TextEditingController();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
   bool _ownerPermissions(String role) => role == 'DEVICE_OWNER' ? true : false;
+
+  @override
+  @override
+  void initState() {
+    _status = widget.device.status;
+    super.initState();
+  }
 
   Future<void> handleInvite(StateSetter bottomState) async {
     try {
@@ -36,20 +49,86 @@ class _DevicePageState extends State<DevicePage> {
       final res = await deviceController.inviteGuest(widget.device.id);
       if (res != null) {
         if (!mounted) return;
-        GlobalSnackBar.show(context,
-            res.message != "" ? res.message : "Usuário criado com sucesso!");
+
+        GlobalToast.show(context,
+            res.message != "" ? res.message : "Usuário convidado com sucesso!");
       }
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        GlobalSnackBar.show(
+        GlobalToast.show(context, response.message);
+      } else {
+        GlobalToast.show(
+            context, "Ocorreu um erro ao convidar o usuário. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+
+      bottomState(() {});
+    }
+  }
+
+  Future<void> handleChangeStatus(StateSetter bottomState) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      bottomState(() {});
+      final res = await deviceController.changeStatus(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+
+        final newStatus = _status == '2' ? '1' : '2';
+
+        setState(() {
+          _status = newStatus;
+        });
+
+        GlobalToast.show(context,
+            res.message != "" ? res.message : "Estado alterado com sucesso!");
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(context, response.message);
+      } else {
+        GlobalToast.show(
+            context, "Ocorreu um erro ao convidar o usuário. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+
+      bottomState(() {});
+    }
+  }
+
+  Future<void> handleChangePassword(StateSetter bottomState) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      bottomState(() {});
+      final res = await deviceController.changePassword(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+        GlobalToast.show(context,
+            res.message != "" ? res.message : "Senha alterada com sucesso!");
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
-                : "Ocorreu um erro ao entrar. Tente novamente.");
+                : "Ocorreu um erro ao alterar a senha. Tente novamente.");
       } else {
-        GlobalSnackBar.show(
-            context, "Ocorreu um erro ao entrar. Tente novamente.");
+        GlobalToast.show(
+            context, "Ocorreu um erro ao alterar a senha. Tente novamente.");
       }
     } finally {
       setState(() {
@@ -67,6 +146,50 @@ class _DevicePageState extends State<DevicePage> {
         builder: (BuildContext bc) {
           return StatefulBuilder(
               builder: (BuildContext context, StateSetter bottomState) {
+            if (feature == 'STATUS') {
+              return Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      left: 20,
+                      right: 20,
+                      top: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Mudar o estado do dispositivo",
+                        style: TextStyles.inviteAGuest,
+                      ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: deviceController.statusFormKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PinInputWidget(
+                              autoFocus: true,
+                              onChanged: (value) => deviceController
+                                  .onChangeStatus(password: value),
+                              validator: validatePin,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      LabelButtonWidget(
+                          label: "ENVIAR",
+                          onLoading: loading,
+                          onPressed: () {
+                            handleChangeStatus(bottomState);
+                          }),
+                      const SizedBox(
+                        height: 30,
+                      )
+                    ],
+                  ));
+            }
             if (feature == 'SHARE') {
               return Padding(
                   padding: EdgeInsets.only(
@@ -83,12 +206,12 @@ class _DevicePageState extends State<DevicePage> {
                       ),
                       const SizedBox(height: 30),
                       Form(
-                        key: deviceController.formKey,
+                        key: deviceController.inviteFormKey,
                         child: TextInputWidget(
                             label: "E-mail",
-                            validator: deviceController.validateEmail,
+                            validator: validateEmail,
                             onChanged: (value) {
-                              deviceController.onChange(email: value);
+                              deviceController.onChangeInvite(email: value);
                             }),
                       ),
                       const SizedBox(
@@ -126,14 +249,14 @@ class _DevicePageState extends State<DevicePage> {
                         child: Column(children: [
                           TextInputWidget(
                               label: "Nome da rede",
-                              validator: deviceController.validateSsid,
+                              validator: validateSsid,
                               onChanged: (value) {
                                 deviceController.onChangeWifi(ssid: value);
                               }),
                           TextInputWidget(
                               label: "Senha",
                               passwordType: true,
-                              validator: deviceController.validatePassword,
+                              validator: validatePassword,
                               onChanged: (value) {
                                 deviceController.onChangeWifi(password: value);
                               }),
@@ -170,27 +293,59 @@ class _DevicePageState extends State<DevicePage> {
                       ),
                       const SizedBox(height: 30),
                       Form(
-                        key: deviceController.formKey,
-                        child: Column(children: [
-                          TextInputWidget(
-                              label: "Senha antiga",
-                              validator: deviceController.validateEmail,
-                              onChanged: (value) {
-                                deviceController.onChange(email: value);
-                              }),
-                          TextInputWidget(
-                              label: "Nova senha",
-                              validator: deviceController.validateEmail,
-                              onChanged: (value) {
-                                deviceController.onChange(email: value);
-                              }),
-                          TextInputWidget(
-                              label: "Confirme a nova senha",
-                              validator: deviceController.validateEmail,
-                              onChanged: (value) {
-                                deviceController.onChange(email: value);
-                              }),
-                        ]),
+                        key: deviceController.passwordFormKey,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Senha antiga",
+                                style: TextStyles.inputFocus,
+                                textAlign: TextAlign.start,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              PinInputWidget(
+                                onChanged: (value) {
+                                  deviceController.onChangePassword(
+                                      oldPassword: value);
+                                },
+                                validator: validatePinPassword,
+                              ),
+                              Text(
+                                "Nova senha",
+                                style: TextStyles.inputFocus,
+                                textAlign: TextAlign.start,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              PinInputWidget(
+                                onChanged: (value) {
+                                  deviceController.onChangePassword(
+                                      password: value);
+                                },
+                                validator: validatePinPassword,
+                                controller: _password,
+                              ),
+                              Text(
+                                "Confirme a nova senha",
+                                style: TextStyles.inputFocus,
+                                textAlign: TextAlign.start,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              PinInputWidget(
+                                onChanged: (value) {
+                                  deviceController.onChangePassword(
+                                      confirmPassword: value);
+                                },
+                                validator: (value) =>
+                                    validateConfirmPin(value, _password.text),
+                                controller: _confirmPassword,
+                              ),
+                            ]),
                       ),
                       const SizedBox(
                         height: 40,
@@ -199,7 +354,7 @@ class _DevicePageState extends State<DevicePage> {
                           label: "ALTERAR",
                           onLoading: loading,
                           onPressed: () {
-                            handleInvite(bottomState);
+                            handleChangePassword(bottomState);
                           }),
                       const SizedBox(
                         height: 30,
@@ -240,7 +395,13 @@ class _DevicePageState extends State<DevicePage> {
                 child: Ink(
                   child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(50)),
-                      onTap: () {},
+                      onTap: () {
+                        final newStatus = _status == '2' ? '1' : '2';
+
+                        deviceController.onChangeStatus(status: newStatus);
+
+                        showBottomSheet(context, 'STATUS');
+                      },
                       child: const Icon(Icons.power_settings_new,
                           color: AppColors.primary, size: 100)),
                 ),
@@ -255,7 +416,7 @@ class _DevicePageState extends State<DevicePage> {
                 Text.rich(TextSpan(children: [
                   TextSpan(text: "Estado: ", style: TextStyles.deviceStatusSub),
                   TextSpan(
-                      text: widget.device.status,
+                      text: getDeviceStatusLabel(_status),
                       style: TextStyles.deviceCardStatus)
                 ])),
                 Text(_getDeviceOwnership(widget.device.role),
@@ -263,32 +424,68 @@ class _DevicePageState extends State<DevicePage> {
                 const SizedBox(
                   height: 30,
                 ),
-                Ink(
-                  child: InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, "/events",
-                            arguments: widget.device);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.description,
-                                size: 30, color: AppColors.primary),
-                            const SizedBox(
-                              width: 20,
+                Column(
+                  children: [
+                    Ink(
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, "/events",
+                                arguments: widget.device);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.description,
+                                    size: 30, color: AppColors.primary),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                Text(
+                                  "Eventos",
+                                  style: TextStyles.deviceActivities,
+                                )
+                              ],
                             ),
-                            Text(
-                              "Eventos",
-                              style: TextStyles.deviceActivities,
-                            )
-                          ],
-                        ),
-                      )),
+                          )),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                _ownerPermissions(widget.device.role)
+                    ? Column(
+                        children: [
+                          Ink(
+                            child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, "/guests",
+                                      arguments: widget.device);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.people,
+                                          size: 30, color: AppColors.primary),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      Text(
+                                        "Convidados",
+                                        style: TextStyles.deviceActivities,
+                                      )
+                                    ],
+                                  ),
+                                )),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                        ],
+                      )
+                    : const SizedBox(),
                 _ownerPermissions(widget.device.role)
                     ? Ink(
                         child: InkWell(
@@ -299,7 +496,7 @@ class _DevicePageState extends State<DevicePage> {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.people,
+                                  const Icon(Icons.send_to_mobile,
                                       size: 30, color: AppColors.primary),
                                   const SizedBox(
                                     width: 20,

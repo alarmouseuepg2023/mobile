@@ -3,6 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  network_info_plus
+  permission_handler_windows
   smart_auth
 )
 

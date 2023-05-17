@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/change_password/change_password_controller.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../shared/widgets/label_button/label_button.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -34,20 +35,20 @@ class _ChangePasswordState extends State<ChangePasswordPage> {
         _password.clear();
         _confirmPassword.clear();
         if (!mounted) return;
-        GlobalSnackBar.show(context,
+        GlobalToast.show(context,
             res.message != "" ? res.message : "Senha alterada com sucesso!");
       }
     } catch (e) {
       print(e);
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
                 : "Ocorreu um erro ao entrar. Tente novamente.");
       } else {
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context, "Ocorreu um erro ao entrar. Tente novamente.");
       }
     } finally {
@@ -87,7 +88,7 @@ class _ChangePasswordState extends State<ChangePasswordPage> {
                     onChanged: (value) {
                       _changePasswordController.onChange(oldPassword: value);
                     },
-                    validator: _changePasswordController.validatePassword,
+                    validator: validatePassword,
                   ),
                   TextInputWidget(
                       label: "Nova senha",
@@ -96,7 +97,7 @@ class _ChangePasswordState extends State<ChangePasswordPage> {
                         _changePasswordController.onChange(password: value);
                       },
                       controller: _password,
-                      validator: _changePasswordController.validatePassword),
+                      validator: validatePassword),
                   TextInputWidget(
                       label: "Confirme a senha",
                       passwordType: true,
@@ -105,8 +106,8 @@ class _ChangePasswordState extends State<ChangePasswordPage> {
                             confirmPassword: value);
                       },
                       controller: _confirmPassword,
-                      validator: (value) => _changePasswordController
-                          .validateConfirmPassword(value, _password.text)),
+                      validator: (value) =>
+                          validateConfirmPassword(value, _password.text)),
                   const SizedBox(
                     height: 30,
                   ),

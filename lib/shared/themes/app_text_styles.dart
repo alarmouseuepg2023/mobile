@@ -81,9 +81,54 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );
+  static final inviteAGuestBold = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
   static final pinInput = GoogleFonts.notoSans(
     fontSize: 20,
     fontWeight: FontWeight.w600,
     color: AppColors.primary,
+  );
+  static final inviteText = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
+  static final addDeviceIntro = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.text,
+  );
+  static final addDeviceIntroBold = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
+  static final inviteTextBold = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
+  static final inviteTextAnswer = GoogleFonts.notoSans(
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
+  static final inviteTextAnswerGoBack = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
+  static final revokeGuestText = GoogleFonts.notoSans(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.text,
+  );
+  static final scanQrCode = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: Colors.white,
   );
 }

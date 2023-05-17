@@ -6,9 +6,9 @@ import 'package:mobile/modules/devices/devices_controller.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/widgets/device_card/device_card_widget.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../shared/models/Device/device_model.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
 
 class DevicesPage extends StatefulWidget {
   const DevicesPage({super.key});
@@ -68,13 +68,13 @@ class _DevicesPageState extends State<DevicesPage> {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
 
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
                 : "Ocorreu um erro ao recuperar os dispositivos.");
       } else {
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context, "Ocorreu um erro ao recuperar os dispositivos.");
       }
     } finally {
@@ -145,7 +145,11 @@ class _DevicesPageState extends State<DevicesPage> {
         Align(
           alignment: Alignment.bottomRight,
           child: FloatingActionButton(
-            onPressed: loading ? null : () {},
+            onPressed: loading
+                ? null
+                : () {
+                    Navigator.pushNamed(context, "/add_device");
+                  },
             backgroundColor: AppColors.primary,
             child: const Icon(Icons.add, color: Colors.white, size: 30),
           ),

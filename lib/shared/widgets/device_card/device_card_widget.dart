@@ -54,16 +54,19 @@ class _DeviceCardWidgetState extends State<DeviceCardWidget> {
                       style: TextStyles.deviceCardOwnership),
                 ],
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {},
-                      icon: const Icon(Icons.power_settings_new, size: 50))
-                ],
-              )
+              widget.device.status != 'Desconfigurado'
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () {},
+                            icon:
+                                const Icon(Icons.power_settings_new, size: 50))
+                      ],
+                    )
+                  : const SizedBox()
             ],
           )),
     );

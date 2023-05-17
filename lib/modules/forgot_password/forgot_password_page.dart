@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/modules/forgot_password/forgot_password_controller.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
+import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../shared/widgets/label_button/label_button.dart';
-import '../../shared/widgets/snackbar/snackbar_widget.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -31,20 +31,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
       if (res != null) {
         if (!mounted) return;
-        GlobalSnackBar.show(context,
+        GlobalToast.show(context,
             res.message != "" ? res.message : "Usuário criado com sucesso!");
       }
     } catch (e) {
-      print(e);
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context,
             response.message != ""
                 ? response.message
                 : "Ocorreu um erro ao entrar. Tente novamente.");
       } else {
-        GlobalSnackBar.show(
+        GlobalToast.show(
             context, "Ocorreu um erro ao entrar. Tente novamente.");
       }
     } finally {
@@ -79,14 +78,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   TextInputWidget(
-                    label: "E-mail",
-                    onChanged: (value) {
-                      _forgotPasswordController.onChange(email: value);
-                    },
-                    validator: (value) => EmailValidator.validate(value ?? '')
-                        ? null
-                        : "Insira um e-mail válido",
-                  ),
+                      label: "E-mail",
+                      onChanged: (value) {
+                        _forgotPasswordController.onChange(email: value);
+                      },
+                      validator: validateEmail),
                   const SizedBox(
                     height: 10,
                   ),
