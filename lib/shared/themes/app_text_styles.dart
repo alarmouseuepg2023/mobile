@@ -26,6 +26,11 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );
+  static final inputBold = GoogleFonts.notoSans(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
   static final inputFocus = GoogleFonts.notoSans(
     fontSize: 15,
     fontWeight: FontWeight.w400,

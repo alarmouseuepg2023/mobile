@@ -1,12 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 import 'dart:convert';
-import 'package:mobile/shared/models/User/user_tokens_model.dart';
 
 class RegisterResponse {
   final String message;
   final bool success;
-  final UserTokensModel content;
+  final bool content;
 
   RegisterResponse({
     required this.message,
@@ -18,7 +17,7 @@ class RegisterResponse {
     return <String, dynamic>{
       'message': message,
       'success': success,
-      'content': content.toMap(),
+      'content': content,
     };
   }
 
@@ -26,7 +25,7 @@ class RegisterResponse {
     return RegisterResponse(
       message: map['message'] as String,
       success: map['success'] as bool,
-      content: UserTokensModel.fromMap(map['content'] as Map<String, dynamic>),
+      content: map['content'] as bool,
     );
   }
 
@@ -34,7 +33,7 @@ class RegisterResponse {
 
   factory RegisterResponse.fromJson(Map<String, dynamic> json) =>
       RegisterResponse(
-          content: UserTokensModel.fromJson(json['content']),
+          content: json['content'],
           message: json['message'],
           success: json['success']);
 

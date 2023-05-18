@@ -22,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _registerController = RegisterController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
+  final TextEditingController _email = TextEditingController();
   bool loading = false;
 
   Future<void> handleSignUp() async {
@@ -38,6 +39,8 @@ class _RegisterPageState extends State<RegisterPage> {
         if (!mounted) return;
         GlobalToast.show(context,
             res.message != "" ? res.message : "Usuário criado com sucesso!");
+        Navigator.pushNamed(context, "/confirm_account",
+            arguments: _email.text);
       }
     } catch (e) {
       if (e is DioError) {
@@ -46,10 +49,10 @@ class _RegisterPageState extends State<RegisterPage> {
             context,
             response.message != ""
                 ? response.message
-                : "Ocorreu um erro ao entrar. Tente novamente.");
+                : "Ocorreu um erro registrar. Tente novamente.");
       } else {
         GlobalToast.show(
-            context, "Ocorreu um erro ao entrar. Tente novamente.");
+            context, "Ocorreu um erro registrar. Tente novamente.");
       }
     } finally {
       setState(() {
@@ -91,6 +94,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   TextInputWidget(
                     label: "E-mail",
+                    controller: _email,
                     onChanged: (value) {
                       _registerController.onChange(email: value);
                     },
@@ -115,6 +119,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _confirmPassword,
                       validator: (value) =>
                           validateConfirmPassword(value, _password.text)),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Align(
+                      alignment: FractionalOffset.bottomRight,
+                      child: Ink(
+                        child: InkWell(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/confirm_account',
+                                  arguments: _email.text);
+                            },
+                            child: Text("Confirmar criação de conta",
+                                style: TextStyles.inputBold)),
+                      ),
+                    ),
+                  ),
                   const SizedBox(
                     height: 30,
                   ),

@@ -19,7 +19,7 @@ class MQTTClientManager {
       int.parse(dotenv.env['MQTT_PORT'] ?? '1883'));
 
   Future<int> connect() async {
-    client.logging(on: true);
+    //client.logging(on: true);
     client.keepAlivePeriod = 60;
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
