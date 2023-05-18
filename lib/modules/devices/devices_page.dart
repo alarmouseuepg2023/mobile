@@ -49,6 +49,7 @@ class _DevicesPageState extends State<DevicesPage> {
 
   Future<void> getDevices() async {
     if (!mounted || loading) return;
+    print('sim $mounted');
     try {
       setState(() {
         loading = true;
@@ -65,7 +66,13 @@ class _DevicesPageState extends State<DevicesPage> {
         _pageNumber++;
       });
     } catch (e) {
+      print(e);
       if (e is DioError) {
+        print(e.response);
+        if (e.response != null && e.response!.statusCode! >= 500) {
+          GlobalToast.show(context, "Ocorreu um erro ao consultar o servidor.");
+          return;
+        }
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
 
         GlobalToast.show(
@@ -117,8 +124,11 @@ class _DevicesPageState extends State<DevicesPage> {
                     DeviceCardWidget(
                       device: device,
                       onTap: () {
-                        Navigator.pushNamed(context, "/device",
-                            arguments: device);
+                        Navigator.pushNamed(
+                          context,
+                          "/device",
+                          arguments: device,
+                        );
                       },
                     ),
                     const SizedBox(

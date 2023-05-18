@@ -63,9 +63,17 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     });
   }
 
+  Future<void> turnOnCamera() async {
+    final camera = await Permission.camera.status;
+    if (camera.isGranted) {
+    } else {
+      await [Permission.camera].request();
+      turnOnCamera();
+    }
+  }
+
   Future<void> turnOnLocationServices() async {
     final status = await Permission.location.status;
-    final camera = await Permission.camera.status;
     if (status.isGranted) {
       location_lib.Location location = location_lib.Location();
       bool serviceEnabled;
@@ -100,12 +108,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       }
     } else {
       await [Permission.location].request();
-      turnOnLocationServices();
-    }
-
-    if (camera.isGranted) {
-    } else {
-      await [Permission.camera].request();
       turnOnLocationServices();
     }
   }

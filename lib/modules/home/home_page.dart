@@ -42,8 +42,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> setupMqttClient() async {
-    await mqttClientManager.connect().then((value) {
-      print("valuye $value");
+    await mqttClientManager.connect().onError((error, stackTrace) {
+      print(error);
+
+      return 0;
+    }).then((value) {
       if (value == 0) return;
       final userId = ref.read(authProvider).user!.id;
       mqttClientManager.subscribe(
@@ -70,7 +73,13 @@ class _HomePageState extends ConsumerState<HomePage> {
 
       ref.read(notificationsProvider).setNotifications(res.content.totalItems);
     } catch (e) {
+      print(e);
       if (e is DioError) {
+        print(e.response);
+        if (e.response != null && e.response!.statusCode! >= 500) {
+          GlobalToast.show(context, "Ocorreu um erro ao consultar o servidor.");
+          return;
+        }
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
 
         GlobalToast.show(
@@ -116,8 +125,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                 children: [
                   Positioned(
                       child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
                           color: Colors.grey.withOpacity(0.5),
                           child:
                               const Center(child: CircularProgressIndicator())))

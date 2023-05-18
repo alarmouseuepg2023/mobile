@@ -142,41 +142,35 @@ class _GuestsPageState extends State<GuestsPage> {
         builder: (BuildContext bc) {
           return StatefulBuilder(
               builder: (BuildContext context, StateSetter bottomState) {
-            return Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                    left: 20,
-                    right: 20,
-                    top: 10),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Remover convidado",
-                      style: TextStyles.inviteAGuestBold,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "Deseja remover o convidado deste dispositivo?",
-                      style: TextStyles.revokeGuestText,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    LabelButtonWidget(
-                        label: "REMOVER",
-                        onLoading: loading,
-                        onPressed: () {
-                          handleRevokeGuest(guestId, bottomState);
-                        }),
-                    const SizedBox(
-                      height: 30,
-                    )
-                  ],
-                ));
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Remover convidado",
+                  style: TextStyles.inviteAGuestBold,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "Deseja remover o convidado deste dispositivo?",
+                  style: TextStyles.revokeGuestText,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                LabelButtonWidget(
+                    label: "REMOVER",
+                    onLoading: loading,
+                    onPressed: () {
+                      handleRevokeGuest(guestId, bottomState);
+                    }),
+                const SizedBox(
+                  height: 30,
+                )
+              ],
+            );
           });
         });
   }

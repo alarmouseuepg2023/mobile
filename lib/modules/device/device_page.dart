@@ -28,12 +28,12 @@ class _DevicePageState extends State<DevicePage> {
   String _status = '0';
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
+  final TextEditingController _pinput = TextEditingController();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
   bool _ownerPermissions(String role) => role == 'DEVICE_OWNER' ? true : false;
 
-  @override
   @override
   void initState() {
     setState(() {
@@ -150,89 +150,89 @@ class _DevicePageState extends State<DevicePage> {
               builder: (BuildContext context, StateSetter bottomState) {
             if (feature == 'STATUS') {
               return Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      left: 20,
-                      right: 20,
-                      top: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Mudar o estado do dispositivo",
-                        style: TextStyles.inviteAGuest,
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                    top: 20,
+                    left: 20,
+                    right: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Mudar o estado do dispositivo",
+                      style: TextStyles.inviteAGuest,
+                    ),
+                    const SizedBox(height: 30),
+                    Form(
+                      key: deviceController.statusFormKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          PinInputWidget(
+                            autoFocus: true,
+                            onChanged: (value) => deviceController
+                                .onChangeStatus(password: value),
+                            validator: validatePin,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 30),
-                      Form(
-                        key: deviceController.statusFormKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PinInputWidget(
-                              autoFocus: true,
-                              onChanged: (value) => deviceController
-                                  .onChangeStatus(password: value),
-                              validator: validatePin,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      LabelButtonWidget(
-                          label: "ENVIAR",
-                          onLoading: loading,
-                          onPressed: () {
-                            final newStatus =
-                                getDeviceStatusCode(_status) == '2' ? '1' : '2';
-
-                            deviceController.onChangeStatus(status: newStatus);
-                            handleChangeStatus(bottomState);
-                          }),
-                      const SizedBox(
-                        height: 30,
-                      )
-                    ],
-                  ));
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    LabelButtonWidget(
+                        label: "ENVIAR",
+                        onLoading: loading,
+                        onPressed: () {
+                          handleChangeStatus(bottomState);
+                        }),
+                    const SizedBox(
+                      height: 30,
+                    )
+                  ],
+                ),
+              );
             }
             if (feature == 'SHARE') {
               return Padding(
                   padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      left: 20,
-                      right: 20,
-                      top: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Insira um e-mail para compartilhar",
-                        style: TextStyles.inviteAGuest,
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: SizedBox(
+                    height: 200,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Wrap(
+                        children: [
+                          Text(
+                            "Insira um e-mail para compartilhar",
+                            style: TextStyles.inviteAGuest,
+                          ),
+                          const SizedBox(height: 30),
+                          Form(
+                            key: deviceController.inviteFormKey,
+                            child: TextInputWidget(
+                                label: "E-mail",
+                                validator: validateEmail,
+                                onChanged: (value) {
+                                  deviceController.onChangeInvite(email: value);
+                                }),
+                          ),
+                          const SizedBox(
+                            height: 40,
+                          ),
+                          LabelButtonWidget(
+                              label: "ENVIAR",
+                              onLoading: loading,
+                              onPressed: () {
+                                handleInvite(bottomState);
+                              }),
+                          const SizedBox(
+                            height: 30,
+                          )
+                        ],
                       ),
-                      const SizedBox(height: 30),
-                      Form(
-                        key: deviceController.inviteFormKey,
-                        child: TextInputWidget(
-                            label: "E-mail",
-                            validator: validateEmail,
-                            onChanged: (value) {
-                              deviceController.onChangeInvite(email: value);
-                            }),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      LabelButtonWidget(
-                          label: "ENVIAR",
-                          onLoading: loading,
-                          onPressed: () {
-                            handleInvite(bottomState);
-                          }),
-                      const SizedBox(
-                        height: 30,
-                      )
-                    ],
+                    ),
                   ));
             }
             if (feature == 'WIFI') {

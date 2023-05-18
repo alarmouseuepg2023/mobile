@@ -30,6 +30,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      print('notifis');
       getNotifications();
       // setupMqttClient();
       // setupUpdatesListener();
