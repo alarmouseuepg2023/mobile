@@ -5,6 +5,7 @@ import 'package:mobile/shared/models/Invite/invite_request_model.dart';
 import 'package:mobile/shared/models/Invite/invite_response_model.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/models/Status/status_request_model.dart';
+import 'package:mobile/shared/models/Status/status_response_model.dart';
 import 'package:mobile/shared/models/Wifi/wifi_response_model.dart';
 import 'package:mobile/shared/models/Wifi/wifi_resquest_model.dart';
 
@@ -41,7 +42,7 @@ class DeviceController {
         confirmPassword: confirmPassword);
   }
 
-  Future<ServerResponse?> changeStatus(String deviceId) async {
+  Future<StatusResponseModel?> changeStatus(String deviceId) async {
     final formData = statusModel.toJson();
     final form = statusFormKey.currentState;
 
@@ -53,7 +54,8 @@ class DeviceController {
     if (form!.validate()) {
       final response = await dio.post('device/status/$deviceId',
           data: formData, options: Options());
-      ServerResponse data = ServerResponse.fromJson(response.data);
+
+      StatusResponseModel data = StatusResponseModel.fromJson(response.data);
       return data;
     }
     return null;

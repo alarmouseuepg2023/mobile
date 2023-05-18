@@ -55,7 +55,7 @@ class MQTTClientManager {
   }
 
   void onConnected() {
-    print('CONECTEI MESMO PUTA VADIA DE MERDA');
+    print('MQTT CONNECTED');
   }
 
   void onDisconnected() {
