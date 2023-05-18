@@ -36,7 +36,9 @@ class _DevicePageState extends State<DevicePage> {
   @override
   @override
   void initState() {
-    _status = widget.device.status;
+    setState(() {
+      _status = widget.device.status;
+    });
     super.initState();
   }
 
@@ -80,10 +82,10 @@ class _DevicePageState extends State<DevicePage> {
       if (res != null) {
         if (!mounted) return;
 
-        final newStatus = _status == '2' ? '1' : '2';
+        final newStatus = getDeviceStatusCode(_status) == '2' ? '1' : '2';
 
         setState(() {
-          _status = newStatus;
+          _status = getDeviceStatusLabel(newStatus);
         });
 
         GlobalToast.show(context,
@@ -95,7 +97,7 @@ class _DevicePageState extends State<DevicePage> {
         GlobalToast.show(context, response.message);
       } else {
         GlobalToast.show(
-            context, "Ocorreu um erro ao convidar o usuário. Tente novamente.");
+            context, "Ocorreu um erro ao alterar o estado. Tente novamente.");
       }
     } finally {
       setState(() {
@@ -182,6 +184,10 @@ class _DevicePageState extends State<DevicePage> {
                           label: "ENVIAR",
                           onLoading: loading,
                           onPressed: () {
+                            final newStatus =
+                                getDeviceStatusCode(_status) == '2' ? '1' : '2';
+
+                            deviceController.onChangeStatus(status: newStatus);
                             handleChangeStatus(bottomState);
                           }),
                       const SizedBox(
@@ -396,10 +402,6 @@ class _DevicePageState extends State<DevicePage> {
                   child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(50)),
                       onTap: () {
-                        final newStatus = _status == '2' ? '1' : '2';
-
-                        deviceController.onChangeStatus(status: newStatus);
-
                         showBottomSheet(context, 'STATUS');
                       },
                       child: const Icon(Icons.power_settings_new,
@@ -415,9 +417,7 @@ class _DevicePageState extends State<DevicePage> {
               children: [
                 Text.rich(TextSpan(children: [
                   TextSpan(text: "Estado: ", style: TextStyles.deviceStatusSub),
-                  TextSpan(
-                      text: getDeviceStatusLabel(_status),
-                      style: TextStyles.deviceCardStatus)
+                  TextSpan(text: _status, style: TextStyles.deviceCardStatus)
                 ])),
                 Text(_getDeviceOwnership(widget.device.role),
                     style: TextStyles.deviceCardOwnership),
