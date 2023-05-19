@@ -49,7 +49,6 @@ class _DevicesPageState extends State<DevicesPage> {
 
   Future<void> getDevices() async {
     if (!mounted || loading) return;
-    print('sim $mounted');
     try {
       setState(() {
         loading = true;
@@ -66,9 +65,7 @@ class _DevicesPageState extends State<DevicesPage> {
         _pageNumber++;
       });
     } catch (e) {
-      print(e);
       if (e is DioError) {
-        print(e.response);
         if (e.response != null && e.response!.statusCode! >= 500) {
           GlobalToast.show(context, "Ocorreu um erro ao consultar o servidor.");
           return;
@@ -128,7 +125,9 @@ class _DevicesPageState extends State<DevicesPage> {
                           context,
                           "/device",
                           arguments: device,
-                        );
+                        ).then((_) {
+                          refresh();
+                        });
                       },
                     ),
                     const SizedBox(
@@ -158,7 +157,10 @@ class _DevicesPageState extends State<DevicesPage> {
             onPressed: loading
                 ? null
                 : () {
-                    Navigator.pushNamed(context, "/add_device");
+                    Navigator.pushNamed(context, "/add_device").then((_) {
+                      print('here');
+                      refresh();
+                    });
                   },
             backgroundColor: AppColors.primary,
             child: const Icon(Icons.add, color: Colors.white, size: 30),

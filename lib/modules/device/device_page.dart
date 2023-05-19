@@ -28,7 +28,6 @@ class _DevicePageState extends State<DevicePage> {
   String _status = '0';
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
-  final TextEditingController _pinput = TextEditingController();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
@@ -36,6 +35,7 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   void initState() {
+    print(widget.device.status);
     setState(() {
       _status = widget.device.status;
     });
@@ -78,15 +78,19 @@ class _DevicePageState extends State<DevicePage> {
         loading = true;
       });
       bottomState(() {});
+
+      final newStatus = getDeviceStatusCode(_status) == '2' ? '1' : '2';
+      deviceController.onChangeStatus(status: newStatus);
       final res = await deviceController.changeStatus(widget.device.id);
+
       if (res != null) {
         if (!mounted) return;
-
-        final newStatus = getDeviceStatusCode(_status) == '2' ? '1' : '2';
 
         setState(() {
           _status = getDeviceStatusLabel(newStatus);
         });
+
+        Navigator.pop(context);
 
         GlobalToast.show(context,
             res.message != "" ? res.message : "Estado alterado com sucesso!");
@@ -571,7 +575,7 @@ class _DevicePageState extends State<DevicePage> {
                   )
                 : const SizedBox(),
             const SizedBox(
-              height: 30,
+              height: 60,
             )
           ]),
         ),

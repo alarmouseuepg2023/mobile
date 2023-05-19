@@ -43,8 +43,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> setupMqttClient() async {
     await mqttClientManager.connect().onError((error, stackTrace) {
-      print(error);
-
       return 0;
     }).then((value) {
       if (value == 0) return;
@@ -73,9 +71,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
       ref.read(notificationsProvider).setNotifications(res.content.totalItems);
     } catch (e) {
-      print(e);
       if (e is DioError) {
-        print(e.response);
         if (e.response != null && e.response!.statusCode! >= 500) {
           GlobalToast.show(context, "Ocorreu um erro ao consultar o servidor.");
           return;
