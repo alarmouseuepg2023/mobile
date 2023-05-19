@@ -136,4 +136,14 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: Colors.white,
   );
+  static final deleteDevice = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.warning,
+  );
+  static final cancelDialog = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.text,
+  );
 }

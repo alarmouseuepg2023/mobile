@@ -96,4 +96,11 @@ class DeviceController {
     }
     return null;
   }
+
+  Future<ServerResponse?> deleteDevice(String deviceId) async {
+    final response = await dio.delete('device/$deviceId', options: Options());
+    ServerResponse data = ServerResponse.fromJson(response.data);
+
+    return data;
+  }
 }

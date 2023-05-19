@@ -35,7 +35,6 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   void initState() {
-    print(widget.device.status);
     setState(() {
       _status = widget.device.status;
     });
@@ -142,6 +141,41 @@ class _DevicePageState extends State<DevicePage> {
       });
 
       bottomState(() {});
+    }
+  }
+
+  Future<void> handleDeleteDevice() async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      final res = await deviceController.deleteDevice(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+        GlobalToast.show(
+            context,
+            res.message != ""
+                ? res.message
+                : "Dispostivo removido com sucesso!");
+
+        Navigator.pushReplacementNamed(context, "/home");
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao remover o dispositivo. Tente novamente.");
+      } else {
+        GlobalToast.show(context,
+            "Ocorreu um erro ao remover o dispositivo. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
     }
   }
 
@@ -377,6 +411,53 @@ class _DevicePageState extends State<DevicePage> {
         });
   }
 
+  void showAlertDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Center(
+              child: Text(
+                "Atenção!",
+                style: TextStyles.addDeviceIntroBold,
+              ),
+            ),
+            content: Text(
+              "Tem certeza que deseja remover este dispositivo?",
+              style: TextStyles.addDeviceIntro,
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  handleDeleteDevice();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    "Continuar",
+                    style: TextStyles.deleteDevice,
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Cancelar",
+                    style: TextStyles.cancelDialog,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -570,7 +651,9 @@ class _DevicePageState extends State<DevicePage> {
             _ownerPermissions(widget.device.role)
                 ? LabelButtonWidget(
                     label: "REMOVER DISPOSITIVO",
-                    onPressed: () {},
+                    onPressed: () {
+                      showAlertDialog(context);
+                    },
                     reversed: true,
                   )
                 : const SizedBox(),
