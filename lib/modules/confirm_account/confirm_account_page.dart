@@ -64,7 +64,6 @@ class _ConfirmAccountPageState extends ConsumerState<ConfirmAccountPage> {
         Navigator.pushReplacementNamed(context, "/home");
       }
     } catch (e) {
-      print(e);
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
         GlobalToast.show(

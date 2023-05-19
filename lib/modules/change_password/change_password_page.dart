@@ -39,7 +39,6 @@ class _ChangePasswordState extends State<ChangePasswordPage> {
             res.message != "" ? res.message : "Senha alterada com sucesso!");
       }
     } catch (e) {
-      print(e);
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
         GlobalToast.show(

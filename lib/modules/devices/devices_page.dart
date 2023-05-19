@@ -158,7 +158,6 @@ class _DevicesPageState extends State<DevicesPage> {
                 ? null
                 : () {
                     Navigator.pushNamed(context, "/add_device").then((_) {
-                      print('here');
                       refresh();
                     });
                   },
