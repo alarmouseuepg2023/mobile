@@ -203,7 +203,6 @@ class _DevicePageState extends State<DevicePage> {
             res.message != "" ? res.message : "Nome alterado com sucesso!");
       }
     } catch (e) {
-      print(e);
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
         GlobalToast.show(
