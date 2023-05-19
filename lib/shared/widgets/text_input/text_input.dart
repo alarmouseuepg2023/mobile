@@ -13,6 +13,7 @@ class TextInputWidget extends StatefulWidget {
   final TextEditingController? controller;
   final void Function(String value) onChanged;
   final bool? loading;
+  final int? maxLength;
 
   const TextInputWidget(
       {Key? key,
@@ -23,7 +24,8 @@ class TextInputWidget extends StatefulWidget {
       this.validator,
       this.controller,
       this.passwordType,
-      this.loading})
+      this.loading,
+      this.maxLength})
       : super(key: key);
 
   @override
@@ -62,6 +64,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
               onChanged: widget.onChanged,
               obscureText: hiddenPassword,
               enableSuggestions: !hiddenPassword,
+              maxLength: widget.maxLength,
               autocorrect: !hiddenPassword,
               style: TextStyles.input,
               decoration: InputDecoration(

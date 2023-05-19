@@ -26,8 +26,10 @@ class _DevicePageState extends State<DevicePage> {
   bool loading = false;
   bool bottomload = false;
   String _status = '0';
+  String _nickname = "";
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
+  final TextEditingController _nicknameController = TextEditingController();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
@@ -37,6 +39,7 @@ class _DevicePageState extends State<DevicePage> {
   void initState() {
     setState(() {
       _status = widget.device.status;
+      _nickname = widget.device.nickname;
     });
     super.initState();
   }
@@ -50,6 +53,7 @@ class _DevicePageState extends State<DevicePage> {
       final res = await deviceController.inviteGuest(widget.device.id);
       if (res != null) {
         if (!mounted) return;
+        Navigator.pop(context);
 
         GlobalToast.show(context,
             res.message != "" ? res.message : "Usuário convidado com sucesso!");
@@ -120,6 +124,8 @@ class _DevicePageState extends State<DevicePage> {
       final res = await deviceController.changePassword(widget.device.id);
       if (res != null) {
         if (!mounted) return;
+
+        Navigator.pop(context);
         GlobalToast.show(context,
             res.message != "" ? res.message : "Senha alterada com sucesso!");
       }
@@ -179,6 +185,44 @@ class _DevicePageState extends State<DevicePage> {
     }
   }
 
+  Future<void> handleChangeNickname(StateSetter bottomState) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      bottomState(() {});
+      final res = await deviceController.changeNickname(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+
+        setState(() {
+          _nickname = _nicknameController.text;
+        });
+        Navigator.pop(context);
+        GlobalToast.show(context,
+            res.message != "" ? res.message : "Nome alterado com sucesso!");
+      }
+    } catch (e) {
+      print(e);
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao renomear o dispositivo. Tente novamente.");
+      } else {
+        GlobalToast.show(context,
+            "Ocorreu um erro ao renomear o dispositivo. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+      bottomState(() {});
+    }
+  }
+
   void showBottomSheet(context, String feature) {
     showModalBottomSheet(
         context: context,
@@ -234,43 +278,82 @@ class _DevicePageState extends State<DevicePage> {
             if (feature == 'SHARE') {
               return Padding(
                   padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  child: SizedBox(
-                    height: 200,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Wrap(
-                        children: [
-                          Text(
-                            "Insira um e-mail para compartilhar",
-                            style: TextStyles.inviteAGuest,
-                          ),
-                          const SizedBox(height: 30),
-                          Form(
-                            key: deviceController.inviteFormKey,
-                            child: TextInputWidget(
-                                label: "E-mail",
-                                validator: validateEmail,
-                                onChanged: (value) {
-                                  deviceController.onChangeInvite(email: value);
-                                }),
-                          ),
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          LabelButtonWidget(
-                              label: "ENVIAR",
-                              onLoading: loading,
-                              onPressed: () {
-                                handleInvite(bottomState);
-                              }),
-                          const SizedBox(
-                            height: 30,
-                          )
-                        ],
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      top: 20,
+                      left: 20,
+                      right: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Insira um e-mail para compartilhar",
+                        style: TextStyles.inviteAGuest,
                       ),
-                    ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: deviceController.inviteFormKey,
+                        child: TextInputWidget(
+                            label: "E-mail",
+                            validator: validateEmail,
+                            onChanged: (value) {
+                              deviceController.onChangeInvite(email: value);
+                            }),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      LabelButtonWidget(
+                          label: "ENVIAR",
+                          onLoading: loading,
+                          onPressed: () {
+                            handleInvite(bottomState);
+                          }),
+                      const SizedBox(
+                        height: 30,
+                      )
+                    ],
+                  ));
+            }
+            if (feature == 'NICKNAME') {
+              return Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      top: 20,
+                      left: 20,
+                      right: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Insira o novo nome",
+                        style: TextStyles.inviteAGuest,
+                      ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: deviceController.nicknameFormKey,
+                        child: TextInputWidget(
+                            label: "Nome",
+                            controller: _nicknameController,
+                            validator: validateName,
+                            maxLength: 32,
+                            onChanged: (value) {
+                              deviceController.onChangeNickname(
+                                  nickname: value);
+                            }),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      LabelButtonWidget(
+                          label: "ENVIAR",
+                          onLoading: loading,
+                          onPressed: () {
+                            handleChangeNickname(bottomState);
+                          }),
+                      const SizedBox(
+                        height: 30,
+                      )
+                    ],
                   ));
             }
             if (feature == 'WIFI') {
@@ -467,9 +550,14 @@ class _DevicePageState extends State<DevicePage> {
         shadowColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.primary),
-        title: Text(
-          widget.device.nickname,
-          style: TextStyles.register,
+        title: InkWell(
+          onTap: () {
+            showBottomSheet(context, 'NICKNAME');
+          },
+          child: Text(
+            _nickname,
+            style: TextStyles.register,
+          ),
         ),
         centerTitle: true,
       ),
