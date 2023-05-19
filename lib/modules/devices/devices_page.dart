@@ -126,7 +126,9 @@ class _DevicesPageState extends State<DevicesPage> {
                           "/device",
                           arguments: device,
                         ).then((_) {
-                          refresh();
+                          if (mounted) {
+                            refresh();
+                          }
                         });
                       },
                     ),
@@ -158,7 +160,9 @@ class _DevicesPageState extends State<DevicesPage> {
                 ? null
                 : () {
                     Navigator.pushNamed(context, "/add_device").then((_) {
-                      refresh();
+                      if (mounted) {
+                        refresh();
+                      }
                     });
                   },
             backgroundColor: AppColors.primary,
