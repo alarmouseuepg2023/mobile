@@ -600,8 +600,11 @@ class _DevicePageState extends State<DevicePage> {
                       onTap: () {
                         showBottomSheet(context, 'STATUS');
                       },
-                      child: const Icon(Icons.power_settings_new,
-                          color: AppColors.primary, size: 100)),
+                      child: Icon(Icons.power_settings_new,
+                          color: _status == 'Desbloqueado'
+                              ? AppColors.textFaded
+                              : AppColors.primary,
+                          size: 100)),
                 ),
               ),
             ),
