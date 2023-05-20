@@ -56,6 +56,11 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.primary,
   );
+  static final profileMenuItemDanger = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.warning,
+  );
   static final deviceCardName = GoogleFonts.notoSans(
     fontSize: 20,
     fontWeight: FontWeight.w400,

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile/modules/add_device/add_device_page.dart';
 import 'package:mobile/modules/change_password/change_password_page.dart';
 import 'package:mobile/modules/confirm_account/confirm_account_page.dart';
+import 'package:mobile/modules/delete_account/delete_account_page.dart';
 import 'package:mobile/modules/device/device_page.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/events/events_page.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         },
         "/profile": (context) => const ProfilePage(),
         "/change_password": (context) => const ChangePasswordPage(),
+        "/delete_account": (context) => const DeleteAccountPage(),
         "/confirm_account": (context) => ConfirmAccountPage(
               email: ModalRoute.of(context)!.settings.arguments as String,
             ),
