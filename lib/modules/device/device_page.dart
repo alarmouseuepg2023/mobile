@@ -44,6 +44,14 @@ class _DevicePageState extends State<DevicePage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _password.dispose();
+    _confirmPassword.dispose();
+    _nicknameController.dispose();
+    super.dispose();
+  }
+
   Future<void> handleInvite(StateSetter bottomState) async {
     try {
       setState(() {
@@ -198,7 +206,6 @@ class _DevicePageState extends State<DevicePage> {
         setState(() {
           _nickname = _nicknameController.text;
         });
-        Navigator.pop(context);
         GlobalToast.show(context,
             res.message != "" ? res.message : "Nome alterado com sucesso!");
       }
@@ -218,6 +225,7 @@ class _DevicePageState extends State<DevicePage> {
       setState(() {
         loading = false;
       });
+
       bottomState(() {});
     }
   }
@@ -549,13 +557,29 @@ class _DevicePageState extends State<DevicePage> {
         shadowColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.primary),
-        title: InkWell(
-          onTap: () {
-            showBottomSheet(context, 'NICKNAME');
-          },
-          child: Text(
-            _nickname,
-            style: TextStyles.register,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: InkWell(
+                  onTap: () {
+                    _nicknameController.text = _nickname;
+                    deviceController.onChangeNickname(nickname: _nickname);
+                    showBottomSheet(context, 'NICKNAME');
+                  },
+                  child: Text(
+                    _nickname,
+                    style: TextStyles.register,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         centerTitle: true,

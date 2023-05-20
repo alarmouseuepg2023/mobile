@@ -37,36 +37,44 @@ class _DeviceCardWidgetState extends State<DeviceCardWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(widget.device.nickname,
-                      style: TextStyles.deviceCardName),
-                  Text.rich(TextSpan(children: [
-                    TextSpan(
-                        text: "Estado: ", style: TextStyles.deviceStatusSub),
-                    TextSpan(
-                        text: widget.device.status,
-                        style: TextStyles.deviceCardStatus)
-                  ])),
-                  Text(_getDeviceOwnership(widget.device.role),
-                      style: TextStyles.deviceCardOwnership),
-                ],
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.device.nickname,
+                      style: TextStyles.deviceCardName,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      softWrap: false,
+                    ),
+                    Text.rich(TextSpan(children: [
+                      TextSpan(
+                          text: "Estado: ", style: TextStyles.deviceStatusSub),
+                      TextSpan(
+                          text: widget.device.status,
+                          style: TextStyles.deviceCardStatus)
+                    ])),
+                    Text(_getDeviceOwnership(widget.device.role),
+                        style: TextStyles.deviceCardOwnership),
+                  ],
+                ),
               ),
-              widget.device.status != 'Desconfigurado'
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        IconButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () {},
-                            icon:
-                                const Icon(Icons.power_settings_new, size: 50))
-                      ],
-                    )
-                  : const SizedBox()
+              // widget.device.status != 'Desconfigurado'
+              //     ? Column(
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         crossAxisAlignment: CrossAxisAlignment.center,
+              //         children: [
+              //           IconButton(
+              //               padding: EdgeInsets.zero,
+              //               onPressed: () {},
+              //               icon:
+              //                   const Icon(Icons.power_settings_new, size: 50))
+              //         ],
+              //       )
+              //     : const SizedBox()
             ],
           )),
     );

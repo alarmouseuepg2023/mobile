@@ -86,10 +86,13 @@ class DeviceController {
     final form = nicknameFormKey.currentState;
 
     if (form!.validate()) {
-      final response = await dio.patch('device/changeNickname/$deviceId',
+      await dio.patch('device/changeNickname/$deviceId',
           data: formData, options: Options());
-      ServerResponse data = ServerResponse.fromJson(response.data);
-      return data;
+      //ServerResponse data = ServerResponse.fromJson(response.data);
+      return ServerResponse(
+          message: "Operação realizada com sucesso",
+          success: true,
+          content: true);
     }
     return null;
   }
