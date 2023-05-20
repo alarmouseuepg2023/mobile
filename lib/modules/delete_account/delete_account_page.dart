@@ -83,110 +83,122 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          shadowColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: AppColors.primary),
-          title: Text(
-            "Excluir conta",
-            style: TextStyles.register,
+    return WillPopScope(
+      onWillPop: () async {
+        if (_mode) {
+          Navigator.pop(context);
+        } else {
+          setState(() {
+            _mode = true;
+          });
+        }
+        return false;
+      },
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            shadowColor: Colors.white,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: AppColors.primary),
+            title: Text(
+              "Excluir conta",
+              style: TextStyles.register,
+            ),
+            centerTitle: true,
+            leading: _mode
+                ? null
+                : InkWell(
+                    onTap: (() {
+                      setState(() {
+                        _mode = true;
+                      });
+                    }),
+                    child: const Icon(Icons.arrow_back)),
           ),
-          centerTitle: true,
-          leading: _mode
-              ? null
-              : InkWell(
-                  onTap: (() {
-                    setState(() {
-                      _mode = true;
-                    });
-                  }),
-                  child: const Icon(Icons.arrow_back)),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: _mode
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Um código de 6 dígitos será enviado para seu email para prosseguir com a exclusão da conta. Caso já possua o código, basta escolher a opção "INSERIR CÓDIGO".',
-                        style: TextStyles.inviteTextAnswerGoBack,
-                        textAlign: TextAlign.justify,
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      LabelButtonWidget(
-                          onLoading: _loading,
-                          label: 'SOLICITAR EXCLUSÃO',
-                          onPressed: () {
-                            handleRequestDelete();
-                          }),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      LabelButtonWidget(
-                          onLoading: _loading,
-                          label: 'INSERIR CÓDIGO',
-                          reversed: true,
-                          onPressed: () {
-                            setState(() {
-                              _mode = false;
-                            });
-                          }),
-                    ],
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'A exclusão da conta é permanente, todos os dados e dispositivos serão perdidos!',
-                        style: TextStyles.inviteAGuestBold,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Text(
-                        "Código de exclusão",
-                        style: TextStyles.input,
-                        textAlign: TextAlign.start,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Form(
-                        key: _deleteAccountController.formKey,
-                        child: PinInputWidget(
-                          onChanged: (value) {
-                            _deleteAccountController.onChange(pin: value);
-                          },
-                          validator: validatePin,
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _mode
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          height: 20,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      LabelButtonWidget(
-                          onLoading: _loading,
-                          label: 'EXCLUIR CONTA',
-                          onPressed: () {
-                            handleConfirmDelete();
-                          }),
-                    ],
-                  ),
+                        Text(
+                          'Um código de 6 dígitos será enviado para seu email para prosseguir com a exclusão da conta. Caso já possua o código, basta escolher a opção "INSERIR CÓDIGO".',
+                          style: TextStyles.inviteTextAnswerGoBack,
+                          textAlign: TextAlign.justify,
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        LabelButtonWidget(
+                            onLoading: _loading,
+                            label: 'SOLICITAR EXCLUSÃO',
+                            onPressed: () {
+                              handleRequestDelete();
+                            }),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        LabelButtonWidget(
+                            onLoading: _loading,
+                            label: 'INSERIR CÓDIGO',
+                            reversed: true,
+                            onPressed: () {
+                              setState(() {
+                                _mode = false;
+                              });
+                            }),
+                      ],
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'A exclusão da conta é permanente, todos os dados e dispositivos serão perdidos!',
+                          style: TextStyles.inviteAGuestBold,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          "Código de exclusão",
+                          style: TextStyles.input,
+                          textAlign: TextAlign.start,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Form(
+                          key: _deleteAccountController.formKey,
+                          child: PinInputWidget(
+                            onChanged: (value) {
+                              _deleteAccountController.onChange(pin: value);
+                            },
+                            validator: validatePin,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 50,
+                        ),
+                        LabelButtonWidget(
+                            onLoading: _loading,
+                            label: 'EXCLUIR CONTA',
+                            onPressed: () {
+                              handleConfirmDelete();
+                            }),
+                      ],
+                    ),
+            ),
           ),
         ),
       ),
