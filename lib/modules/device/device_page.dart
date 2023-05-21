@@ -206,6 +206,7 @@ class _DevicePageState extends State<DevicePage> {
         setState(() {
           _nickname = _nicknameController.text;
         });
+        Navigator.pop(context);
         GlobalToast.show(context,
             res.message != "" ? res.message : "Nome alterado com sucesso!");
       }
@@ -300,6 +301,7 @@ class _DevicePageState extends State<DevicePage> {
                       Form(
                         key: deviceController.inviteFormKey,
                         child: TextInputWidget(
+                            notAnimated: true,
                             label: "E-mail",
                             validator: validateEmail,
                             onChanged: (value) {
@@ -339,6 +341,7 @@ class _DevicePageState extends State<DevicePage> {
                       Form(
                         key: deviceController.nicknameFormKey,
                         child: TextInputWidget(
+                            notAnimated: true,
                             label: "Nome",
                             controller: _nicknameController,
                             validator: validateName,
@@ -382,12 +385,14 @@ class _DevicePageState extends State<DevicePage> {
                         key: deviceController.wifiFormKey,
                         child: Column(children: [
                           TextInputWidget(
+                              notAnimated: true,
                               label: "Nome da rede",
                               validator: validateSsid,
                               onChanged: (value) {
                                 deviceController.onChangeWifi(ssid: value);
                               }),
                           TextInputWidget(
+                              notAnimated: true,
                               label: "Senha",
                               passwordType: true,
                               validator: validatePassword,

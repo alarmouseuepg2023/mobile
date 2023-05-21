@@ -14,6 +14,7 @@ class TextInputWidget extends StatefulWidget {
   final void Function(String value) onChanged;
   final bool? loading;
   final int? maxLength;
+  final bool? notAnimated;
 
   const TextInputWidget(
       {Key? key,
@@ -25,7 +26,8 @@ class TextInputWidget extends StatefulWidget {
       this.controller,
       this.passwordType,
       this.loading,
-      this.maxLength})
+      this.maxLength,
+      this.notAnimated})
       : super(key: key);
 
   @override
@@ -51,67 +53,68 @@ class _TextInputWidgetState extends State<TextInputWidget> {
       });
     }
 
-    return AnimatedCard(
-      direction: AnimatedCardDirection.left,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: widget.controller,
-              initialValue: widget.initalValue,
-              validator: widget.validator,
-              onChanged: widget.onChanged,
-              obscureText: hiddenPassword,
-              enableSuggestions: !hiddenPassword,
-              maxLength: widget.maxLength,
-              autocorrect: !hiddenPassword,
-              style: TextStyles.input,
-              decoration: InputDecoration(
-                suffixIcon: widget.passwordType == true
-                    ? InkWell(
-                        onTap: togglePasswordView,
-                        child: Icon(
-                            hiddenPassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: AppColors.primary))
-                    : widget.loading != null && widget.loading == true
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : null,
-                focusedBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(2)),
-                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                labelText: widget.label,
-                labelStyle: TextStyles.input,
-                prefixIcon: widget.icon != null
-                    ? Icon(
-                        widget.icon,
-                        color: AppColors.primary,
-                      )
-                    : null,
-                enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(2)),
-                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
-                errorBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(2)),
-                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
-                focusedErrorBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(2)),
-                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
-              ),
-            )
-          ],
-        ),
+    Widget textInput = Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        children: [
+          TextFormField(
+            controller: widget.controller,
+            initialValue: widget.initalValue,
+            validator: widget.validator,
+            onChanged: widget.onChanged,
+            obscureText: hiddenPassword,
+            enableSuggestions: !hiddenPassword,
+            maxLength: widget.maxLength,
+            autocorrect: !hiddenPassword,
+            style: TextStyles.input,
+            decoration: InputDecoration(
+              suffixIcon: widget.passwordType == true
+                  ? InkWell(
+                      onTap: togglePasswordView,
+                      child: Icon(
+                          hiddenPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: AppColors.primary))
+                  : widget.loading != null && widget.loading == true
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : null,
+              focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                  borderSide: BorderSide(color: AppColors.primary, width: 1)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              labelText: widget.label,
+              labelStyle: TextStyles.input,
+              prefixIcon: widget.icon != null
+                  ? Icon(
+                      widget.icon,
+                      color: AppColors.primary,
+                    )
+                  : null,
+              enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                  borderSide: BorderSide(color: AppColors.primary, width: 1)),
+              errorBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                  borderSide: BorderSide(color: AppColors.primary, width: 1)),
+              focusedErrorBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                  borderSide: BorderSide(color: AppColors.primary, width: 1)),
+            ),
+          )
+        ],
       ),
     );
+
+    return widget.notAnimated == true
+        ? textInput
+        : AnimatedCard(direction: AnimatedCardDirection.left, child: textInput);
   }
 }
