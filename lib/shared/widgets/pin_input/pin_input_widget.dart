@@ -29,6 +29,7 @@ class PinInputWidget extends StatelessWidget {
       autofocus: autoFocus ?? false,
       onCompleted: onComplete,
       controller: controller,
+      keyboardType: TextInputType.number,
       defaultPinTheme: PinTheme(
           height: 45,
           width: 45,
