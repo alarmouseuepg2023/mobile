@@ -9,6 +9,11 @@ class TextStyles {
     fontWeight: FontWeight.w200,
     color: AppColors.primary,
   );
+  static final counterTitle = GoogleFonts.notoSans(
+    fontSize: 70,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primary,
+  );
   static final subtitleLogin = GoogleFonts.notoSans(
     fontSize: 22,
     fontWeight: FontWeight.w400,
