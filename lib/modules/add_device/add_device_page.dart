@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:esp_smartconfig/esp_smartconfig.dart';
@@ -21,6 +22,7 @@ import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../shared/utils/mqtt/mqtt_client.dart';
+import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/pin_input/pin_input_widget.dart';
 import '../../shared/widgets/step_button/step_button_widget.dart';
 
@@ -40,16 +42,17 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   String wifiSsid = '';
   String wifiBssid = '';
   bool allStepsCompleted = false;
-  int _counter = 30;
-  Timer _timer = Timer(const Duration(seconds: 30), () {});
+  int _counter = 60;
+  Timer _timer = Timer(const Duration(seconds: 60), () {});
   bool _restartTimer = false;
-  final int _pageMode = 0;
+  int _pageMode = 0;
   String qrCode = "";
   final _addDeviceController = AddDeviceController();
   int currentStep = 0;
   bool loading = false;
   bool espAnswered = false;
   String macAddress = '';
+  bool provisionStarted = false;
 
   @override
   void initState() {
@@ -73,10 +76,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
         });
       }
     });
-  }
-
-  Future<void> turnOnCamera() async {
-    await [Permission.camera].request();
   }
 
   Future<void> turnOnLocationServices() async {
@@ -114,7 +113,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
         }
       }
     } else {
-      await [Permission.location].request();
+      await Permission.location.request();
     }
   }
 
@@ -138,30 +137,41 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       final wifiBSSID = await info.getWifiBSSID();
 
       provisioner.listen((response) {
-        print(response);
-        setState(() {
-          isEspConnected = true;
-        });
+        print("DEVICE ACHADO $response");
+        _timer.cancel();
+        provisioner.stop();
       });
 
       try {
+        provisionStarted
+            ? setState(() {
+                provisionStarted = false;
+              })
+            : null;
+        print("$wifiSsid - ${wifiPassword.text} - $qrCode $wifiBSSID");
         await provisioner.start(ProvisioningRequest.fromStrings(
             ssid: wifiSsid,
             bssid: wifiBSSID ?? '',
             password: wifiPassword.text,
-            encryptionKey: "2893701982730182",
+            encryptionKey: qrCode,
             reservedData: ref.read(authProvider).user!.id));
 
+        setState(() {
+          provisionStarted = true;
+        });
         _startTimer();
-        await Future.delayed(const Duration(seconds: 30));
+
+        await Future.delayed(const Duration(seconds: 60));
       } catch (e) {
         const GlobalSnackBar(
             message: "Ocorreu um problema ao conectar-se ao dispositivo.");
       }
 
-      provisioner.stop();
+      if (provisioner.running) {
+        provisioner.stop();
+      }
     } else {
-      await [Permission.location].request();
+      await Permission.location.request();
     }
   }
 
@@ -181,12 +191,12 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       final pt =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       print('MQTTClient::Message received on topic: <${c[0].topic}> is $pt\n');
-
+      final decoded = jsonDecode(pt);
       RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
-      if (regex.hasMatch(pt)) {
+      if (regex.hasMatch(decoded['macAddress'])) {
         _timer.cancel();
         setState(() {
-          macAddress = pt;
+          macAddress = decoded['macAddress'];
           espAnswered = true;
         });
       }
@@ -209,10 +219,10 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
         }
       }
     } else {
-      turnOnCamera();
-      if (mounted) {
-        openQRScanner(context);
-      }
+      await Permission.camera.request();
+      // if (mounted) {
+      //   openQRScanner(context);
+      // }
     }
   }
 
@@ -384,11 +394,11 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
           key: _addDeviceController.formKeys[2],
           child: Column(
             children: [
-              _counter == 30 && !espAnswered
+              _counter == 60 && !espAnswered
                   ? InkWell(
                       onTap: () {
                         setState(() {
-                          _counter = 29;
+                          _counter = 59;
                         });
                         espTouch();
                       },
@@ -426,10 +436,14 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                             const SizedBox(
                               height: 20,
                             ),
-                            Text(
-                              "$_counter",
-                              style: TextStyles.counterTitle,
-                            ),
+                            provisionStarted
+                                ? Text(
+                                    "$_counter",
+                                    style: TextStyles.counterTitle,
+                                  )
+                                : const CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                  ),
                             const SizedBox(
                               height: 20,
                             ),
@@ -478,7 +492,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                       onTap: () {
                         setState(() {
                           _restartTimer = false;
-                          _counter = 29;
+                          _counter = 59;
                         });
                         espTouch();
                       },
@@ -600,6 +614,10 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       if (res != null) {
         if (!mounted) return;
 
+        setState(() {
+          _pageMode = 2;
+        });
+
         GlobalToast.show(
             context,
             res.message != ""
@@ -625,7 +643,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (currentStep != 0) {
+        if (currentStep != 0 && _pageMode == 0) {
           setState(() {
             currentStep -= 1;
           });
@@ -636,154 +654,243 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       },
       child: SafeArea(
           child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          shadowColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: AppColors.primary),
-          title: Text(
-            'Adicionar dispositivo',
-            style: TextStyles.register,
-          ),
-          centerTitle: true,
-        ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          scrollDirection: Axis.vertical,
-          child: Padding(
-              padding: const EdgeInsets.all(0),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text.rich(
-                      TextSpan(children: [
-                        TextSpan(
-                            text: "Certifique-se de que a ",
-                            style: TextStyles.addDeviceIntro),
-                        TextSpan(
-                            text: "localização ",
-                            style: TextStyles.addDeviceIntroBold),
-                        TextSpan(
-                            text:
-                                " está ativada para iniciar o processo de adição do dispositivo.",
-                            style: TextStyles.addDeviceIntro),
-                      ]),
-                      textAlign: TextAlign.justify,
-                    ),
-                  ),
-                  Stepper(
-                    physics: const ClampingScrollPhysics(),
-                    type: StepperType.vertical,
-                    currentStep: currentStep,
-                    onStepCancel: () {
-                      if (currentStep != 0) {
-                        if (currentStep == 2) {
-                          _timer.cancel();
+        appBar: _pageMode != 2
+            ? AppBar(
+                backgroundColor: Colors.white,
+                shadowColor: Colors.white,
+                elevation: 0,
+                iconTheme: const IconThemeData(color: AppColors.primary),
+                title: Text(
+                  'Adicionar dispositivo',
+                  style: TextStyles.register,
+                ),
+                centerTitle: true,
+              )
+            : null,
+        body: _pageMode == 1
+            ? SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                    padding: const EdgeInsets.all(0),
+                    child: Column(
+                      children: [
+                        Stepper(
+                          physics: const ClampingScrollPhysics(),
+                          type: StepperType.vertical,
+                          currentStep: currentStep,
+                          onStepCancel: () {
+                            if (currentStep != 0) {
+                              if (currentStep == 2) {
+                                _timer.cancel();
 
-                          setState(() {
-                            _counter = 30;
-                            currentStep -= 1;
-                          });
-                          return;
-                        }
-                        setState(() {
-                          currentStep -= 1;
-                        });
-                      }
-                    },
-                    onStepContinue: () async {
-                      bool isLastStep =
-                          (currentStep == configSteps().length - 1);
-                      bool isConnectionStep = (currentStep == 2);
-                      bool isQRCodeStep = (currentStep == 1);
+                                setState(() {
+                                  _counter = 60;
+                                  currentStep -= 1;
+                                });
+                                return;
+                              }
+                              setState(() {
+                                currentStep -= 1;
+                              });
+                            }
+                          },
+                          onStepContinue: () async {
+                            bool isLastStep =
+                                (currentStep == configSteps().length - 1);
+                            bool isConnectionStep = (currentStep == 2);
+                            bool isQRCodeStep = (currentStep == 1);
 
-                      if (isConnectionStep) {
-                        if (!espAnswered) {
-                          GlobalToast.show(
-                              context, "Aguarde pela busca do dispostivo");
-                        } else {
-                          _timer.cancel();
+                            if (isConnectionStep) {
+                              if (!espAnswered) {
+                                GlobalToast.show(context,
+                                    "Aguarde pela busca do dispostivo");
+                              } else {
+                                _timer.cancel();
 
-                          setState(() {
-                            _counter = 30;
-                            currentStep += 1;
-                          });
-                        }
-                        return;
-                      }
-
-                      if (isQRCodeStep) {
-                        if (qrCode == '') {
-                          GlobalToast.show(context,
-                              "É necessário escanear o QRCode do dispositivo");
-                          return;
-                        }
-
-                        final status = await Permission.location.status;
-                        if (status.isGranted) {
-                          final locationCheck = await getLocationStatus();
-                          if (!locationCheck && mounted) {
-                            GlobalToast.show(context,
-                                "É necessário ativar a localização para prosseguir");
-                            return;
-                          }
-                        } else {
-                          turnOnLocationServices();
-                          final status = await Permission.location.status;
-                          if (status.isGranted) {
-                            final locationCheck = await getLocationStatus();
-                            if (!locationCheck && mounted) {
-                              GlobalToast.show(context,
-                                  "É necessário ativar a localização para prosseguir");
+                                setState(() {
+                                  _counter = 60;
+                                  currentStep += 1;
+                                });
+                              }
                               return;
                             }
-                          }
-                        }
-                      }
 
-                      if (isLastStep) {
-                        handleCreateDevice();
-                        return;
-                      }
-                      setState(() {
-                        if (_addDeviceController
-                            .formKeys[currentStep].currentState!
-                            .validate()) {
-                          if (currentStep < configSteps().length - 1) {
-                            currentStep += 1;
-                          }
-                        }
-                      });
-                    },
-                    onStepTapped: null,
-                    steps: configSteps(),
-                    controlsBuilder: (context, details) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          StepButtonWidget(
-                              loading: loading,
-                              disabled: loading,
-                              label: currentStep == configSteps().length - 1
-                                  ? "CONCLUIR"
-                                  : "PRÓXIMO",
-                              onPressed: details.onStepContinue!),
-                          const SizedBox(
-                            width: 10,
+                            if (isQRCodeStep) {
+                              if (qrCode == '') {
+                                GlobalToast.show(context,
+                                    "É necessário escanear o QRCode do dispositivo");
+                                return;
+                              }
+
+                              final status = await Permission.location.status;
+                              if (status.isGranted) {
+                                final locationCheck = await getLocationStatus();
+                                if (!locationCheck && mounted) {
+                                  GlobalToast.show(context,
+                                      "É necessário ativar a localização para prosseguir");
+                                  return;
+                                }
+                              } else {
+                                turnOnLocationServices();
+                                final status = await Permission.location.status;
+                                if (status.isGranted) {
+                                  final locationCheck =
+                                      await getLocationStatus();
+                                  if (!locationCheck && mounted) {
+                                    GlobalToast.show(context,
+                                        "É necessário ativar a localização para prosseguir");
+                                    return;
+                                  }
+                                }
+                              }
+                            }
+
+                            if (isLastStep) {
+                              handleCreateDevice();
+                              return;
+                            }
+                            setState(() {
+                              if (_addDeviceController
+                                  .formKeys[currentStep].currentState!
+                                  .validate()) {
+                                if (currentStep < configSteps().length - 1) {
+                                  currentStep += 1;
+                                }
+                              }
+                            });
+                          },
+                          onStepTapped: null,
+                          steps: configSteps(),
+                          controlsBuilder: (context, details) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                StepButtonWidget(
+                                    loading: loading,
+                                    disabled: loading,
+                                    label:
+                                        currentStep == configSteps().length - 1
+                                            ? "CONCLUIR"
+                                            : "PRÓXIMO",
+                                    onPressed: details.onStepContinue!),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                StepButtonWidget(
+                                    disabled: loading,
+                                    label: "ANTERIOR",
+                                    reversed: true,
+                                    onPressed: details.onStepCancel!),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    )),
+              )
+            : _pageMode == 0
+                ? Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text.rich(
+                                TextSpan(children: [
+                                  TextSpan(
+                                      text: "Certifique-se de que a ",
+                                      style: TextStyles.addDeviceIntro),
+                                  TextSpan(
+                                      text: "localização ",
+                                      style: TextStyles.addDeviceIntroBold),
+                                  TextSpan(
+                                      text:
+                                          " está ativada para iniciar o processo de adição do dispositivo.",
+                                      style: TextStyles.addDeviceIntro),
+                                ]),
+                                textAlign: TextAlign.justify,
+                              ),
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              LabelButtonWidget(
+                                  label: "COMEÇAR",
+                                  onPressed: () async {
+                                    final status =
+                                        await Permission.location.status;
+                                    if (status.isGranted) {
+                                      final locationCheck =
+                                          await getLocationStatus();
+                                      if (!locationCheck && mounted) {
+                                        GlobalToast.show(context,
+                                            "É necessário ativar a localização para prosseguir");
+                                        return;
+                                      }
+                                    } else {
+                                      turnOnLocationServices();
+                                      final status =
+                                          await Permission.location.status;
+                                      if (status.isGranted) {
+                                        final locationCheck =
+                                            await getLocationStatus();
+                                        if (!locationCheck && mounted) {
+                                          GlobalToast.show(context,
+                                              "É necessário ativar a localização para prosseguir");
+                                          return;
+                                        }
+                                      }
+                                    }
+
+                                    if (await getLocationStatus()) {
+                                      getNetworkInfos();
+                                      setState(() {
+                                        _pageMode = 1;
+                                      });
+                                    }
+                                  })
+                            ],
                           ),
-                          StepButtonWidget(
-                              disabled: loading,
-                              label: "ANTERIOR",
-                              reversed: true,
-                              onPressed: details.onStepCancel!),
-                        ],
-                      );
-                    },
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Dispositivo adicionado com sucesso!",
+                                style: TextStyles.inviteTextAnswer,
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                "Retorne para a tela de dispositivos",
+                                style: TextStyles.inviteTextAnswerGoBack,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              LabelButtonWidget(
+                                  label: "RETORNAR",
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  })
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              )),
-        ),
       )),
     );
   }
