@@ -26,6 +26,8 @@ class TextStyles {
   );
   static final register = GoogleFonts.notoSans(
       fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.primary);
+  static final registerWarning = GoogleFonts.notoSans(
+      fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.warning);
   static final input = GoogleFonts.notoSans(
     fontSize: 15,
     fontWeight: FontWeight.w400,
@@ -85,6 +87,41 @@ class TextStyles {
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textFaded,
+  );
+  static final deviceCardNameWarning = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w500,
+    color: const Color.fromARGB(199, 255, 255, 255),
+  );
+  static final deviceStatusSubWarning = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: const Color.fromARGB(199, 255, 255, 255),
+  );
+  static final deviceCardStatusWarning = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    color: Colors.white,
+  );
+  static final deviceCardOwnershipWarning = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: const Color.fromARGB(199, 255, 255, 255),
+  );
+  static final devicePageAlarmTriggeredTitle = GoogleFonts.notoSans(
+    fontSize: 32,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
+  static final devicePageAlarmTriggeredHelp = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: const Color.fromARGB(199, 255, 255, 255),
+  );
+  static final devicePageAlarmTriggeredHelpBold = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w800,
+    color: const Color.fromARGB(255, 255, 255, 255),
   );
   static final deviceActivities = GoogleFonts.notoSans(
     fontSize: 20,

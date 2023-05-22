@@ -55,10 +55,7 @@ class _AlarmEventCardWidgetState extends State<AlarmEventCardWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                          widget.event.user != null
-                              ? "Disparado"
-                              : "Controle remoto",
+                      Text(widget.event.status,
                           style: TextStyles.deviceCardName),
                       Text.rich(TextSpan(children: [
                         TextSpan(
