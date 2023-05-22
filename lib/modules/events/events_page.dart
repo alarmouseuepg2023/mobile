@@ -107,11 +107,13 @@ class _EventsPageState extends State<EventsPage> {
             backgroundColor: Colors.white,
             shadowColor: Colors.white,
             elevation: 0,
-            iconTheme: const IconThemeData(color: AppColors.primary),
+            iconTheme: const IconThemeData(color: Colors.white),
             title: Text(
               "Eventos de ${widget.device.nickname}",
-              style: TextStyles.register,
+              style: TextStyles.registerWhite,
             ),
+            flexibleSpace: Container(
+                decoration: const BoxDecoration(color: AppColors.primary)),
             centerTitle: true,
           ),
           body: Padding(

@@ -24,7 +24,8 @@ class AlarmEvent {
       status: json['status'],
       createdAt: json['createdAt'],
       readableDate: json['readableDate'],
-      user: AlarmEventUser.fromJson(json['user']));
+      user:
+          json['user'] != null ? AlarmEventUser.fromJson(json['user']) : null);
 
   @override
   String toString() {

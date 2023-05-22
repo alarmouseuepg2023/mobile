@@ -142,34 +142,37 @@ class _GuestsPageState extends State<GuestsPage> {
         builder: (BuildContext bc) {
           return StatefulBuilder(
               builder: (BuildContext context, StateSetter bottomState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Remover convidado",
-                  style: TextStyles.inviteAGuestBold,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "Deseja remover o convidado deste dispositivo?",
-                  style: TextStyles.revokeGuestText,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                LabelButtonWidget(
-                    label: "REMOVER",
-                    onLoading: loading,
-                    onPressed: () {
-                      handleRevokeGuest(guestId, bottomState);
-                    }),
-                const SizedBox(
-                  height: 30,
-                )
-              ],
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Remover convidado",
+                    style: TextStyles.inviteAGuestBold,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "Deseja remover o convidado deste dispositivo?",
+                    style: TextStyles.revokeGuestText,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  LabelButtonWidget(
+                      label: "REMOVER",
+                      onLoading: loading,
+                      onPressed: () {
+                        handleRevokeGuest(guestId, bottomState);
+                      }),
+                  const SizedBox(
+                    height: 30,
+                  )
+                ],
+              ),
             );
           });
         });
@@ -186,7 +189,7 @@ class _GuestsPageState extends State<GuestsPage> {
               decoration: const BoxDecoration(color: AppColors.primary)),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(20),
           child: Column(children: [
             Expanded(
               flex: 1,
