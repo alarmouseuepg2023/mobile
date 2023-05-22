@@ -1,16 +1,21 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/modules/device/device_controller.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 import 'package:mobile/shared/widgets/pin_input/pin_input_widget.dart';
 import 'package:mobile/shared/widgets/toast/toast_widget.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../shared/utils/device_status/device_status_map.dart';
+import '../../shared/utils/mqtt/mqtt_client.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
 class DevicePage extends StatefulWidget {
@@ -30,6 +35,7 @@ class _DevicePageState extends State<DevicePage> {
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
+  MQTTClientManager mqttClientManager = MQTTClientManager();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
 
@@ -37,11 +43,50 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   void initState() {
+    setupMqttClient();
+    setupUpdatesListener();
     setState(() {
       _status = widget.device.status;
       _nickname = widget.device.nickname;
     });
     super.initState();
+  }
+
+  Future<void> setupMqttClient() async {
+    final espResponseTopic =
+        '/alarmouse/mqtt/sall/${dotenv.env['MQTT_PUBLIC_HASH']}/control/status/change/${widget.device.macAddress}';
+    final espTriggerTopic =
+        '/alarmouse/mqtt/eall/${dotenv.env['MQTT_PUBLIC_HASH']}/control/status/change';
+    await mqttClientManager.connect().then((value) {
+      mqttClientManager.subscribe(espResponseTopic);
+      mqttClientManager.subscribe(espTriggerTopic);
+    });
+  }
+
+  void setupUpdatesListener() {
+    mqttClientManager
+        .getMessagesStream()!
+        .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMess = c![0].payload as MqttPublishMessage;
+      final pt =
+          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+
+      if (pt.length > 1) {
+        final decoded = jsonDecode(pt);
+        if (decoded['macAddress'] == widget.device.macAddress) {
+          setState(() {
+            _status = getDeviceStatusLabel(decoded['status']);
+          });
+        }
+        return;
+      }
+
+      if (pt != getDeviceStatusCode(_status)) {
+        setState(() {
+          _status = getDeviceStatusLabel(pt);
+        });
+      }
+    });
   }
 
   @override
@@ -607,11 +652,14 @@ class _DevicePageState extends State<DevicePage> {
                           onTap: () {
                             showBottomSheet(context, 'STATUS');
                           },
-                          child: Icon(Icons.power_settings_new,
-                              color: _status == 'Desbloqueado'
-                                  ? AppColors.textFaded
-                                  : AppColors.primary,
-                              size: 100)),
+                          child: _status == "Disparado"
+                              ? const Icon(Icons.warning_outlined,
+                                  color: AppColors.warning, size: 100)
+                              : Icon(Icons.power_settings_new,
+                                  color: _status == 'Desbloqueado'
+                                      ? AppColors.textFaded
+                                      : AppColors.activated,
+                                  size: 100)),
                     ),
                   ),
                 ),

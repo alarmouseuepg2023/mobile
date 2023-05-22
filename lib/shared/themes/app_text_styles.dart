@@ -86,6 +86,26 @@ class TextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.textFaded,
   );
+  static final deviceCardNameWarning = GoogleFonts.notoSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
+  static final deviceStatusSubWarning = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
+  static final deviceCardStatusWarning = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w800,
+    color: Colors.white,
+  );
+  static final deviceCardOwnershipWarning = GoogleFonts.notoSans(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
   static final deviceActivities = GoogleFonts.notoSans(
     fontSize: 20,
     fontWeight: FontWeight.w400,
