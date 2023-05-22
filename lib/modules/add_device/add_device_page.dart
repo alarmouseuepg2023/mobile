@@ -53,6 +53,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   bool espAnswered = false;
   String macAddress = '';
   bool provisionStarted = false;
+  final provisioner = Provisioner.espTouchV2();
 
   @override
   void initState() {
@@ -133,13 +134,14 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
 
     if (status.isGranted) {
       final info = NetworkInfo();
-      final provisioner = Provisioner.espTouchV2();
       final wifiBSSID = await info.getWifiBSSID();
 
       provisioner.listen((response) {
-        print("DEVICE ACHADO $response");
         _timer.cancel();
-        provisioner.stop();
+
+        if (provisioner.running) {
+          provisioner.stop();
+        }
       });
 
       try {
@@ -195,6 +197,10 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
       if (regex.hasMatch(decoded['macAddress'])) {
         _timer.cancel();
+
+        if (provisioner.running) {
+          provisioner.stop();
+        }
         setState(() {
           macAddress = decoded['macAddress'];
           espAnswered = true;
