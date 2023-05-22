@@ -589,11 +589,10 @@ class _DevicePageState extends State<DevicePage> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -775,7 +774,9 @@ class _DevicePageState extends State<DevicePage> {
                     ),
                   ],
                 ),
-                Expanded(child: Container()),
+                const SizedBox(
+                  height: 50,
+                ),
                 _ownerPermissions(widget.device.role)
                     ? LabelButtonWidget(
                         label: "REMOVER DISPOSITIVO",
