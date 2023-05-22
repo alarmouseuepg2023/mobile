@@ -606,12 +606,12 @@ class _DevicePageState extends State<DevicePage> {
         child: Scaffold(
       backgroundColor: _getDeviceTriggered() ? AppColors.warning : null,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        shadowColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(
             color:
                 _getDeviceTriggered() ? AppColors.warning : AppColors.primary),
+        flexibleSpace:
+            Container(decoration: const BoxDecoration(color: Colors.white)),
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
@@ -785,6 +785,9 @@ class _DevicePageState extends State<DevicePage> {
                               ? Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
                                     Ink(
                                       child: InkWell(
                                           onTap: () {
