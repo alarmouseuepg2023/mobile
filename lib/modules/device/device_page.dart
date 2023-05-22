@@ -659,9 +659,6 @@ class _DevicePageState extends State<DevicePage> {
                                 ),
                               )),
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
                       ],
                     ),
                     _ownerPermissions(widget.device.role)
