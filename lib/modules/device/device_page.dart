@@ -608,10 +608,11 @@ class _DevicePageState extends State<DevicePage> {
       appBar: AppBar(
         elevation: 0,
         iconTheme: IconThemeData(
-            color:
-                _getDeviceTriggered() ? AppColors.warning : AppColors.primary),
-        flexibleSpace:
-            Container(decoration: const BoxDecoration(color: Colors.white)),
+            color: _getDeviceTriggered() ? Colors.white : AppColors.primary),
+        flexibleSpace: Container(
+            decoration: BoxDecoration(
+                color:
+                    _getDeviceTriggered() ? AppColors.warning : Colors.white)),
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
@@ -631,7 +632,7 @@ class _DevicePageState extends State<DevicePage> {
                   child: Text(
                     _nickname,
                     style: _getDeviceTriggered()
-                        ? TextStyles.registerWarning
+                        ? TextStyles.registerWhite
                         : TextStyles.register,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
