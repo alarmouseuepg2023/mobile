@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/modules/device/device_controller.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/utils/validators/input_validators.dart';
@@ -15,78 +16,87 @@ import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../shared/utils/device_status/device_status_map.dart';
-import '../../shared/utils/mqtt/mqtt_client.dart';
+import '../../providers/mqtt/mqtt_client.dart';
 import '../../shared/widgets/text_input/text_input.dart';
 
-class DevicePage extends StatefulWidget {
+class DevicePage extends ConsumerStatefulWidget {
   final Device device;
   const DevicePage({super.key, required this.device});
 
   @override
-  State<DevicePage> createState() => _DevicePageState();
+  ConsumerState<DevicePage> createState() => _DevicePageState();
 }
 
-class _DevicePageState extends State<DevicePage> {
+class _DevicePageState extends ConsumerState<DevicePage> {
   final deviceController = DeviceController();
   bool loading = false;
   bool bottomload = false;
+  bool waitingDeviceResponse = false;
   String _status = '0';
   String _nickname = "";
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
-  MQTTClientManager mqttClientManager = MQTTClientManager();
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
+  late MQTTClientManager mqttManager;
 
   bool _ownerPermissions(String role) => role == 'DEVICE_OWNER' ? true : false;
 
   @override
   void initState() {
-    setupMqttClient();
+    mqttManager = ref.read(mqttProvider);
     setupUpdatesListener();
     setState(() {
+      waitingDeviceResponse =
+          widget.device.status == "Aguardando confirmação" ? true : false;
       _status = widget.device.status;
       _nickname = widget.device.nickname;
     });
     super.initState();
   }
 
-  Future<void> setupMqttClient() async {
-    final espResponseTopic =
-        '/alarmouse/mqtt/sall/${dotenv.env['MQTT_PUBLIC_HASH']}/control/status/change/${widget.device.macAddress}';
-    final espTriggerTopic =
-        '/alarmouse/mqtt/eall/${dotenv.env['MQTT_PUBLIC_HASH']}/control/status/change';
-    await mqttClientManager.connect().then((value) {
-      mqttClientManager.subscribe(espResponseTopic);
-      mqttClientManager.subscribe(espTriggerTopic);
-    });
-  }
-
   void setupUpdatesListener() {
-    mqttClientManager
+    mqttManager
         .getMessagesStream()!
         .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final recMess = c![0].payload as MqttPublishMessage;
-      final pt =
+      final message =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      final topic = c[0].topic;
+      String espResponseTopic =
+          '/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/status/change';
 
-      if (pt.length > 1) {
-        final decoded = jsonDecode(pt);
-        if (decoded['macAddress'] == widget.device.macAddress) {
-          setState(() {
-            _status = getDeviceStatusLabel(decoded['status']);
-          });
-        }
+      if (topic == espResponseTopic) {
+        handleStatusChanged(message);
+      }
+    });
+  }
+
+  void handleStatusChanged(String message) {
+    final decoded = jsonDecode(message);
+
+    String macAddress = decoded['macAddress'];
+    int status = decoded['status'];
+
+    print("DEVICE_PAGE: $macAddress O STATUS: $status");
+    if (macAddress == widget.device.macAddress && mounted) {
+      if (status != 4) {
+        setState(() {
+          waitingDeviceResponse = false;
+          _status = getDeviceStatusLabel(status.toString());
+        });
+
         return;
       }
 
-      if (pt != getDeviceStatusCode(_status)) {
+      if (status == 4 && status.toString() != getDeviceStatusCode(_status)) {
         setState(() {
-          _status = getDeviceStatusLabel(pt);
+          waitingDeviceResponse = false;
+          _status = getDeviceStatusLabel(status.toString());
         });
       }
-    });
+    }
   }
 
   @override
@@ -141,15 +151,11 @@ class _DevicePageState extends State<DevicePage> {
 
       if (res != null) {
         if (!mounted) return;
-
         setState(() {
-          _status = getDeviceStatusLabel(newStatus);
+          waitingDeviceResponse = true;
+          _status = "Aguardando confirmação";
         });
-
         Navigator.pop(context);
-
-        GlobalToast.show(context,
-            res.message != "" ? res.message : "Estado alterado com sucesso!");
       }
     } catch (e) {
       if (e is DioError) {
@@ -715,22 +721,39 @@ class _DevicePageState extends State<DevicePage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Center(
-                          child: Ink(
-                            child: InkWell(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(50)),
-                                onTap: () {
-                                  showBottomSheet(context, 'STATUS');
-                                },
-                                child: _status == "Disparado"
-                                    ? const Icon(Icons.warning_outlined,
-                                        color: Colors.white, size: 100)
-                                    : Icon(Icons.power_settings_new,
-                                        color: _status == 'Desbloqueado'
-                                            ? AppColors.textFaded
-                                            : AppColors.activated,
-                                        size: 100)),
-                          ),
+                          child: waitingDeviceResponse
+                              ? const Center(
+                                  child: SizedBox(
+                                    height: 100,
+                                    width: 100,
+                                    child: Center(
+                                      child: SizedBox(
+                                        height: 70,
+                                        width: 70,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 6,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Ink(
+                                  child: InkWell(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(50)),
+                                      onTap: () {
+                                        showBottomSheet(context, 'STATUS');
+                                      },
+                                      child: _status == "Disparado"
+                                          ? const Icon(Icons.warning_outlined,
+                                              color: Colors.white, size: 100)
+                                          : Icon(Icons.power_settings_new,
+                                              color: _status == 'Desbloqueado'
+                                                  ? AppColors.textFaded
+                                                  : AppColors.activated,
+                                              size: 100)),
+                                ),
                         ),
                       ),
                       const SizedBox(

@@ -7,7 +7,7 @@ class Notification extends ChangeNotifier {
 
   void setNotifications(int count) {
     notificationsCount = count;
-    notifyListeners();
+    //notifyListeners();
   }
 
   void setAnswerInviteMode(int mode) {
