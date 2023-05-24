@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/modules/devices/devices_controller.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
@@ -13,16 +14,16 @@ import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 import '../../shared/models/Device/device_model.dart';
-import '../../shared/utils/mqtt/mqtt_client.dart';
+import '../../providers/mqtt/mqtt_client.dart';
 
-class DevicesPage extends StatefulWidget {
+class DevicesPage extends ConsumerStatefulWidget {
   const DevicesPage({super.key});
 
   @override
-  State<DevicesPage> createState() => _DevicesPageState();
+  ConsumerState<DevicesPage> createState() => _DevicesPageState();
 }
 
-class _DevicesPageState extends State<DevicesPage> {
+class _DevicesPageState extends ConsumerState<DevicesPage> {
   final _devicesController = DevicesController();
   bool loading = false;
   List<Device> devices = [];
@@ -31,12 +32,22 @@ class _DevicesPageState extends State<DevicesPage> {
   int _pageNumber = 0;
   final int _size = 10;
   final scrollController = ScrollController();
-  MQTTClientManager mqttClientManager = MQTTClientManager();
+  late MQTTClientManager mqttManager;
+  List<String> pageTopics = [];
+  late String espResponseTopic;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      espResponseTopic =
+          '/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/status/change';
+
+      mqttManager = ref.read(mqttProvider);
+
       getDevices();
+      if (mqttManager.client != null) {
+        setupUpdatesListener();
+      }
       scrollController.addListener(() {
         if (scrollController.position.maxScrollExtent ==
             scrollController.offset) {
@@ -53,92 +64,53 @@ class _DevicesPageState extends State<DevicesPage> {
     super.dispose();
   }
 
-  Future<void> setupMqttClient() async {
-    List<String> espTopicList = [];
-    for (var element in devices) {
-      String espResponseTopic =
-          '/alarmouse/mqtt/sall/${dotenv.env['MQTT_PUBLIC_HASH']}/control/status/change/${element.macAddress}';
-
-      espTopicList.add(espResponseTopic);
-    }
-
-    final espTriggerTopic =
-        '/alarmouse/mqtt/eall/${dotenv.env['MQTT_PUBLIC_HASH']}/control/status/change';
-
-    await mqttClientManager.connect().then((value) {
-      for (var element in espTopicList) {
-        mqttClientManager.subscribe(element);
-      }
-      mqttClientManager.subscribe(espTriggerTopic);
-    });
-  }
-
   void setupUpdatesListener() {
-    mqttClientManager
+    mqttManager
         .getMessagesStream()!
         .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final recMess = c![0].payload as MqttPublishMessage;
-      final pt =
+      final topic = c[0].topic;
+      final message =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      final topicMac = c[0].topic.substring(c[0].topic.length - 17);
 
-      print(topicMac);
-      print(pt);
-
-      if (pt.length > 1) {
-        final decoded = jsonDecode(pt);
-        if (devices
-            .where((element) => element.macAddress == decoded['macAddress'])
-            .isNotEmpty) {
-          List<Device> deviceChanged = devices
-              .where((element) => element.macAddress == decoded['macAddress'])
-              .toList();
-
-          Device newDevice = Device(
-              id: deviceChanged[0].id,
-              macAddress: deviceChanged[0].macAddress,
-              nickname: deviceChanged[0].nickname,
-              wifiSsid: deviceChanged[0].wifiSsid,
-              role: deviceChanged[0].role,
-              status: getDeviceStatusLabel(decoded['status']));
-
-          List<Device> withoutOldDevice = devices
-              .where((element) => element.macAddress != decoded['macAddress'])
-              .toList();
-
-          withoutOldDevice.add(newDevice);
-
-          setState(() {
-            devices = withoutOldDevice;
-          });
-          if (mounted) {
-            GlobalToast.show(
-                context, "O dispositivo ${newDevice.nickname} disparou!");
-          }
-        }
+      if (topic == espResponseTopic) {
+        handleStatusChange(message);
         return;
-      } else {
-        List<Device> deviceChanged =
-            devices.where((element) => element.macAddress == topicMac).toList();
-
-        Device newDevice = Device(
-            id: deviceChanged[0].id,
-            macAddress: deviceChanged[0].macAddress,
-            nickname: deviceChanged[0].nickname,
-            wifiSsid: deviceChanged[0].wifiSsid,
-            role: deviceChanged[0].role,
-            status: getDeviceStatusLabel(pt));
-
-        List<Device> withoutOldDevice =
-            devices.where((element) => element.macAddress != topicMac).toList();
-
-        withoutOldDevice.add(newDevice);
-
-        setState(() {
-          devices = withoutOldDevice;
-        });
       }
     });
+  }
+
+  void handleStatusChange(String message) {
+    final decoded = jsonDecode(message);
+    String macAddress = decoded['macAddress'];
+    int status = decoded['status'];
+
+    print("DEVICES_PAGE: $macAddress O STATUS: $status - MOUNTED: $mounted");
+    if (devices
+            .where((element) => element.macAddress == macAddress)
+            .isNotEmpty &&
+        mounted) {
+      List<Device> deviceChanged =
+          devices.where((element) => element.macAddress == macAddress).toList();
+      int devicePosition =
+          devices.indexWhere((element) => element.macAddress == macAddress);
+
+      Device newDevice = Device(
+          id: deviceChanged[0].id,
+          macAddress: deviceChanged[0].macAddress,
+          nickname: deviceChanged[0].nickname,
+          wifiSsid: deviceChanged[0].wifiSsid,
+          role: deviceChanged[0].role,
+          status: getDeviceStatusLabel(status.toString()));
+
+      setState(() {
+        devices[devicePosition] = newDevice;
+      });
+      if (status == 3) {
+        GlobalToast.show(
+            context, "O dispositivo ${newDevice.nickname} disparou!!!");
+      }
+    }
   }
 
   Future<void> getDevices() async {
@@ -158,9 +130,6 @@ class _DevicesPageState extends State<DevicesPage> {
         totalItems = res.content.totalItems;
         _pageNumber++;
       });
-
-      setupMqttClient();
-      setupUpdatesListener();
     } catch (e) {
       if (e is DioError) {
         if (e.response != null && e.response!.statusCode! >= 500) {

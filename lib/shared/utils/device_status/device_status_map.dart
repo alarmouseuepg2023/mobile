@@ -16,6 +16,10 @@ String getDeviceStatusCode(String status) {
       {
         return '3';
       }
+    case 'Aguardando confirmação':
+      {
+        return '4';
+      }
     default:
       {
         return '0';
@@ -40,6 +44,10 @@ String getDeviceStatusLabel(String status) {
     case '3':
       {
         return 'Disparado';
+      }
+    case '4':
+      {
+        return 'Aguardando confirmação';
       }
     default:
       {

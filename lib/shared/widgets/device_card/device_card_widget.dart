@@ -78,14 +78,13 @@ class _DeviceCardWidgetState extends State<DeviceCardWidget> {
               widget.device.status == "Desconfigurado"
                   ? const Icon(Icons.sync_problem_outlined,
                       size: 50, color: AppColors.primary)
-                  : widget.device.status == "Bloqueado"
-                      ? const Icon(Icons.power_settings_new,
+                  : widget.device.status == "Aguardando confirmação"
+                      ? const Icon(Icons.sync_outlined,
                           size: 50, color: AppColors.primary)
                       : _getDeviceTriggered()
                           ? const Icon(Icons.warning_outlined,
                               size: 50, color: Colors.white)
-                          : const Icon(Icons.power_settings_new,
-                              size: 50, color: AppColors.primary)
+                          : const SizedBox()
             ],
           )),
     );

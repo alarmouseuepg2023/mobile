@@ -21,7 +21,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
-import '../../shared/utils/mqtt/mqtt_client.dart';
+import '../../providers/mqtt/mqtt_client.dart';
 import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/pin_input/pin_input_widget.dart';
 import '../../shared/widgets/step_button/step_button_widget.dart';
@@ -34,7 +34,7 @@ class AddDevicePage extends ConsumerStatefulWidget {
 }
 
 class _AddDevicePageState extends ConsumerState<AddDevicePage> {
-  MQTTClientManager mqttClientManager = MQTTClientManager();
+  late MQTTClientManager mqttManager;
   bool isEspConnected = false;
   bool locationServicesActivated = false;
   TextEditingController wifiPassword = TextEditingController();
@@ -43,7 +43,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   String wifiBssid = '';
   bool allStepsCompleted = false;
   int _counter = 60;
-  Timer _timer = Timer(const Duration(seconds: 60), () {});
+  Timer _timer = Timer(const Duration(seconds: 1), () {});
   bool _restartTimer = false;
   int _pageMode = 0;
   String qrCode = "";
@@ -54,11 +54,15 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   String macAddress = '';
   bool provisionStarted = false;
   final provisioner = Provisioner.espTouchV2();
+  late String espResponseTopic;
 
   @override
   void initState() {
+    mqttManager = ref.read(mqttProvider);
+    espResponseTopic =
+        '/alarmouse/mqtt/em/${dotenv.env['MQTT_PUBLIC_HASH']}/device/configure/${ref.read(authProvider).user!.id}';
     turnOnLocationServices();
-    setupMqttClient();
+    subscribeToConfig();
     setupUpdatesListener();
     super.initState();
   }
@@ -177,36 +181,41 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     }
   }
 
-  Future<void> setupMqttClient() async {
-    final espResponseTopic =
-        '/alarmouse/mqtt/em/${dotenv.env['MQTT_PUBLIC_HASH']}/device/configure/${ref.read(authProvider).user!.id}';
-    await mqttClientManager.connect().then((value) {
-      mqttClientManager.subscribe(espResponseTopic);
-    });
+  Future<void> subscribeToConfig() async {
+    mqttManager.subscribe(espResponseTopic);
   }
 
   void setupUpdatesListener() {
-    mqttClientManager
+    mqttManager
         .getMessagesStream()!
         .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final recMess = c![0].payload as MqttPublishMessage;
-      final pt =
+      final message =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      print('MQTTClient::Message received on topic: <${c[0].topic}> is $pt\n');
-      final decoded = jsonDecode(pt);
-      RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
-      if (regex.hasMatch(decoded['macAddress'])) {
-        _timer.cancel();
+      final topic = c[0].topic;
 
-        if (provisioner.running) {
-          provisioner.stop();
-        }
-        setState(() {
-          macAddress = decoded['macAddress'];
-          espAnswered = true;
-        });
+      if (topic == espResponseTopic) {
+        handleMacAddressReceived(message);
       }
     });
+  }
+
+  void handleMacAddressReceived(String message) {
+    final decoded = jsonDecode(message);
+    RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
+    String macAddress = decoded['macAddress'];
+
+    if (regex.hasMatch(macAddress) && mounted) {
+      _timer.cancel();
+
+      if (provisioner.running) {
+        provisioner.stop();
+      }
+      setState(() {
+        macAddress = macAddress;
+        espAnswered = true;
+      });
+    }
   }
 
   Future<void> openQRScanner(BuildContext context) async {
@@ -242,7 +251,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     wifiPassword.dispose();
     ownerPassword.dispose();
     _timer.cancel();
-    mqttClientManager.disconnect();
+    mqttManager.unsubscribe(espResponseTopic);
     super.dispose();
   }
 
