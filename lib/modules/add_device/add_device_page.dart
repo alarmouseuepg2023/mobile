@@ -203,16 +203,16 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   void handleMacAddressReceived(String message) {
     final decoded = jsonDecode(message);
     RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
-    String macAddress = decoded['macAddress'];
+    String decodedMac = decoded['macAddress'];
 
-    if (regex.hasMatch(macAddress) && mounted) {
+    if (regex.hasMatch(decodedMac) && mounted) {
       _timer.cancel();
 
       if (provisioner.running) {
         provisioner.stop();
       }
       setState(() {
-        macAddress = macAddress;
+        macAddress = decodedMac;
         espAnswered = true;
       });
     }
@@ -235,9 +235,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       }
     } else {
       await Permission.camera.request();
-      // if (mounted) {
-      //   openQRScanner(context);
-      // }
     }
   }
 
