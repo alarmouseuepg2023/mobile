@@ -22,22 +22,21 @@ class PinInputWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pinput(
-      validator: validator,
-      length: 6,
-      forceErrorState: forceError ?? false,
-      onChanged: onChanged,
-      autofocus: autoFocus ?? false,
-      onCompleted: onComplete,
-      controller: controller,
-      keyboardType: TextInputType.number,
-      defaultPinTheme: PinTheme(
-          height: 45,
-          width: 45,
-          textStyle: TextStyles.pinInput,
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              border:
-                  Border.fromBorderSide(BorderSide(color: AppColors.primary)))),
-    );
+        validator: validator,
+        length: 6,
+        forceErrorState: forceError ?? false,
+        onChanged: onChanged,
+        autofocus: autoFocus ?? false,
+        onCompleted: onComplete,
+        controller: controller,
+        keyboardType: TextInputType.number,
+        defaultPinTheme: PinTheme(
+            height: 45,
+            width: 45,
+            textStyle: TextStyles.pinInput,
+            decoration: const BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(color: AppColors.primary, width: 1)),
+            )));
   }
 }

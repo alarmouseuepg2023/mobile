@@ -155,7 +155,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               )
             : _homeController.currentPage == 1
                 ? AppBar(
-                    title: Text("Notificações", style: TextStyles.welcome),
+                    title: Text("Convites", style: TextStyles.welcome),
                     automaticallyImplyLeading: false,
                     flexibleSpace: Container(
                         decoration:

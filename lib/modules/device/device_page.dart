@@ -310,6 +310,10 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                         children: [
                           PinInputWidget(
                             autoFocus: true,
+                            onComplete: (value) {
+                              deviceController.onChangeStatus(password: value);
+                              handleChangeStatus(bottomState);
+                            },
                             onChanged: (value) => deviceController
                                 .onChangeStatus(password: value),
                             validator: validatePin,
@@ -320,15 +324,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                     const SizedBox(
                       height: 40,
                     ),
-                    LabelButtonWidget(
-                        label: "ENVIAR",
-                        onLoading: loading,
-                        onPressed: () {
-                          handleChangeStatus(bottomState);
-                        }),
-                    const SizedBox(
-                      height: 30,
-                    )
                   ],
                 ),
               );
