@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/modules/devices/devices_controller.dart';
-import 'package:mobile/providers/auth/auth_provider.dart';
-import 'package:mobile/providers/notifications/notifications_provider.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/utils/device_status/device_status_map.dart';
@@ -36,24 +34,18 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
   final scrollController = ScrollController();
   late MQTTClientManager mqttManager;
   List<String> pageTopics = [];
+  late String espResponseTopic;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      String userId = ref.read(authProvider).user!.id;
-      String espResponseTopic =
+      espResponseTopic =
           '/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/status/change';
-
-      String notificationsTopic =
-          "/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/invite/$userId";
-      pageTopics.addAll([espResponseTopic, notificationsTopic]);
 
       mqttManager = ref.read(mqttProvider);
 
       getDevices();
-      if (mqttManager.client == null) {
-        mqttManager.initializeClient();
-        setupMqttClient();
+      if (mqttManager.client != null) {
         setupUpdatesListener();
       }
       scrollController.addListener(() {
@@ -72,14 +64,6 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
     super.dispose();
   }
 
-  Future<void> setupMqttClient() async {
-    await mqttManager.connect().then((value) {
-      for (var element in pageTopics) {
-        mqttManager.subscribe(element);
-      }
-    });
-  }
-
   void setupUpdatesListener() {
     mqttManager
         .getMessagesStream()!
@@ -88,31 +72,12 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
       final topic = c[0].topic;
       final message =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      print(message);
-      print(mounted);
 
-      if (topic == pageTopics[0]) {
+      if (topic == espResponseTopic) {
         handleStatusChange(message);
         return;
       }
-
-      if (topic == pageTopics[1]) {
-        handleNotificationArrived();
-        return;
-      }
     });
-  }
-
-  void handleNotificationArrived() {
-    if (mounted) {
-      print('notificas');
-      final currentNotificationsCount =
-          ref.read(notificationsProvider).notificationsCount ?? 0;
-
-      ref
-          .read(notificationsProvider)
-          .setNotifications(currentNotificationsCount + 1);
-    }
   }
 
   void handleStatusChange(String message) {
@@ -120,6 +85,7 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
     String macAddress = decoded['macAddress'];
     int status = decoded['status'];
 
+    print("DEVICES_PAGE: $macAddress O STATUS: $status - MOUNTED: $mounted");
     if (devices
             .where((element) => element.macAddress == macAddress)
             .isNotEmpty &&
@@ -142,7 +108,7 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
       });
       if (status == 3) {
         GlobalToast.show(
-            context, "O dispositivo ${newDevice.nickname} disparou!");
+            context, "O dispositivo ${newDevice.nickname} disparou!!!");
       }
     }
   }

@@ -47,6 +47,8 @@ class TextStyles {
   );
   static final whiteLabel = GoogleFonts.notoSans(
       fontSize: 15, fontWeight: FontWeight.w400, color: Colors.white);
+  static final whiteCounterLabel = GoogleFonts.notoSans(
+      fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white);
 
   static final primaryLabel = GoogleFonts.notoSans(
       fontSize: 15, fontWeight: FontWeight.w400, color: AppColors.primary);

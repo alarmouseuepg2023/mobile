@@ -79,7 +79,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
     String macAddress = decoded['macAddress'];
     int status = decoded['status'];
 
-    print("DEVICE_PAGE: $macAddress O STATUS: $status");
+    print("DEVICE_PAGE: $macAddress O STATUS: $status MOUNTED: $mounted");
     if (macAddress == widget.device.macAddress && mounted) {
       if (status != 4) {
         setState(() {
@@ -92,7 +92,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
 
       if (status == 4 && status.toString() != getDeviceStatusCode(_status)) {
         setState(() {
-          waitingDeviceResponse = false;
           _status = getDeviceStatusLabel(status.toString());
         });
       }
