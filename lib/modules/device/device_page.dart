@@ -795,7 +795,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                                           child: InkWell(
                                               onTap: () {
                                                 Navigator.pushNamed(
-                                                    context, "/events",
+                                                    context, "/reset_device",
                                                     arguments: widget.device);
                                               },
                                               child: Padding(

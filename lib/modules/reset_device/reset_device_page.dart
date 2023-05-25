@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:esp_smartconfig/esp_smartconfig.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -18,29 +17,27 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../shared/models/Response/server_response_model.dart';
+import '../../shared/models/Device/device_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
 import '../../providers/mqtt/mqtt_client.dart';
 import '../../shared/widgets/label_button/label_button.dart';
-import '../../shared/widgets/pin_input/pin_input_widget.dart';
 import '../../shared/widgets/step_button/step_button_widget.dart';
 
-class AddDevicePage extends ConsumerStatefulWidget {
-  const AddDevicePage({super.key});
+class ResetDevicePage extends ConsumerStatefulWidget {
+  final Device device;
+  const ResetDevicePage({super.key, required this.device});
 
   @override
-  ConsumerState<AddDevicePage> createState() => _AddDevicePageState();
+  ConsumerState<ResetDevicePage> createState() => _ResetDevicePageState();
 }
 
-class _AddDevicePageState extends ConsumerState<AddDevicePage> {
+class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
   late MQTTClientManager mqttManager;
   bool locationServicesActivated = false;
   TextEditingController wifiPassword = TextEditingController();
-  TextEditingController ownerPassword = TextEditingController();
   String wifiSsid = '';
   String wifiBssid = '';
-  bool allStepsCompleted = false;
   int _counter = 60;
   Timer _timer = Timer(const Duration(seconds: 1), () {});
   bool _restartTimer = false;
@@ -50,7 +47,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   int currentStep = 0;
   bool loading = false;
   bool espAnswered = false;
-  String macAddress = '';
   bool provisionStarted = false;
   final provisioner = Provisioner.espTouchV2();
   late String espResponseTopic;
@@ -59,9 +55,8 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   void initState() {
     mqttManager = ref.read(mqttProvider);
     espResponseTopic =
-        '/alarmouse/mqtt/em/${dotenv.env['MQTT_PUBLIC_HASH']}/device/configure/${ref.read(authProvider).user!.id}';
+        '/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/status/change';
     turnOnLocationServices();
-    subscribeToConfig();
     setupUpdatesListener();
     super.initState();
   }
@@ -145,6 +140,10 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
         if (provisioner.running) {
           provisioner.stop();
         }
+        setState(() {
+          espAnswered = true;
+          _pageMode = 2;
+        });
       });
 
       try {
@@ -180,10 +179,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     }
   }
 
-  Future<void> subscribeToConfig() async {
-    mqttManager.subscribe(espResponseTopic);
-  }
-
   void setupUpdatesListener() {
     mqttManager
         .getMessagesStream()!
@@ -194,24 +189,25 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       final topic = c[0].topic;
 
       if (topic == espResponseTopic) {
-        handleMacAddressReceived(message);
+        handleEspAnswered(message);
       }
     });
   }
 
-  void handleMacAddressReceived(String message) {
+  void handleEspAnswered(String message) {
     final decoded = jsonDecode(message);
-    RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
-    String decodedMac = decoded['macAddress'];
+    String macAddress = decoded['macAddress'];
+    int status = decoded['status'];
 
-    if (regex.hasMatch(decodedMac) && mounted) {
+    print("DEVICES_PAGE: $macAddress O STATUS: $status - MOUNTED: $mounted");
+    if (widget.device.macAddress == macAddress && mounted) {
       _timer.cancel();
 
       if (provisioner.running) {
         provisioner.stop();
       }
       setState(() {
-        macAddress = decodedMac;
+        _pageMode = 2;
         espAnswered = true;
       });
     }
@@ -245,7 +241,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
   @override
   void dispose() {
     wifiPassword.dispose();
-    ownerPassword.dispose();
     _timer.cancel();
     mqttManager.unsubscribe(espResponseTopic);
     super.dispose();
@@ -461,43 +456,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                           ],
                         )
                       : const SizedBox(),
-              espAnswered
-                  ? Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        Text(
-                          "Dispositivo encontrado:",
-                          style: TextStyles.inviteText,
-                        ),
-                        Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(color: AppColors.primary)),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.developer_board,
-                                      color: AppColors.primary,
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Text(
-                                      macAddress,
-                                      style: TextStyles.inviteTextBold,
-                                    ),
-                                  ]),
-                            )),
-                        const SizedBox(
-                          height: 20,
-                        )
-                      ],
-                    )
-                  : const SizedBox(),
               _restartTimer
                   ? InkWell(
                       onTap: () {
@@ -529,125 +487,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
           ),
         ),
       ),
-      Step(
-        state: currentStep > 3 ? StepState.complete : StepState.indexed,
-        isActive: currentStep >= 3,
-        title: const Text("Nome do dispositivo"),
-        content: Form(
-          key: _addDeviceController.formKeys[3],
-          child: Column(
-            children: [
-              Text("Escolha um nome para o dispositivo: ",
-                  style: TextStyles.inviteText),
-              const SizedBox(
-                height: 20,
-              ),
-              TextInputWidget(
-                  label: "Nome",
-                  maxLength: 32,
-                  validator: validateName,
-                  onChanged: (value) {
-                    _addDeviceController.onChange(nickname: value);
-                  }),
-              const SizedBox(
-                height: 40,
-              ),
-            ],
-          ),
-        ),
-      ),
-      Step(
-        state: currentStep > 4 ? StepState.complete : StepState.indexed,
-        isActive: currentStep >= 4,
-        title: const Text("Senha"),
-        content: Form(
-          key: _addDeviceController.formKeys[4],
-          child: Column(
-            children: [
-              Text("Insira uma senha para o dispositivo: ",
-                  style: TextStyles.inviteText),
-              const SizedBox(
-                height: 20,
-              ),
-              PinInputWidget(
-                  forceError: true,
-                  autoFocus: true,
-                  controller: ownerPassword,
-                  onChanged: (value) {
-                    _addDeviceController.onChange(ownerPassword: value);
-                  },
-                  validator: validatePinPassword),
-              const SizedBox(
-                height: 40,
-              ),
-            ],
-          ),
-        ),
-      ),
-      Step(
-        state: currentStep > 5 ? StepState.complete : StepState.indexed,
-        isActive: currentStep >= 5,
-        title: const Text("Confirme a senha"),
-        content: Form(
-          key: _addDeviceController.formKeys[5],
-          child: Column(
-            children: [
-              Text("Confirme a senha para o dispositivo: ",
-                  style: TextStyles.inviteText),
-              const SizedBox(
-                height: 20,
-              ),
-              PinInputWidget(
-                  forceError: true,
-                  autoFocus: true,
-                  onChanged: (value) {
-                    _addDeviceController.onChange(confirmOwnerPassword: value);
-                  },
-                  validator: (value) =>
-                      validateConfirmPin(value, ownerPassword.text)),
-              const SizedBox(
-                height: 40,
-              ),
-            ],
-          ),
-        ),
-      ),
     ];
-  }
-
-  Future<void> handleCreateDevice() async {
-    try {
-      setState(() {
-        loading = true;
-      });
-      final res = await _addDeviceController.createDevice(
-          macAddress, wifiSsid.replaceAll('"', ''));
-      if (res != null) {
-        if (!mounted) return;
-
-        setState(() {
-          _pageMode = 2;
-        });
-
-        GlobalToast.show(
-            context,
-            res.message != ""
-                ? res.message
-                : "Dispositivo adicionado com sucesso!");
-      }
-    } catch (e) {
-      if (e is DioError) {
-        ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        GlobalToast.show(context, response.message);
-      } else {
-        GlobalToast.show(context,
-            "Ocorreu um erro ao adicionar o dispositivo. Tente novamente.");
-      }
-    } finally {
-      setState(() {
-        loading = false;
-      });
-    }
   }
 
   @override
@@ -672,7 +512,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                 elevation: 0,
                 iconTheme: const IconThemeData(color: AppColors.primary),
                 title: Text(
-                  'Adicionar dispositivo',
+                  'Reconfigurar dispositivo',
                   style: TextStyles.register,
                 ),
                 centerTitle: true,
@@ -707,8 +547,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                             }
                           },
                           onStepContinue: () async {
-                            bool isLastStep =
-                                (currentStep == configSteps().length - 1);
                             bool isConnectionStep = (currentStep == 2);
                             bool isQRCodeStep = (currentStep == 1);
 
@@ -757,10 +595,6 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                               }
                             }
 
-                            if (isLastStep) {
-                              handleCreateDevice();
-                              return;
-                            }
                             setState(() {
                               if (_addDeviceController
                                   .formKeys[currentStep].currentState!
@@ -774,27 +608,26 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                           onStepTapped: null,
                           steps: configSteps(),
                           controlsBuilder: (context, details) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                StepButtonWidget(
-                                    loading: loading,
-                                    disabled: loading,
-                                    label:
-                                        currentStep == configSteps().length - 1
-                                            ? "CONCLUIR"
-                                            : "PRÓXIMO",
-                                    onPressed: details.onStepContinue!),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                StepButtonWidget(
-                                    disabled: loading,
-                                    label: "ANTERIOR",
-                                    reversed: true,
-                                    onPressed: details.onStepCancel!),
-                              ],
-                            );
+                            return currentStep == configSteps().length - 1
+                                ? const SizedBox()
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      StepButtonWidget(
+                                          loading: loading,
+                                          disabled: loading,
+                                          label: "PRÓXIMO",
+                                          onPressed: details.onStepContinue!),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      StepButtonWidget(
+                                          disabled: loading,
+                                          label: "ANTERIOR",
+                                          reversed: true,
+                                          onPressed: details.onStepCancel!),
+                                    ],
+                                  );
                           },
                         ),
                       ],
@@ -820,7 +653,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                                       style: TextStyles.addDeviceIntroBold),
                                   TextSpan(
                                       text:
-                                          " está ativada para iniciar o processo de adição do dispositivo.",
+                                          " está ativada para iniciar o processo de redefinição do dispositivo.",
                                       style: TextStyles.addDeviceIntro),
                                 ]),
                                 textAlign: TextAlign.justify,
@@ -879,7 +712,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Dispositivo adicionado com sucesso!",
+                                "Dispositivo ${widget.device.nickname} reconfigurado com sucesso!",
                                 style: TextStyles.inviteTextAnswer,
                                 textAlign: TextAlign.center,
                               ),
@@ -894,7 +727,8 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
                               LabelButtonWidget(
                                   label: "RETORNAR",
                                   onPressed: () {
-                                    Navigator.pop(context);
+                                    Navigator.pushReplacementNamed(
+                                        context, '/home');
                                   })
                             ],
                           ),
