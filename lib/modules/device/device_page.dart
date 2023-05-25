@@ -782,6 +782,14 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                                     text: _status,
                                     style: TextStyles.deviceCardStatus)
                               ])),
+                              Text.rich(TextSpan(children: [
+                                TextSpan(
+                                    text: "Rede WiFi: ",
+                                    style: TextStyles.deviceStatusSub),
+                                TextSpan(
+                                    text: widget.device.wifiSsid,
+                                    style: TextStyles.deviceCardStatus)
+                              ])),
                               Text(_getDeviceOwnership(widget.device.role),
                                   style: TextStyles.deviceCardOwnership),
                               const SizedBox(
@@ -893,6 +901,14 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                                     style: TextStyles.deviceStatusSub),
                                 TextSpan(
                                     text: _status,
+                                    style: TextStyles.deviceCardStatus)
+                              ])),
+                              Text.rich(TextSpan(children: [
+                                TextSpan(
+                                    text: "Rede WiFi: ",
+                                    style: TextStyles.deviceStatusSub),
+                                TextSpan(
+                                    text: widget.device.wifiSsid,
                                     style: TextStyles.deviceCardStatus)
                               ])),
                               Text(_getDeviceOwnership(widget.device.role),
