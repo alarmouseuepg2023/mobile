@@ -99,7 +99,7 @@ class _AlarmEventCardWidgetState extends State<AlarmEventCardWidget> {
                               TextSpan(
                                   text: widget.event.user != null
                                       ? widget.event.user!.name
-                                      : "Controle remoto",
+                                      : "Dispositivo",
                                   style: TextStyles.deviceStatusSub),
                             ]),
                           ),
