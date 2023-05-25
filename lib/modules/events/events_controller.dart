@@ -18,18 +18,14 @@ class EventsController {
   Future<AlarmEventResponse?> getEvents(
       int page, int size, String deviceId) async {
     final formData = {
-      'status': model.status,
+      'status': model.status == '0' ? null : model.status,
       'date': {'start': model.date?.start, 'end': model.date?.end}
     };
-
-    print(formData);
 
     final response = await dio.post(
         'alarmEvents/$deviceId?page=$page&size=$size',
         data: formData,
         options: Options());
-
-    print(response.data);
 
     AlarmEventResponse data = AlarmEventResponse.fromJson(response.data);
 

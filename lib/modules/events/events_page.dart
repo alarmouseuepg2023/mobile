@@ -32,6 +32,7 @@ class _EventsPageState extends State<EventsPage> {
   final int _size = 10;
   final scrollController = ScrollController();
   List<StatusOption> statusOptions = [
+    StatusOption(name: "Todos", value: '0'),
     StatusOption(name: "Bloqueado", value: '1'),
     StatusOption(name: "Desbloqueado", value: '2'),
     StatusOption(name: "Disparado", value: '3'),
@@ -39,6 +40,8 @@ class _EventsPageState extends State<EventsPage> {
   ];
   TextEditingController initialDate = TextEditingController();
   TextEditingController finalDate = TextEditingController();
+  final dropdownState = GlobalKey<FormFieldState>();
+  StatusOption currentStatus = StatusOption(name: 'Todos', value: '0');
 
   @override
   void initState() {
@@ -114,6 +117,7 @@ class _EventsPageState extends State<EventsPage> {
       loading = false;
       _hasMore = true;
       _pageNumber = 0;
+      currentStatus = StatusOption(name: 'Todos', value: '0');
       events.clear();
     });
 
@@ -139,9 +143,14 @@ class _EventsPageState extends State<EventsPage> {
                   child: Column(
                     children: [
                       DropdownMenuWidget(
+                          value: currentStatus.value,
                           label: "Estado",
                           options: statusOptions,
                           onChanged: (value) {
+                            setState(() {
+                              currentStatus = statusOptions.firstWhere(
+                                  (element) => element.value == value);
+                            });
                             _eventsController.onChange(status: value);
                           }),
                       const SizedBox(

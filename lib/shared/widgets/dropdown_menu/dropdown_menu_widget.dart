@@ -5,10 +5,12 @@ import 'package:mobile/shared/themes/app_colors.dart';
 class DropdownMenuWidget extends StatelessWidget {
   final String label;
   final List<StatusOption> options;
+  final String value;
   final void Function(String? value) onChanged;
   const DropdownMenuWidget(
       {super.key,
       required this.label,
+      required this.value,
       required this.options,
       required this.onChanged});
 
@@ -20,6 +22,7 @@ class DropdownMenuWidget extends StatelessWidget {
           width: double.maxFinite,
           height: 50,
           child: DropdownButtonFormField<String>(
+              value: value,
               items:
                   options.map<DropdownMenuItem<String>>((StatusOption option) {
                 return DropdownMenuItem<String>(
