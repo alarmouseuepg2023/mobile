@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart' as location_lib;
 import 'package:mobile/modules/add_device/add_device_controller.dart';
 import 'package:mobile/providers/auth/auth_provider.dart';
+import 'package:mobile/providers/notifications/notifications_provider.dart';
 import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/snackbar/snackbar_widget.dart';
 import 'package:mobile/shared/widgets/text_input/text_input.dart';
@@ -726,6 +727,9 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
                               LabelButtonWidget(
                                   label: "RETORNAR",
                                   onPressed: () {
+                                    ref
+                                        .read(notificationsProvider)
+                                        .setNotifications(0);
                                     Navigator.pushReplacementNamed(
                                         context, '/home');
                                   })
