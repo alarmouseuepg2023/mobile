@@ -69,7 +69,7 @@ class _EventsPageState extends State<EventsPage> {
       setState(() {
         loading = true;
       });
-      await Future.delayed(const Duration(seconds: 1));
+
       final res = await _eventsController.getEvents(
           _pageNumber, _size, widget.device.id);
       if (!mounted) return;

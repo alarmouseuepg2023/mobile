@@ -7,7 +7,6 @@ import 'package:mobile/shared/models/Invite/invite_response_model.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/models/Status/status_request_model.dart';
 import 'package:mobile/shared/models/Status/status_response_model.dart';
-import 'package:mobile/shared/models/Wifi/wifi_response_model.dart';
 import 'package:mobile/shared/models/Wifi/wifi_resquest_model.dart';
 
 import '../../service/index.dart';
@@ -37,8 +36,8 @@ class DeviceController {
     nicknameModel = nicknameModel.copyWith(nickname: nickname);
   }
 
-  void onChangeWifi({String? ssid, String? password}) {
-    wifiModel = wifiModel.copyWith(ssid: ssid, password: password);
+  void onChangeWifi({String? password}) {
+    wifiModel = wifiModel.copyWith(password: password);
   }
 
   void onChangePassword(
@@ -110,12 +109,15 @@ class DeviceController {
     return null;
   }
 
-  Future<WifiResponse?> changeWifi(String deviceId) async {
+  Future<StatusResponseModel?> wifiResetStarted(String deviceId) async {
     final formData = wifiModel.toJson();
     final form = wifiFormKey.currentState;
 
     if (form!.validate()) {
-      print('entrei $formData');
+      final response = await dio.post('device/wifiChangeHaveStarted/$deviceId',
+          data: formData, options: Options());
+      StatusResponseModel data = StatusResponseModel.fromJson(response.data);
+      return data;
     }
     return null;
   }

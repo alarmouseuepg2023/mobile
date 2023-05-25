@@ -281,6 +281,47 @@ class _DevicePageState extends ConsumerState<DevicePage> {
     }
   }
 
+  Future<void> handleWifiReset(StateSetter bottomState) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      bottomState(() {});
+      final res = await deviceController.wifiResetStarted(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+
+        setState(() {
+          _status = res.content.status;
+        });
+        Navigator.pop(context);
+        GlobalToast.show(
+            context,
+            res.message != ""
+                ? res.message
+                : "Dispositivo está em modo de redefinição!");
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao redefinir o dispositivo. Tente novamente.");
+      } else {
+        GlobalToast.show(context,
+            "Ocorreu um erro ao redefinir o dispositivo. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+
+      bottomState(() {});
+    }
+  }
+
   void showBottomSheet(context, String feature) {
     showModalBottomSheet(
         context: context,
@@ -422,38 +463,29 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "Insira os dados da nova rede",
+                        "Insira a senha do dispostivo",
                         style: TextStyles.inviteAGuest,
                       ),
                       const SizedBox(height: 30),
                       Form(
                         key: deviceController.wifiFormKey,
                         child: Column(children: [
-                          TextInputWidget(
-                              notAnimated: true,
-                              label: "Nome da rede",
-                              validator: validateSsid,
-                              onChanged: (value) {
-                                deviceController.onChangeWifi(ssid: value);
-                              }),
-                          TextInputWidget(
-                              notAnimated: true,
-                              label: "Senha",
-                              passwordType: true,
-                              validator: validatePassword,
-                              onChanged: (value) {
-                                deviceController.onChangeWifi(password: value);
-                              }),
+                          PinInputWidget(
+                            autoFocus: true,
+                            onChanged: (value) =>
+                                deviceController.onChangeWifi(password: value),
+                            validator: validatePin,
+                          ),
                         ]),
                       ),
                       const SizedBox(
                         height: 40,
                       ),
                       LabelButtonWidget(
-                          label: "ALTERAR",
+                          label: "ENVIAR",
                           onLoading: loading,
                           onPressed: () {
-                            deviceController.changeWifi(widget.device.id);
+                            handleWifiReset(bottomState);
                           }),
                       const SizedBox(
                         height: 30,
@@ -704,93 +736,317 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                     ]),
               ),
             )
-          : SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Center(
-                          child: waitingDeviceResponse
-                              ? const Center(
-                                  child: SizedBox(
-                                    height: 100,
-                                    width: 100,
-                                    child: Center(
-                                      child: SizedBox(
-                                        height: 70,
-                                        width: 70,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 6,
-                                          color: AppColors.primary,
+          : _status == 'Desconfigurado'
+              ? Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: waitingDeviceResponse
+                                ? const Center(
+                                    child: SizedBox(
+                                      height: 100,
+                                      width: 100,
+                                      child: Center(
+                                        child: SizedBox(
+                                          height: 70,
+                                          width: 70,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 6,
+                                            color: AppColors.primary,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                )
-                              : Ink(
-                                  child: InkWell(
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(50)),
-                                      onTap: () {
-                                        showBottomSheet(context, 'STATUS');
-                                      },
-                                      child: _status == "Disparado"
-                                          ? const Icon(Icons.warning_outlined,
-                                              color: Colors.white, size: 100)
-                                          : Icon(Icons.power_settings_new,
-                                              color: _status == 'Desbloqueado'
-                                                  ? AppColors.textFaded
-                                                  : AppColors.activated,
-                                              size: 100)),
-                                ),
+                                  )
+                                : const Icon(Icons.sync_problem_outlined,
+                                    color: AppColors.primary, size: 100),
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Column(
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text.rich(TextSpan(children: [
+                                TextSpan(
+                                    text: "Estado: ",
+                                    style: TextStyles.deviceStatusSub),
+                                TextSpan(
+                                    text: _status,
+                                    style: TextStyles.deviceCardStatus)
+                              ])),
+                              Text(_getDeviceOwnership(widget.device.role),
+                                  style: TextStyles.deviceCardOwnership),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              _ownerPermissions(widget.device.role)
+                                  ? Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Ink(
+                                          child: InkWell(
+                                              onTap: () {
+                                                Navigator.pushNamed(
+                                                    context, "/events",
+                                                    arguments: widget.device);
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                        Icons
+                                                            .settings_backup_restore,
+                                                        size: 30,
+                                                        color:
+                                                            AppColors.primary),
+                                                    const SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                    Text(
+                                                      "Realizar nova configuração",
+                                                      style: TextStyles
+                                                          .deviceActivities,
+                                                    )
+                                                  ],
+                                                ),
+                                              )),
+                                        ),
+                                      ],
+                                    )
+                                  : Text(
+                                      "Solicite a redefinição do dispostivo ao proprietário",
+                                      style: TextStyles.deviceActivities,
+                                      textAlign: TextAlign.center,
+                                    ),
+                            ])
+                      ]),
+                )
+              : SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text.rich(TextSpan(children: [
-                            TextSpan(
-                                text: "Estado: ",
-                                style: TextStyles.deviceStatusSub),
-                            TextSpan(
-                                text: _status,
-                                style: TextStyles.deviceCardStatus)
-                          ])),
-                          Text(_getDeviceOwnership(widget.device.role),
-                              style: TextStyles.deviceCardOwnership),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Center(
+                              child: waitingDeviceResponse
+                                  ? const Center(
+                                      child: SizedBox(
+                                        height: 100,
+                                        width: 100,
+                                        child: Center(
+                                          child: SizedBox(
+                                            height: 70,
+                                            width: 70,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 6,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Ink(
+                                      child: InkWell(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(50)),
+                                          onTap: () {
+                                            showBottomSheet(context, 'STATUS');
+                                          },
+                                          child: _status == "Disparado"
+                                              ? const Icon(
+                                                  Icons.warning_outlined,
+                                                  color: Colors.white,
+                                                  size: 100)
+                                              : Icon(Icons.power_settings_new,
+                                                  color:
+                                                      _status == 'Desbloqueado'
+                                                          ? AppColors.textFaded
+                                                          : AppColors.activated,
+                                                  size: 100)),
+                                    ),
+                            ),
+                          ),
                           const SizedBox(
-                            height: 30,
+                            height: 20,
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text.rich(TextSpan(children: [
+                                TextSpan(
+                                    text: "Estado: ",
+                                    style: TextStyles.deviceStatusSub),
+                                TextSpan(
+                                    text: _status,
+                                    style: TextStyles.deviceCardStatus)
+                              ])),
+                              Text(_getDeviceOwnership(widget.device.role),
+                                  style: TextStyles.deviceCardOwnership),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Ink(
+                                    child: InkWell(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                              context, "/events",
+                                              arguments: widget.device);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.description,
+                                                  size: 30,
+                                                  color: AppColors.primary),
+                                              const SizedBox(
+                                                width: 20,
+                                              ),
+                                              Text(
+                                                "Eventos",
+                                                style:
+                                                    TextStyles.deviceActivities,
+                                              )
+                                            ],
+                                          ),
+                                        )),
+                                  ),
+                                ],
+                              ),
+                              _ownerPermissions(widget.device.role)
+                                  ? Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Ink(
+                                          child: InkWell(
+                                              onTap: () {
+                                                Navigator.pushNamed(
+                                                    context, "/guests",
+                                                    arguments: widget.device);
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(Icons.people,
+                                                        size: 30,
+                                                        color:
+                                                            AppColors.primary),
+                                                    const SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                    Text(
+                                                      "Convidados",
+                                                      style: TextStyles
+                                                          .deviceActivities,
+                                                    )
+                                                  ],
+                                                ),
+                                              )),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                      ],
+                                    )
+                                  : const SizedBox(),
+                              _ownerPermissions(widget.device.role)
+                                  ? Ink(
+                                      child: InkWell(
+                                          onTap: () {
+                                            showBottomSheet(context, 'SHARE');
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.send_to_mobile,
+                                                    size: 30,
+                                                    color: AppColors.primary),
+                                                const SizedBox(
+                                                  width: 20,
+                                                ),
+                                                Text(
+                                                  "Compartilhar dispositivo",
+                                                  style: TextStyles
+                                                      .deviceActivities,
+                                                )
+                                              ],
+                                            ),
+                                          )),
+                                    )
+                                  : const SizedBox(),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              _ownerPermissions(widget.device.role)
+                                  ? Ink(
+                                      child: InkWell(
+                                          onTap: () {
+                                            showBottomSheet(context, 'WIFI');
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.wifi,
+                                                    size: 30,
+                                                    color: AppColors.primary),
+                                                const SizedBox(
+                                                  width: 20,
+                                                ),
+                                                Text(
+                                                  "Redefinir rede WiFi",
+                                                  style: TextStyles
+                                                      .deviceActivities,
+                                                )
+                                              ],
+                                            ),
+                                          )),
+                                    )
+                                  : const SizedBox(),
+                              const SizedBox(
+                                height: 10,
+                              ),
                               Ink(
                                 child: InkWell(
                                     onTap: () {
-                                      Navigator.pushNamed(context, "/events",
-                                          arguments: widget.device);
+                                      showBottomSheet(context, 'PASSWORD');
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
                                         children: [
-                                          const Icon(Icons.description,
+                                          const Icon(Icons.lock,
                                               size: 30,
                                               color: AppColors.primary),
                                           const SizedBox(
                                             width: 20,
                                           ),
                                           Text(
-                                            "Eventos",
+                                            "Alterar senha do alarme",
                                             style: TextStyles.deviceActivities,
                                           )
                                         ],
@@ -799,145 +1055,24 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                               ),
                             ],
                           ),
+                          const SizedBox(
+                            height: 50,
+                          ),
                           _ownerPermissions(widget.device.role)
-                              ? Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Ink(
-                                      child: InkWell(
-                                          onTap: () {
-                                            Navigator.pushNamed(
-                                                context, "/guests",
-                                                arguments: widget.device);
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Row(
-                                              children: [
-                                                const Icon(Icons.people,
-                                                    size: 30,
-                                                    color: AppColors.primary),
-                                                const SizedBox(
-                                                  width: 20,
-                                                ),
-                                                Text(
-                                                  "Convidados",
-                                                  style: TextStyles
-                                                      .deviceActivities,
-                                                )
-                                              ],
-                                            ),
-                                          )),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                  ],
-                                )
-                              : const SizedBox(),
-                          _ownerPermissions(widget.device.role)
-                              ? Ink(
-                                  child: InkWell(
-                                      onTap: () {
-                                        showBottomSheet(context, 'SHARE');
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.send_to_mobile,
-                                                size: 30,
-                                                color: AppColors.primary),
-                                            const SizedBox(
-                                              width: 20,
-                                            ),
-                                            Text(
-                                              "Compartilhar dispositivo",
-                                              style:
-                                                  TextStyles.deviceActivities,
-                                            )
-                                          ],
-                                        ),
-                                      )),
+                              ? LabelButtonWidget(
+                                  label: "REMOVER DISPOSITIVO",
+                                  onPressed: () {
+                                    showAlertDialog(context);
+                                  },
+                                  reversed: true,
                                 )
                               : const SizedBox(),
                           const SizedBox(
-                            height: 10,
-                          ),
-                          _ownerPermissions(widget.device.role)
-                              ? Ink(
-                                  child: InkWell(
-                                      onTap: () {
-                                        showBottomSheet(context, 'WIFI');
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.wifi,
-                                                size: 30,
-                                                color: AppColors.primary),
-                                            const SizedBox(
-                                              width: 20,
-                                            ),
-                                            Text(
-                                              "Alterar rede Wifi",
-                                              style:
-                                                  TextStyles.deviceActivities,
-                                            )
-                                          ],
-                                        ),
-                                      )),
-                                )
-                              : const SizedBox(),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Ink(
-                            child: InkWell(
-                                onTap: () {
-                                  showBottomSheet(context, 'PASSWORD');
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.lock,
-                                          size: 30, color: AppColors.primary),
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
-                                      Text(
-                                        "Alterar senha do alarme",
-                                        style: TextStyles.deviceActivities,
-                                      )
-                                    ],
-                                  ),
-                                )),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      _ownerPermissions(widget.device.role)
-                          ? LabelButtonWidget(
-                              label: "REMOVER DISPOSITIVO",
-                              onPressed: () {
-                                showAlertDialog(context);
-                              },
-                              reversed: true,
-                            )
-                          : const SizedBox(),
-                      const SizedBox(
-                        height: 60,
-                      )
-                    ]),
-              ),
-            ),
+                            height: 60,
+                          )
+                        ]),
+                  ),
+                ),
     ));
   }
 }
