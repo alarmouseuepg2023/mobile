@@ -242,7 +242,6 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
   void dispose() {
     wifiPassword.dispose();
     _timer.cancel();
-    mqttManager.unsubscribe(espResponseTopic);
     super.dispose();
   }
 
