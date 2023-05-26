@@ -48,6 +48,7 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
   int currentStep = 0;
   bool loading = false;
   bool espAnswered = false;
+  bool checked = false;
   bool provisionStarted = false;
   final provisioner = Provisioner.espTouchV2();
   late String espResponseTopic;
@@ -659,43 +660,90 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
                                 textAlign: TextAlign.justify,
                               ),
                               const SizedBox(
+                                height: 30,
+                              ),
+                              Text.rich(
+                                TextSpan(children: [
+                                  TextSpan(
+                                      text:
+                                          "Antes de continuar, pressione o botão de ",
+                                      style: TextStyles.addDeviceIntro),
+                                  TextSpan(
+                                      text: "reset ",
+                                      style: TextStyles.addDeviceIntroBold),
+                                  TextSpan(
+                                      text:
+                                          " que se encontra na lateral do dispositivo por ",
+                                      style: TextStyles.addDeviceIntro),
+                                  TextSpan(
+                                      text: "3 segundos.",
+                                      style: TextStyles.addDeviceIntroBold),
+                                ]),
+                                textAlign: TextAlign.justify,
+                              ),
+                              const SizedBox(
                                 height: 50,
                               ),
-                              LabelButtonWidget(
-                                  label: "COMEÇAR",
-                                  onPressed: () async {
-                                    final status =
-                                        await Permission.location.status;
-                                    if (status.isGranted) {
-                                      final locationCheck =
-                                          await getLocationStatus();
-                                      if (!locationCheck && mounted) {
-                                        GlobalToast.show(context,
-                                            "É necessário ativar a localização para prosseguir");
-                                        return;
-                                      }
-                                    } else {
-                                      turnOnLocationServices();
-                                      final status =
-                                          await Permission.location.status;
-                                      if (status.isGranted) {
-                                        final locationCheck =
-                                            await getLocationStatus();
-                                        if (!locationCheck && mounted) {
-                                          GlobalToast.show(context,
-                                              "É necessário ativar a localização para prosseguir");
-                                          return;
+                              Row(
+                                children: [
+                                  Checkbox(
+                                      activeColor: AppColors.primary,
+                                      value: checked,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          checked = value ?? false;
+                                        });
+                                      }),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      "Pressionei o botão de reset por 3 segundos",
+                                      style: TextStyles.deviceCardStatus,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              checked
+                                  ? LabelButtonWidget(
+                                      disabled: !checked,
+                                      label: "COMEÇAR",
+                                      onPressed: () async {
+                                        final status =
+                                            await Permission.location.status;
+                                        if (status.isGranted) {
+                                          final locationCheck =
+                                              await getLocationStatus();
+                                          if (!locationCheck && mounted) {
+                                            GlobalToast.show(context,
+                                                "É necessário ativar a localização para prosseguir");
+                                            return;
+                                          }
+                                        } else {
+                                          turnOnLocationServices();
+                                          final status =
+                                              await Permission.location.status;
+                                          if (status.isGranted) {
+                                            final locationCheck =
+                                                await getLocationStatus();
+                                            if (!locationCheck && mounted) {
+                                              GlobalToast.show(context,
+                                                  "É necessário ativar a localização para prosseguir");
+                                              return;
+                                            }
+                                          }
                                         }
-                                      }
-                                    }
 
-                                    if (await getLocationStatus()) {
-                                      getNetworkInfos();
-                                      setState(() {
-                                        _pageMode = 1;
-                                      });
-                                    }
-                                  })
+                                        if (await getLocationStatus()) {
+                                          getNetworkInfos();
+                                          setState(() {
+                                            _pageMode = 1;
+                                          });
+                                        }
+                                      })
+                                  : const SizedBox()
                             ],
                           ),
                         ),
