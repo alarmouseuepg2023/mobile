@@ -371,6 +371,17 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                       const SizedBox(
                         height: 40,
                       ),
+                      loading
+                          ? const SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: CircularProgressIndicator(
+                                  color: AppColors.primary),
+                            )
+                          : const SizedBox(),
+                      const SizedBox(
+                        height: 40,
+                      ),
                     ],
                   ),
                 );
