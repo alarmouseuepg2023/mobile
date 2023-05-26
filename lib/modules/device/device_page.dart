@@ -327,50 +327,15 @@ class _DevicePageState extends ConsumerState<DevicePage> {
         context: context,
         isScrollControlled: true,
         builder: (BuildContext bc) {
-          return StatefulBuilder(
-              builder: (BuildContext context, StateSetter bottomState) {
-            if (feature == 'STATUS') {
-              return Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                    top: 20,
-                    left: 20,
-                    right: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Mudar o estado do dispositivo",
-                      style: TextStyles.inviteAGuest,
-                    ),
-                    const SizedBox(height: 30),
-                    Form(
-                      key: deviceController.statusFormKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          PinInputWidget(
-                            autoFocus: true,
-                            onComplete: (value) {
-                              deviceController.onChangeStatus(password: value);
-                              handleChangeStatus(bottomState);
-                            },
-                            onChanged: (value) => deviceController
-                                .onChangeStatus(password: value),
-                            validator: validatePin,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                  ],
-                ),
-              );
-            }
-            if (feature == 'SHARE') {
-              return Padding(
+          return WillPopScope(
+            onWillPop: () async {
+              if (loading) return false;
+              return true;
+            },
+            child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter bottomState) {
+              if (feature == 'STATUS') {
+                return Padding(
                   padding: EdgeInsets.only(
                       bottom: MediaQuery.of(context).viewInsets.bottom,
                       top: 20,
@@ -380,206 +345,248 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "Insira um e-mail para compartilhar",
+                        "Mudar o estado do dispositivo",
                         style: TextStyles.inviteAGuest,
                       ),
                       const SizedBox(height: 30),
                       Form(
-                        key: deviceController.inviteFormKey,
-                        child: TextInputWidget(
-                            notAnimated: true,
-                            label: "E-mail",
-                            validator: validateEmail,
-                            onChanged: (value) {
-                              deviceController.onChangeInvite(email: value);
-                            }),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      LabelButtonWidget(
-                          label: "ENVIAR",
-                          onLoading: loading,
-                          onPressed: () {
-                            handleInvite(bottomState);
-                          }),
-                      const SizedBox(
-                        height: 30,
-                      )
-                    ],
-                  ));
-            }
-            if (feature == 'NICKNAME') {
-              return Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      top: 20,
-                      left: 20,
-                      right: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Insira o novo nome",
-                        style: TextStyles.inviteAGuest,
-                      ),
-                      const SizedBox(height: 30),
-                      Form(
-                        key: deviceController.nicknameFormKey,
-                        child: TextInputWidget(
-                            notAnimated: true,
-                            label: "Nome",
-                            controller: _nicknameController,
-                            validator: validateName,
-                            maxLength: 32,
-                            onChanged: (value) {
-                              deviceController.onChangeNickname(
-                                  nickname: value);
-                            }),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      LabelButtonWidget(
-                          label: "ENVIAR",
-                          onLoading: loading,
-                          onPressed: () {
-                            handleChangeNickname(bottomState);
-                          }),
-                      const SizedBox(
-                        height: 30,
-                      )
-                    ],
-                  ));
-            }
-            if (feature == 'WIFI') {
-              return Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      left: 20,
-                      right: 20,
-                      top: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Insira a senha do dispostivo",
-                        style: TextStyles.inviteAGuest,
-                      ),
-                      const SizedBox(height: 30),
-                      Form(
-                        key: deviceController.wifiFormKey,
-                        child: Column(children: [
-                          PinInputWidget(
-                            autoFocus: true,
-                            onChanged: (value) =>
-                                deviceController.onChangeWifi(password: value),
-                            validator: validatePin,
-                          ),
-                        ]),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      LabelButtonWidget(
-                          label: "ENVIAR",
-                          onLoading: loading,
-                          onPressed: () {
-                            handleWifiReset(bottomState);
-                          }),
-                      const SizedBox(
-                        height: 30,
-                      )
-                    ],
-                  ));
-            }
-            if (feature == 'PASSWORD') {
-              return Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      left: 20,
-                      right: 20,
-                      top: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Complete os campos de senha",
-                        style: TextStyles.inviteAGuest,
-                      ),
-                      const SizedBox(height: 30),
-                      Form(
-                        key: deviceController.passwordFormKey,
+                        key: deviceController.statusFormKey,
                         child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Senha antiga",
-                                style: TextStyles.inputFocus,
-                                textAlign: TextAlign.start,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              PinInputWidget(
-                                onChanged: (value) {
-                                  deviceController.onChangePassword(
-                                      oldPassword: value);
-                                },
-                                validator: validatePinPassword,
-                              ),
-                              Text(
-                                "Nova senha",
-                                style: TextStyles.inputFocus,
-                                textAlign: TextAlign.start,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              PinInputWidget(
-                                onChanged: (value) {
-                                  deviceController.onChangePassword(
-                                      password: value);
-                                },
-                                validator: validatePinPassword,
-                                controller: _password,
-                              ),
-                              Text(
-                                "Confirme a nova senha",
-                                style: TextStyles.inputFocus,
-                                textAlign: TextAlign.start,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              PinInputWidget(
-                                onChanged: (value) {
-                                  deviceController.onChangePassword(
-                                      confirmPassword: value);
-                                },
-                                validator: (value) =>
-                                    validateConfirmPin(value, _password.text),
-                                controller: _confirmPassword,
-                              ),
-                            ]),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PinInputWidget(
+                              autoFocus: true,
+                              onComplete: (value) {
+                                deviceController.onChangeStatus(
+                                    password: value);
+                                handleChangeStatus(bottomState);
+                              },
+                              onChanged: (value) => deviceController
+                                  .onChangeStatus(password: value),
+                              validator: validatePin,
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(
                         height: 40,
                       ),
-                      LabelButtonWidget(
-                          label: "ALTERAR",
-                          onLoading: loading,
-                          onPressed: () {
-                            handleChangePassword(bottomState);
-                          }),
-                      const SizedBox(
-                        height: 30,
-                      )
                     ],
-                  ));
-            }
-            return const SizedBox();
-          });
+                  ),
+                );
+              }
+              if (feature == 'SHARE') {
+                return Padding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        top: 20,
+                        left: 20,
+                        right: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Insira um e-mail para compartilhar",
+                          style: TextStyles.inviteAGuest,
+                        ),
+                        const SizedBox(height: 30),
+                        Form(
+                          key: deviceController.inviteFormKey,
+                          child: TextInputWidget(
+                              notAnimated: true,
+                              label: "E-mail",
+                              validator: validateEmail,
+                              onChanged: (value) {
+                                deviceController.onChangeInvite(email: value);
+                              }),
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        LabelButtonWidget(
+                            label: "ENVIAR",
+                            onLoading: loading,
+                            onPressed: () {
+                              handleInvite(bottomState);
+                            }),
+                        const SizedBox(
+                          height: 30,
+                        )
+                      ],
+                    ));
+              }
+              if (feature == 'NICKNAME') {
+                return Padding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        top: 20,
+                        left: 20,
+                        right: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Insira o novo nome",
+                          style: TextStyles.inviteAGuest,
+                        ),
+                        const SizedBox(height: 30),
+                        Form(
+                          key: deviceController.nicknameFormKey,
+                          child: TextInputWidget(
+                              notAnimated: true,
+                              label: "Nome",
+                              controller: _nicknameController,
+                              validator: validateName,
+                              maxLength: 32,
+                              onChanged: (value) {
+                                deviceController.onChangeNickname(
+                                    nickname: value);
+                              }),
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        LabelButtonWidget(
+                            label: "ENVIAR",
+                            onLoading: loading,
+                            onPressed: () {
+                              handleChangeNickname(bottomState);
+                            }),
+                        const SizedBox(
+                          height: 30,
+                        )
+                      ],
+                    ));
+              }
+              if (feature == 'WIFI') {
+                return Padding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        left: 20,
+                        right: 20,
+                        top: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Insira a senha do dispostivo",
+                          style: TextStyles.inviteAGuest,
+                        ),
+                        const SizedBox(height: 30),
+                        Form(
+                          key: deviceController.wifiFormKey,
+                          child: Column(children: [
+                            PinInputWidget(
+                              autoFocus: true,
+                              onChanged: (value) => deviceController
+                                  .onChangeWifi(password: value),
+                              validator: validatePin,
+                            ),
+                          ]),
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        LabelButtonWidget(
+                            label: "ENVIAR",
+                            onLoading: loading,
+                            onPressed: () {
+                              handleWifiReset(bottomState);
+                            }),
+                        const SizedBox(
+                          height: 30,
+                        )
+                      ],
+                    ));
+              }
+              if (feature == 'PASSWORD') {
+                return Padding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        left: 20,
+                        right: 20,
+                        top: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Complete os campos de senha",
+                          style: TextStyles.inviteAGuest,
+                        ),
+                        const SizedBox(height: 30),
+                        Form(
+                          key: deviceController.passwordFormKey,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Senha antiga",
+                                  style: TextStyles.inputFocus,
+                                  textAlign: TextAlign.start,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                PinInputWidget(
+                                  onChanged: (value) {
+                                    deviceController.onChangePassword(
+                                        oldPassword: value);
+                                  },
+                                  validator: validatePinPassword,
+                                ),
+                                Text(
+                                  "Nova senha",
+                                  style: TextStyles.inputFocus,
+                                  textAlign: TextAlign.start,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                PinInputWidget(
+                                  onChanged: (value) {
+                                    deviceController.onChangePassword(
+                                        password: value);
+                                  },
+                                  validator: validatePinPassword,
+                                  controller: _password,
+                                ),
+                                Text(
+                                  "Confirme a nova senha",
+                                  style: TextStyles.inputFocus,
+                                  textAlign: TextAlign.start,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                PinInputWidget(
+                                  onChanged: (value) {
+                                    deviceController.onChangePassword(
+                                        confirmPassword: value);
+                                  },
+                                  validator: (value) =>
+                                      validateConfirmPin(value, _password.text),
+                                  controller: _confirmPassword,
+                                ),
+                              ]),
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        LabelButtonWidget(
+                            label: "ALTERAR",
+                            onLoading: loading,
+                            onPressed: () {
+                              handleChangePassword(bottomState);
+                            }),
+                        const SizedBox(
+                          height: 30,
+                        )
+                      ],
+                    ));
+              }
+              return const SizedBox();
+            }),
+          );
         });
   }
 
