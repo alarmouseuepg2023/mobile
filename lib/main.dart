@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile/modules/add_device/add_device_page.dart';
 import 'package:mobile/modules/change_password/change_password_page.dart';
+import 'package:mobile/modules/confirm_account/confirm_account_page.dart';
+import 'package:mobile/modules/delete_account/delete_account_page.dart';
 import 'package:mobile/modules/device/device_page.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/events/events_page.dart';
@@ -15,6 +18,7 @@ import 'package:mobile/modules/login/login_page.dart';
 import 'package:mobile/modules/notifications/notifications_page.dart';
 import 'package:mobile/modules/profile/profile_page.dart';
 import 'package:mobile/modules/register/register_page.dart';
+import 'package:mobile/modules/reset_device/reset_device_page.dart';
 import 'package:mobile/modules/reset_password/reset_password_page.dart';
 import 'package:mobile/modules/splash/splash_page.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
@@ -32,7 +36,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Alarmouse',
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+      supportedLocales: const [Locale('pt', 'BR')],
+      useInheritedMediaQuery: true,
       theme: ThemeData(
           primarySwatch: Colors.blue,
           primaryColor: AppColors.primary,
@@ -50,6 +57,9 @@ class MyApp extends StatelessWidget {
         "/reset_password": (context) => const ResetPasswordPage(),
         "/devices": (context) => const DevicesPage(),
         "/add_device": (context) => const AddDevicePage(),
+        "/reset_device": (context) => ResetDevicePage(
+              device: ModalRoute.of(context)!.settings.arguments as Device,
+            ),
         "/device": (context) => DevicePage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
@@ -71,6 +81,10 @@ class MyApp extends StatelessWidget {
         },
         "/profile": (context) => const ProfilePage(),
         "/change_password": (context) => const ChangePasswordPage(),
+        "/delete_account": (context) => const DeleteAccountPage(),
+        "/confirm_account": (context) => ConfirmAccountPage(
+              email: ModalRoute.of(context)!.settings.arguments as String,
+            ),
       },
     );
   }

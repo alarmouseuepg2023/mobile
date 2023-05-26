@@ -47,8 +47,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               child: Text(ref.watch(authProvider).user!.name,
                   style: TextStyles.profileName)),
           Center(
-              child: Text(
-                  ref.watch(authProvider).user!.email ?? "matusas@email.com",
+              child: Text(ref.watch(authProvider).user!.email ?? "",
                   style: TextStyles.profileEmail)),
           const SizedBox(
             height: 30,
@@ -72,6 +71,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         Text(
                           "Alterar senha",
                           style: TextStyles.profileMenuItem,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, "/delete_account");
+                },
+                child: Ink(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete_forever_outlined,
+                            size: 30, color: AppColors.warning),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Excluir conta",
+                          style: TextStyles.profileMenuItemDanger,
                         )
                       ],
                     ),

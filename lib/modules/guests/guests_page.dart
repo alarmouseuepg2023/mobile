@@ -140,14 +140,16 @@ class _GuestsPageState extends State<GuestsPage> {
         context: context,
         isScrollControlled: true,
         builder: (BuildContext bc) {
-          return StatefulBuilder(
-              builder: (BuildContext context, StateSetter bottomState) {
-            return Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                    left: 20,
-                    right: 20,
-                    top: 10),
+          return WillPopScope(
+            onWillPop: () async {
+              if (loading) return false;
+
+              return true;
+            },
+            child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter bottomState) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -176,8 +178,10 @@ class _GuestsPageState extends State<GuestsPage> {
                       height: 30,
                     )
                   ],
-                ));
-          });
+                ),
+              );
+            }),
+          );
         });
   }
 
@@ -192,7 +196,7 @@ class _GuestsPageState extends State<GuestsPage> {
               decoration: const BoxDecoration(color: AppColors.primary)),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(20),
           child: Column(children: [
             Expanded(
               flex: 1,

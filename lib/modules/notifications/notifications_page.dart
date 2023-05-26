@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,9 +12,9 @@ import 'package:mobile/shared/widgets/notification_card/notification_card_widget
 import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
+import '../../providers/mqtt/mqtt_client.dart';
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
-import '../../shared/utils/mqtt/mqtt_client.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -29,14 +32,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   int _pageNumber = 0;
   final int _size = 10;
   final scrollController = ScrollController();
-  MQTTClientManager mqttClientManager = MQTTClientManager();
+  late MQTTClientManager mqttManager;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      mqttManager = ref.read(mqttProvider);
+
+      if (mqttManager.client != null) {
+        setupUpdatesListener();
+      }
       getNotifications();
-      setupMqttClient();
-      setupUpdatesListener();
       scrollController.addListener(() {
         if (scrollController.position.maxScrollExtent ==
             scrollController.offset) {
@@ -51,6 +57,43 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   void dispose() {
     scrollController.dispose();
     super.dispose();
+  }
+
+  void setupUpdatesListener() {
+    if (mqttManager.client == null) return;
+    String userId = ref.read(authProvider).user!.id;
+
+    String notificationsTopic =
+        "/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/invite/$userId";
+    mqttManager
+        .getMessagesStream()!
+        .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMess = c![0].payload as MqttPublishMessage;
+      final topic = c[0].topic;
+
+      final message = Uint8List.fromList(recMess.payload.message);
+      final notification = utf8.decode(message);
+
+      if (topic == notificationsTopic) {
+        handleNotificationArrival(notification);
+      }
+    });
+  }
+
+  void handleNotificationArrival(String message) {
+    print("NOTIFICATIONS_PAGE: MESSAGE: $message  MOUNTED: $mounted");
+    final decoded = jsonDecode(message);
+    NotificationModel notification = NotificationModel.fromJson(decoded);
+    if (mounted) {
+      if (notifications
+          .where((element) => element.id == notification.id)
+          .toList()
+          .isEmpty) {
+        setState(() {
+          notifications.add(notification);
+        });
+      }
+    }
   }
 
   Future<void> getNotifications() async {
@@ -105,25 +148,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     });
 
     getNotifications();
-  }
-
-  Future<void> setupMqttClient() async {
-    await mqttClientManager.connect().then((value) {
-      final userId = ref.read(authProvider).user!.id;
-      mqttClientManager.subscribe(
-          "/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/invite/$userId");
-    });
-  }
-
-  void setupUpdatesListener() {
-    mqttClientManager
-        .getMessagesStream()!
-        .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-      final recMess = c![0].payload as MqttPublishMessage;
-      final pt =
-          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      print('<${c[0].topic}> is $pt\n');
-    });
   }
 
   @override

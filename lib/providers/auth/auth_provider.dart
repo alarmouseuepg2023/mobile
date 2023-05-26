@@ -31,7 +31,6 @@ class Auth extends ChangeNotifier {
   void setUser(User? newUser, String refreshToken, String accessToken) async {
     if (newUser != null) {
       final pref = await SharedPreferences.getInstance();
-      print(newUser);
       pref.setString("ALARMOUSE:userData", jsonEncode(newUser));
       pref.setString("ALARMOUSE:refreshToken", refreshToken);
       pref.setString("ALARMOUSE:accessToken", accessToken);
