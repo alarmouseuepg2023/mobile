@@ -140,41 +140,48 @@ class _GuestsPageState extends State<GuestsPage> {
         context: context,
         isScrollControlled: true,
         builder: (BuildContext bc) {
-          return StatefulBuilder(
-              builder: (BuildContext context, StateSetter bottomState) {
-            return Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Remover convidado",
-                    style: TextStyles.inviteAGuestBold,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "Deseja remover o convidado deste dispositivo?",
-                    style: TextStyles.revokeGuestText,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  LabelButtonWidget(
-                      label: "REMOVER",
-                      onLoading: loading,
-                      onPressed: () {
-                        handleRevokeGuest(guestId, bottomState);
-                      }),
-                  const SizedBox(
-                    height: 30,
-                  )
-                ],
-              ),
-            );
-          });
+          return WillPopScope(
+            onWillPop: () async {
+              if (loading) return false;
+
+              return true;
+            },
+            child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter bottomState) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Remover convidado",
+                      style: TextStyles.inviteAGuestBold,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text(
+                      "Deseja remover o convidado deste dispositivo?",
+                      style: TextStyles.revokeGuestText,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    LabelButtonWidget(
+                        label: "REMOVER",
+                        onLoading: loading,
+                        onPressed: () {
+                          handleRevokeGuest(guestId, bottomState);
+                        }),
+                    const SizedBox(
+                      height: 30,
+                    )
+                  ],
+                ),
+              );
+            }),
+          );
         });
   }
 
