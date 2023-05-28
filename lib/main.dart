@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Alarmouse',
-      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [Locale('pt', 'BR')],
       useInheritedMediaQuery: true,
       theme: ThemeData(
