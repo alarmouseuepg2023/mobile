@@ -19,6 +19,7 @@ class ChangePasswordController {
   }
 
   Future<ServerResponse> changePassword() async {
+    final dio = DioApi().dio;
     final formData = model.toJson();
 
     final response = await dio.post('user/changePassword',

@@ -55,6 +55,7 @@ class DeviceController {
   }
 
   Future<StatusResponseModel?> changeStatus(String deviceId) async {
+    final dio = DioApi().dio;
     final formData = {
       'status': statusModel.status,
       'password': deviceUnlockModel.password
@@ -74,6 +75,7 @@ class DeviceController {
   }
 
   Future<InviteResponse?> inviteGuest(String deviceId) async {
+    final dio = DioApi().dio;
     final formData = inviteModel.toJson();
     final form = inviteFormKey.currentState;
 
@@ -87,6 +89,7 @@ class DeviceController {
   }
 
   Future<ServerResponse?> changeNickname(String deviceId) async {
+    final dio = DioApi().dio;
     final formData = nicknameModel.toJson();
     final form = nicknameFormKey.currentState;
 
@@ -103,6 +106,7 @@ class DeviceController {
   }
 
   Future<ServerResponse?> changePassword(String deviceId) async {
+    final dio = DioApi().dio;
     final formData = passwordModel.toJson();
     final form = passwordFormKey.currentState;
 
@@ -116,6 +120,7 @@ class DeviceController {
   }
 
   Future<StatusResponseModel?> wifiResetStarted(String deviceId) async {
+    final dio = DioApi().dio;
     final formData = deviceUnlockModel.toJson();
 
     final response = await dio.post('device/wifiChangeHaveStarted/$deviceId',
@@ -125,6 +130,7 @@ class DeviceController {
   }
 
   Future<ServerResponse?> deleteDevice(String deviceId) async {
+    final dio = DioApi().dio;
     final response = await dio.delete('device/$deviceId', options: Options());
     ServerResponse data = ServerResponse.fromJson(response.data);
 

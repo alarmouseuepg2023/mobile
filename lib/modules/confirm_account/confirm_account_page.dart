@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +7,6 @@ import 'package:mobile/providers/auth/auth_provider.dart';
 import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 
-import '../../service/index.dart';
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/models/User/user_model.dart';
 import '../../shared/themes/app_colors.dart';
@@ -51,9 +48,6 @@ class _ConfirmAccountPageState extends ConsumerState<ConfirmAccountPage> {
             JwtDecoder.decode(res.content.accessToken);
 
         User userData = User.fromMap(decodedAccessToken);
-
-        dio.options.headers[HttpHeaders.authorizationHeader] =
-            "bearer ${res.content.accessToken}";
 
         ref.read(authProvider).setUser(
             userData, res.content.refreshToken, res.content.accessToken);

@@ -47,6 +47,7 @@ class AddDeviceController {
 
   Future<ServerResponse?> createDevice(
       String macAddress, String wifiSsid) async {
+    final dio = DioApi().dio;
     final allFormValid =
         formKeys.every((element) => element.currentState!.validate());
     final deviceFormData = {

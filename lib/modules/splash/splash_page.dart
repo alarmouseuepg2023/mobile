@@ -1,11 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/providers/auth/auth_provider.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
-
-import '../../service/index.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -25,11 +21,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   Future<void> getStorageData() async {
     final hasUser = await ref.read(authProvider).getUserData();
-    if (hasUser) {
-      final accessToken = ref.read(authProvider).accessToken;
-      dio.options.headers[HttpHeaders.authorizationHeader] =
-          "bearer $accessToken";
-    }
     setState(() {
       user = hasUser;
     });

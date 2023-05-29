@@ -18,6 +18,7 @@ class ForgotPasswordController {
   }
 
   Future<ServerResponse> signUp() async {
+    final dio = DioApi().dio;
     final formData = model.toJson();
 
     final response = await dio.post('auth/forgotPassword',
