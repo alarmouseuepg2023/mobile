@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobile/shared/models/ChangePassword/change_password_request_model.dart';
 import 'package:mobile/shared/models/Device/device_nickname_request_model.dart';
+import 'package:mobile/shared/models/Device/device_unlock_model.dart';
 import 'package:mobile/shared/models/Invite/invite_request_model.dart';
 import 'package:mobile/shared/models/Invite/invite_response_model.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
@@ -23,9 +24,14 @@ class DeviceController {
   WifiRequest wifiModel = WifiRequest();
   ChangePasswordRequest passwordModel = ChangePasswordRequest();
   DeviceNicknameRequest nicknameModel = DeviceNicknameRequest();
+  DeviceUnlock deviceUnlockModel = DeviceUnlock();
 
   void onChangeStatus({String? password, String? status}) {
     statusModel = statusModel.copyWith(password: password, status: status);
+  }
+
+  void onChangeDeviceUnlock({String? password}) {
+    deviceUnlockModel = deviceUnlockModel.copyWith(password: password);
   }
 
   void onChangeInvite({String? email}) {
@@ -49,22 +55,22 @@ class DeviceController {
   }
 
   Future<StatusResponseModel?> changeStatus(String deviceId) async {
-    final formData = statusModel.toJson();
-    final form = statusFormKey.currentState;
+    final formData = {
+      'status': statusModel.status,
+      'password': deviceUnlockModel.password
+    };
+    print(formData);
 
     // UNCONFIGURED = 0,
     // LOCKED = 1,
     // UNLOCKED = 2,
     // TRIGGERED = 3,
 
-    if (form!.validate()) {
-      final response = await dio.post('device/status/$deviceId',
-          data: formData, options: Options());
-
-      StatusResponseModel data = StatusResponseModel.fromJson(response.data);
-      return data;
-    }
-    return null;
+    final response = await dio.post('device/status/$deviceId',
+        data: formData, options: Options());
+    print(response.data);
+    StatusResponseModel data = StatusResponseModel.fromJson(response.data);
+    return data;
   }
 
   Future<InviteResponse?> inviteGuest(String deviceId) async {

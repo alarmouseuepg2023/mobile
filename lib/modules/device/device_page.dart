@@ -21,7 +21,9 @@ import '../../shared/widgets/text_input/text_input.dart';
 
 class DevicePage extends ConsumerStatefulWidget {
   final Device device;
-  const DevicePage({super.key, required this.device});
+  final String devicePassword;
+  const DevicePage(
+      {super.key, required this.device, required this.devicePassword});
 
   @override
   ConsumerState<DevicePage> createState() => _DevicePageState();
@@ -47,6 +49,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
   void initState() {
     mqttManager = ref.read(mqttProvider);
     setupUpdatesListener();
+    deviceController.onChangeDeviceUnlock(password: widget.devicePassword);
     setState(() {
       waitingDeviceResponse =
           widget.device.status == "Aguardando confirmação" ? true : false;
@@ -137,12 +140,11 @@ class _DevicePageState extends ConsumerState<DevicePage> {
     }
   }
 
-  Future<void> handleChangeStatus(StateSetter bottomState) async {
+  Future<void> handleChangeStatus(bool triggered) async {
     try {
       setState(() {
         loading = true;
       });
-      bottomState(() {});
 
       final newStatus = getDeviceStatusCode(_status) == '2' ? '1' : '2';
       deviceController.onChangeStatus(status: newStatus);
@@ -150,11 +152,13 @@ class _DevicePageState extends ConsumerState<DevicePage> {
 
       if (res != null) {
         if (!mounted) return;
+        if (!triggered) {
+          Navigator.pop(context);
+        }
         setState(() {
           waitingDeviceResponse = true;
           _status = "Aguardando confirmação";
         });
-        Navigator.pop(context);
       }
     } catch (e) {
       if (e is DioError) {
@@ -168,8 +172,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
       setState(() {
         loading = false;
       });
-
-      bottomState(() {});
     }
   }
 
@@ -324,68 +326,79 @@ class _DevicePageState extends ConsumerState<DevicePage> {
 
   void showBottomSheet(context, String feature) {
     showModalBottomSheet(
+        enableDrag: false,
         context: context,
         isScrollControlled: true,
+        backgroundColor:
+            feature == 'STATUS' ? Colors.transparent : Colors.white,
         builder: (BuildContext bc) {
           return WillPopScope(
             onWillPop: () async {
-              if (loading) return false;
+              if (loading || bottomload) return false;
               return true;
             },
             child: StatefulBuilder(
                 builder: (BuildContext context, StateSetter bottomState) {
               if (feature == 'STATUS') {
-                return Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      top: 20,
-                      left: 20,
-                      right: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Mudar o estado do dispositivo",
-                        style: TextStyles.inviteAGuest,
-                      ),
-                      const SizedBox(height: 30),
-                      Form(
-                        key: deviceController.statusFormKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PinInputWidget(
-                              autoFocus: true,
-                              onComplete: (value) {
-                                deviceController.onChangeStatus(
-                                    password: value);
-                                handleChangeStatus(bottomState);
-                              },
-                              onChanged: (value) => deviceController
-                                  .onChangeStatus(password: value),
-                              validator: validatePin,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      loading
-                          ? const SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: CircularProgressIndicator(
-                                  color: AppColors.primary),
-                            )
-                          : const SizedBox(),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                    ],
+                return Container(
+                  color: Colors.transparent,
+                  child: const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   ),
                 );
               }
+              // if (feature == 'STATUS') {
+              //   return Padding(
+              //     padding: EdgeInsets.only(
+              //         bottom: MediaQuery.of(context).viewInsets.bottom,
+              //         top: 20,
+              //         left: 20,
+              //         right: 20),
+              //     child: Column(
+              //       mainAxisSize: MainAxisSize.min,
+              //       children: [
+              //         Text(
+              //           "Mudar o estado do dispositivo",
+              //           style: TextStyles.inviteAGuest,
+              //         ),
+              //         const SizedBox(height: 30),
+              //         Form(
+              //           key: deviceController.statusFormKey,
+              //           child: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.start,
+              //             children: [
+              //               PinInputWidget(
+              //                 autoFocus: true,
+              //                 onComplete: (value) {
+              //                   deviceController.onChangeStatus(
+              //                       password: value);
+              //                   handleChangeStatus(bottomState);
+              //                 },
+              //                 onChanged: (value) => deviceController
+              //                     .onChangeStatus(password: value),
+              //                 validator: validatePin,
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //         const SizedBox(
+              //           height: 40,
+              //         ),
+              //         loading
+              //             ? const SizedBox(
+              //                 height: 40,
+              //                 width: 40,
+              //                 child: CircularProgressIndicator(
+              //                     color: AppColors.primary),
+              //               )
+              //             : const SizedBox(),
+              //         const SizedBox(
+              //           height: 40,
+              //         ),
+              //       ],
+              //     ),
+              //   );
+              // }
               if (feature == 'SHARE') {
                 return Padding(
                     padding: EdgeInsets.only(
@@ -703,16 +716,23 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Ink(
-                        child: InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(50)),
-                            onTap: () {
-                              showBottomSheet(context, 'STATUS');
-                            },
-                            child: const Icon(Icons.warning_outlined,
-                                color: Colors.white, size: 100)),
-                      ),
+                      loading
+                          ? const SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white),
+                            )
+                          : Ink(
+                              child: InkWell(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(50)),
+                                  onTap: () {
+                                    handleChangeStatus(true);
+                                  },
+                                  child: const Icon(Icons.warning_outlined,
+                                      color: Colors.white, size: 100)),
+                            ),
                       const SizedBox(
                         height: 20,
                       ),
@@ -727,7 +747,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                         TextSpan(children: [
                           TextSpan(
                               text:
-                                  "Toque no ícone acima para inserir sua senha e desbloquear o dispositivo.",
+                                  "Toque no ícone acima para desbloquear o dispositivo.",
                               style: TextStyles.devicePageAlarmTriggeredHelp),
                         ]),
                         textAlign: TextAlign.center,
@@ -891,6 +911,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                                               Radius.circular(50)),
                                           onTap: () {
                                             showBottomSheet(context, 'STATUS');
+                                            handleChangeStatus(false);
                                           },
                                           child: _status == "Disparado"
                                               ? const Icon(

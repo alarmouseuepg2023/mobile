@@ -9,12 +9,15 @@ import 'package:mobile/modules/devices/devices_controller.dart';
 import 'package:mobile/shared/models/Response/server_response_model.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/utils/device_status/device_status_map.dart';
+import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/device_card/device_card_widget.dart';
 import 'package:mobile/shared/widgets/toast/toast_widget.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 import '../../shared/models/Device/device_model.dart';
 import '../../providers/mqtt/mqtt_client.dart';
+import '../../shared/themes/app_text_styles.dart';
+import '../../shared/widgets/pin_input/pin_input_widget.dart';
 
 class DevicesPage extends ConsumerStatefulWidget {
   const DevicesPage({super.key});
@@ -26,6 +29,7 @@ class DevicesPage extends ConsumerStatefulWidget {
 class _DevicesPageState extends ConsumerState<DevicesPage> {
   final _devicesController = DevicesController();
   bool loading = false;
+  bool bottomLoading = false;
   List<Device> devices = [];
   int totalItems = 0;
   bool _hasMore = true;
@@ -35,6 +39,7 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
   late MQTTClientManager mqttManager;
   List<String> pageTopics = [];
   late String espResponseTopic;
+  TextEditingController devicePassword = TextEditingController();
 
   @override
   void initState() {
@@ -167,6 +172,111 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
     getDevices();
   }
 
+  Future<void> handleUnlockDevice(
+      StateSetter bottomState, Device device) async {
+    try {
+      setState(() {
+        bottomLoading = true;
+      });
+      bottomState(() {});
+
+      final res = await _devicesController.unlockDevice(device.id);
+
+      if (res != null) {
+        if (!mounted) return;
+        Navigator.pop(context);
+        Navigator.pushNamed(context, "/device", arguments: {
+          'device': device,
+          'devicePassword': devicePassword.text
+        }).then((_) {
+          if (mounted) {
+            _devicesController.onChangeUnlock(password: '');
+            devicePassword.clear();
+            refresh();
+          }
+        });
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(context, response.message);
+      } else {
+        GlobalToast.show(
+            context, "Ocorreu um erro ao alterar o estado. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        bottomLoading = false;
+      });
+
+      bottomState(() {});
+    }
+  }
+
+  void showBottomSheet(context, Device device) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext bc) {
+          return WillPopScope(onWillPop: () async {
+            if (bottomLoading) return false;
+            return true;
+          }, child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter bottomState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  top: 20,
+                  left: 20,
+                  right: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Insira a senha do dispositivo",
+                    style: TextStyles.inviteAGuest,
+                  ),
+                  const SizedBox(height: 30),
+                  Form(
+                    key: _devicesController.unlockDeviceFormKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        PinInputWidget(
+                          controller: devicePassword,
+                          autoFocus: true,
+                          onComplete: (value) {
+                            _devicesController.onChangeUnlock(password: value);
+                            handleUnlockDevice(bottomState, device);
+                          },
+                          onChanged: (value) => _devicesController
+                              .onChangeUnlock(password: value),
+                          validator: validatePin,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  bottomLoading
+                      ? const SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: CircularProgressIndicator(
+                              color: AppColors.primary),
+                        )
+                      : const SizedBox(),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                ],
+              ),
+            );
+          }));
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -187,15 +297,7 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
                     DeviceCardWidget(
                       device: device,
                       onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          "/device",
-                          arguments: device,
-                        ).then((_) {
-                          if (mounted) {
-                            refresh();
-                          }
-                        });
+                        showBottomSheet(context, device);
                       },
                     ),
                     const SizedBox(

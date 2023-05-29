@@ -60,9 +60,15 @@ class MyApp extends StatelessWidget {
         "/reset_device": (context) => ResetDevicePage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
-        "/device": (context) => DevicePage(
-              device: ModalRoute.of(context)!.settings.arguments as Device,
-            ),
+        "/device": (context) {
+          final args = (ModalRoute.of(context)?.settings.arguments ??
+              <String, dynamic>{}) as Map;
+
+          return DevicePage(
+            device: args['device'] as Device,
+            devicePassword: args['devicePassword'] as String,
+          );
+        },
         "/guests": (context) => GuestsPage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
