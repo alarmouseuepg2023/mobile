@@ -116,14 +116,18 @@ class _HomePageState extends ConsumerState<HomePage> {
       _streamController
           .add('${currentNotificationsCount + res.content.totalItems}');
     } catch (e) {
-      print(e);
       if (e is DioError) {
         if (e.response != null && e.response!.statusCode! >= 500) {
           GlobalToast.show(context, "Ocorreu um erro ao consultar o servidor.");
           return;
         }
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-
+        if (response.message ==
+            'As credenciais de autenticação são inválidas. Por favor, tente realizar a autenticação antes de acessar este conteúdo.') {
+          ref.read(authProvider).clearUser();
+          Navigator.pushReplacementNamed(context, '/login');
+          return;
+        }
         GlobalToast.show(
             context,
             response.message != ""
