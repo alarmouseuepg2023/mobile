@@ -283,12 +283,11 @@ class _DevicePageState extends ConsumerState<DevicePage> {
     }
   }
 
-  Future<void> handleWifiReset(StateSetter bottomState) async {
+  Future<void> handleWifiReset() async {
     try {
       setState(() {
         loading = true;
       });
-      bottomState(() {});
       final res = await deviceController.wifiResetStarted(widget.device.id);
       if (res != null) {
         if (!mounted) return;
@@ -319,8 +318,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
       setState(() {
         loading = false;
       });
-
-      bottomState(() {});
     }
   }
 
@@ -482,47 +479,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                       ],
                     ));
               }
-              if (feature == 'WIFI') {
-                return Padding(
-                    padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                        left: 20,
-                        right: 20,
-                        top: 20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Insira a senha do dispostivo",
-                          style: TextStyles.inviteAGuest,
-                        ),
-                        const SizedBox(height: 30),
-                        Form(
-                          key: deviceController.wifiFormKey,
-                          child: Column(children: [
-                            PinInputWidget(
-                              autoFocus: true,
-                              onChanged: (value) => deviceController
-                                  .onChangeWifi(password: value),
-                              validator: validatePin,
-                            ),
-                          ]),
-                        ),
-                        const SizedBox(
-                          height: 40,
-                        ),
-                        LabelButtonWidget(
-                            label: "ENVIAR",
-                            onLoading: loading,
-                            onPressed: () {
-                              handleWifiReset(bottomState);
-                            }),
-                        const SizedBox(
-                          height: 30,
-                        )
-                      ],
-                    ));
-              }
               if (feature == 'PASSWORD') {
                 return Padding(
                     padding: EdgeInsets.only(
@@ -614,50 +570,96 @@ class _DevicePageState extends ConsumerState<DevicePage> {
         });
   }
 
-  void showAlertDialog(BuildContext context) {
+  void showAlertDialog(BuildContext context, String feature) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Center(
-              child: Text(
-                "Atenção!",
-                style: TextStyles.addDeviceIntroBold,
-              ),
-            ),
-            content: Text(
-              "Tem certeza que deseja remover este dispositivo?",
-              style: TextStyles.addDeviceIntro,
-              textAlign: TextAlign.center,
-            ),
-            actions: [
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                  handleDeleteDevice();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    "Continuar",
-                    style: TextStyles.deleteDevice,
-                  ),
+          if (feature == 'WIFI') {
+            return AlertDialog(
+              title: Center(
+                child: Text(
+                  "Atenção!",
+                  style: TextStyles.addDeviceIntroBold,
                 ),
               ),
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Cancelar",
-                    style: TextStyles.cancelDialog,
+              content: Text(
+                "Tem certeza que deseja reconfigurar este dispositivo?",
+                style: TextStyles.addDeviceIntro,
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    showBottomSheet(context, 'STATUS');
+                    handleWifiReset();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text(
+                      "Continuar",
+                      style: TextStyles.deleteDevice,
+                    ),
                   ),
                 ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Cancelar",
+                      style: TextStyles.cancelDialog,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+          if (feature == 'DELETE') {
+            return AlertDialog(
+              title: Center(
+                child: Text(
+                  "Atenção!",
+                  style: TextStyles.addDeviceIntroBold,
+                ),
               ),
-            ],
-          );
+              content: Text(
+                "Tem certeza que deseja remover este dispositivo?",
+                style: TextStyles.addDeviceIntro,
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    handleDeleteDevice();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text(
+                      "Continuar",
+                      style: TextStyles.deleteDevice,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Cancelar",
+                      style: TextStyles.cancelDialog,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+          return const SizedBox();
         });
   }
 
@@ -1060,7 +1062,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                                   ? Ink(
                                       child: InkWell(
                                           onTap: () {
-                                            showBottomSheet(context, 'WIFI');
+                                            showAlertDialog(context, 'WIFI');
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -1117,7 +1119,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                               ? LabelButtonWidget(
                                   label: "REMOVER DISPOSITIVO",
                                   onPressed: () {
-                                    showAlertDialog(context);
+                                    showAlertDialog(context, 'DELETE');
                                   },
                                   reversed: true,
                                 )

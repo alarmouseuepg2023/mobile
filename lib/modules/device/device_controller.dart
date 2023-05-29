@@ -116,16 +116,12 @@ class DeviceController {
   }
 
   Future<StatusResponseModel?> wifiResetStarted(String deviceId) async {
-    final formData = wifiModel.toJson();
-    final form = wifiFormKey.currentState;
+    final formData = deviceUnlockModel.toJson();
 
-    if (form!.validate()) {
-      final response = await dio.post('device/wifiChangeHaveStarted/$deviceId',
-          data: formData, options: Options());
-      StatusResponseModel data = StatusResponseModel.fromJson(response.data);
-      return data;
-    }
-    return null;
+    final response = await dio.post('device/wifiChangeHaveStarted/$deviceId',
+        data: formData, options: Options());
+    StatusResponseModel data = StatusResponseModel.fromJson(response.data);
+    return data;
   }
 
   Future<ServerResponse?> deleteDevice(String deviceId) async {
