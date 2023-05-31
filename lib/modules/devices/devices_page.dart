@@ -273,9 +273,18 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
                             child: Ink(
                               child: InkWell(
                                   onTap: () {
+                                    Navigator.pop(context);
                                     Navigator.pushNamed(
-                                        context, '/forgot_device_password',
-                                        arguments: device);
+                                            context, '/forgot_device_password',
+                                            arguments: device)
+                                        .then((_) {
+                                      if (mounted) {
+                                        _devicesController.onChangeUnlock(
+                                            password: '');
+                                        devicePassword.clear();
+                                        refresh();
+                                      }
+                                    });
                                   },
                                   child: Text("Esqueceu a senha?",
                                       style: TextStyles.input)),

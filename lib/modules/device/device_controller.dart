@@ -60,16 +60,10 @@ class DeviceController {
       'status': statusModel.status,
       'password': deviceUnlockModel.password
     };
-    print(formData);
-
-    // UNCONFIGURED = 0,
-    // LOCKED = 1,
-    // UNLOCKED = 2,
-    // TRIGGERED = 3,
 
     final response = await dio.post('device/status/$deviceId',
         data: formData, options: Options());
-    print(response.data);
+
     StatusResponseModel data = StatusResponseModel.fromJson(response.data);
     return data;
   }
