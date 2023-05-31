@@ -248,6 +248,9 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     ownerPassword.dispose();
     _timer.cancel();
     mqttManager.unsubscribe(espResponseTopic);
+    if (provisioner.running) {
+      provisioner.stop();
+    }
     super.dispose();
   }
 
@@ -659,6 +662,9 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
             currentStep -= 1;
           });
         } else {
+          if (provisioner.running) {
+            provisioner.stop();
+          }
           Navigator.pop(context);
         }
         return false;

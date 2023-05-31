@@ -244,6 +244,9 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
   void dispose() {
     wifiPassword.dispose();
     _timer.cancel();
+    if (provisioner.running) {
+      provisioner.stop();
+    }
     super.dispose();
   }
 
@@ -500,6 +503,9 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
             currentStep -= 1;
           });
         } else {
+          if (provisioner.running) {
+            provisioner.stop();
+          }
           Navigator.pop(context);
         }
         return false;
