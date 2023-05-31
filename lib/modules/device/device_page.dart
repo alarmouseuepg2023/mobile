@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -42,6 +43,8 @@ class _DevicePageState extends ConsumerState<DevicePage> {
   String _getDeviceOwnership(String role) =>
       role == 'DEVICE_OWNER' ? 'Proprietário' : 'Convidado';
   late MQTTClientManager mqttManager;
+  Timer _timer = Timer(const Duration(seconds: 60), () {});
+  int _counter = 0;
 
   bool _ownerPermissions(String role) => role == 'DEVICE_OWNER' ? true : false;
 
@@ -56,7 +59,24 @@ class _DevicePageState extends ConsumerState<DevicePage> {
       _status = widget.device.status;
       _nickname = widget.device.nickname;
     });
+
+    startTimer();
+
     super.initState();
+  }
+
+  void startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_counter < 5) {
+        setState(() {
+          _counter++;
+        });
+      } else {
+        setState(() {
+          _timer.cancel();
+        });
+      }
+    });
   }
 
   void setupUpdatesListener() {
@@ -106,6 +126,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
     _password.dispose();
     _confirmPassword.dispose();
     _nicknameController.dispose();
+    _timer.cancel();
     super.dispose();
   }
 
@@ -158,7 +179,9 @@ class _DevicePageState extends ConsumerState<DevicePage> {
         setState(() {
           waitingDeviceResponse = true;
           _status = "Aguardando confirmação";
+          _counter = 0;
         });
+        startTimer();
       }
     } catch (e) {
       if (e is DioError) {
@@ -891,20 +914,62 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             child: Center(
                               child: waitingDeviceResponse
-                                  ? const Center(
-                                      child: SizedBox(
-                                        height: 100,
-                                        width: 100,
-                                        child: Center(
-                                          child: SizedBox(
-                                            height: 70,
-                                            width: 70,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 6,
-                                              color: AppColors.primary,
+                                  ? Center(
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(
+                                            height: 100,
+                                            width: 100,
+                                            child: Center(
+                                              child: SizedBox(
+                                                height: 70,
+                                                width: 70,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 6,
+                                                  color: AppColors.primary,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                          _counter == 5
+                                              ? Column(
+                                                  children: [
+                                                    const SizedBox(
+                                                      height: 20,
+                                                    ),
+                                                    InkWell(
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          const Icon(
+                                                              Icons.refresh,
+                                                              color: AppColors
+                                                                  .primary),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                              "Tentar novamente",
+                                                              style: TextStyles
+                                                                  .deviceCardStatus),
+                                                        ],
+                                                      ),
+                                                      onTap: () {
+                                                        showBottomSheet(
+                                                            context, 'STATUS');
+                                                        handleChangeStatus(
+                                                            false);
+                                                      },
+                                                    ),
+                                                  ],
+                                                )
+                                              : const SizedBox()
+                                        ],
                                       ),
                                     )
                                   : Ink(
