@@ -15,6 +15,7 @@ class DevicesController {
   }
 
   Future<DeviceResponse> getDevices(int page, int size) async {
+    final dio = DioApi().dio;
     final response =
         await dio.get('device?page=$page&size=$size', options: Options());
 
@@ -24,6 +25,7 @@ class DevicesController {
   }
 
   Future<ServerResponse?> unlockDevice(String deviceId) async {
+    final dio = DioApi().dio;
     final formData = unlockDeviceModel.toJson();
     final form = unlockDeviceFormKey.currentState;
 

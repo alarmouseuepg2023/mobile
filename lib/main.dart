@@ -30,6 +30,8 @@ Future main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [Locale('pt', 'BR')],
       useInheritedMediaQuery: true,
+      navigatorKey: navigatorKey,
       theme: ThemeData(
           primarySwatch: Colors.blue,
           primaryColor: AppColors.primary,

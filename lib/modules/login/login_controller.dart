@@ -14,6 +14,7 @@ class LoginController {
   }
 
   Future<LoginResponse?> signIn() async {
+    final dio = DioApi().dio;
     final formData = model.toJson();
     final form = formKey.currentState;
 

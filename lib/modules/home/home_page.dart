@@ -122,12 +122,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           return;
         }
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
-        if (response.message ==
-            'As credenciais de autenticação são inválidas. Por favor, tente realizar a autenticação antes de acessar este conteúdo.') {
-          ref.read(authProvider).clearUser();
-          Navigator.pushReplacementNamed(context, '/login');
-          return;
-        }
+
         GlobalToast.show(
             context,
             response.message != ""

@@ -8,6 +8,7 @@ import '../../service/index.dart';
 class GuestsController {
   Future<GuestListResponse> getGuests(
       String deviceId, int page, int size) async {
+    final dio = DioApi().dio;
     final response = await dio.get('guest/$deviceId?page=$page&size=$size',
         options: Options());
 
@@ -17,6 +18,7 @@ class GuestsController {
   }
 
   Future<ServerResponse> revokeGuest(String deviceId, String guestId) async {
+    final dio = DioApi().dio;
     final reqData = GuestRevoke(guestId: guestId);
 
     final response = await dio.post('guest/revoke/$deviceId',

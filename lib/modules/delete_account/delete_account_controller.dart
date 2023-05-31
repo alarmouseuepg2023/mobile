@@ -16,12 +16,14 @@ class DeleteAccountController {
   }
 
   Future<ServerResponse?> requestDeleteAccount() async {
+    final dio = DioApi().dio;
     final response = await dio.post('user/delete/request', options: Options());
     ServerResponse data = ServerResponse.fromJson(response.data);
     return data;
   }
 
   Future<ServerResponse?> confirmDeleteAccount() async {
+    final dio = DioApi().dio;
     final form = formKey.currentState;
 
     if (form!.validate()) {

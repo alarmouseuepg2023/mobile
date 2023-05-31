@@ -24,6 +24,7 @@ class ResetPasswordContorller {
   }
 
   Future<ServerResponse> resetPassword() async {
+    final dio = DioApi().dio;
     final formData = model.toJson();
 
     final response = await dio.post('auth/resetPassword',

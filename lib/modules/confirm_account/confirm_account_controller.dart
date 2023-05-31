@@ -20,6 +20,7 @@ class ConfirmAccountController {
   }
 
   Future<LoginResponse> confirmAccount() async {
+    final dio = DioApi().dio;
     final formData = model.toJson();
 
     final response =

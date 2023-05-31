@@ -17,6 +17,7 @@ class EventsController {
 
   Future<AlarmEventResponse?> getEvents(
       int page, int size, String deviceId) async {
+    final dio = DioApi().dio;
     final formData = {
       'status': model.status == '0' ? null : model.status,
       'date': {'start': model.date?.start, 'end': model.date?.end}

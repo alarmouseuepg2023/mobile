@@ -35,6 +35,7 @@ class InviteController {
   }
 
   Future<InviteAnswerResponse?> acceptInvite() async {
+    final dio = DioApi().dio;
     final formData = inviteAcceptModel.toJson();
     final allFormValid =
         acceptFormKeys.every((element) => element.currentState!.validate());
@@ -49,6 +50,7 @@ class InviteController {
   }
 
   Future<InviteAnswerResponse?> rejectInvite() async {
+    final dio = DioApi().dio;
     final formData = inviteRejectModel.toJson();
     final form = rejectFormKey.currentState;
 

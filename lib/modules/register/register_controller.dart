@@ -23,6 +23,7 @@ class RegisterController {
   }
 
   Future<RegisterResponse> signUp() async {
+    final dio = DioApi().dio;
     final formData = model.toJson();
 
     final response = await dio.post('user', data: formData, options: Options());
