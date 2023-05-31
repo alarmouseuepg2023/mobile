@@ -1,4 +1,3 @@
-import 'package:animated_card/animated_card.dart';
 import 'package:flutter/material.dart';
 
 import '../../themes/app_colors.dart';
@@ -14,21 +13,19 @@ class TextInputWidget extends StatefulWidget {
   final void Function(String value) onChanged;
   final bool? loading;
   final int? maxLength;
-  final bool? notAnimated;
 
-  const TextInputWidget(
-      {Key? key,
-      required this.label,
-      this.icon,
-      required this.onChanged,
-      this.initalValue,
-      this.validator,
-      this.controller,
-      this.passwordType,
-      this.loading,
-      this.maxLength,
-      this.notAnimated})
-      : super(key: key);
+  const TextInputWidget({
+    Key? key,
+    required this.label,
+    this.icon,
+    required this.onChanged,
+    this.initalValue,
+    this.validator,
+    this.controller,
+    this.passwordType,
+    this.loading,
+    this.maxLength,
+  }) : super(key: key);
 
   @override
   State<TextInputWidget> createState() => _TextInputWidgetState();
@@ -53,7 +50,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
       });
     }
 
-    Widget textInput = Padding(
+    return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
         children: [
@@ -112,9 +109,5 @@ class _TextInputWidgetState extends State<TextInputWidget> {
         ],
       ),
     );
-
-    return widget.notAnimated == true
-        ? textInput
-        : AnimatedCard(direction: AnimatedCardDirection.left, child: textInput);
   }
 }

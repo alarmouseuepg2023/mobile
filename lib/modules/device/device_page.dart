@@ -437,7 +437,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                         Form(
                           key: deviceController.inviteFormKey,
                           child: TextInputWidget(
-                              notAnimated: true,
                               label: "E-mail",
                               validator: validateEmail,
                               onChanged: (value) {
@@ -477,7 +476,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                         Form(
                           key: deviceController.nicknameFormKey,
                           child: TextInputWidget(
-                              notAnimated: true,
                               label: "Nome",
                               controller: _nicknameController,
                               validator: validateName,
