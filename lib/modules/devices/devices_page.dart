@@ -266,7 +266,22 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
                           child: CircularProgressIndicator(
                               color: AppColors.primary),
                         )
-                      : const SizedBox(),
+                      : SizedBox(
+                          width: double.infinity,
+                          child: Align(
+                            alignment: FractionalOffset.bottomRight,
+                            child: Ink(
+                              child: InkWell(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                        context, '/forgot_device_password',
+                                        arguments: device);
+                                  },
+                                  child: Text("Esqueceu a senha?",
+                                      style: TextStyles.input)),
+                            ),
+                          ),
+                        ),
                   const SizedBox(
                     height: 40,
                   ),

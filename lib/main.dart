@@ -10,6 +10,7 @@ import 'package:mobile/modules/delete_account/delete_account_page.dart';
 import 'package:mobile/modules/device/device_page.dart';
 import 'package:mobile/modules/devices/devices_page.dart';
 import 'package:mobile/modules/events/events_page.dart';
+import 'package:mobile/modules/forgot_device_password/forgot_device_password_page.dart';
 import 'package:mobile/modules/forgot_password/forgot_password_page.dart';
 import 'package:mobile/modules/guests/guests_page.dart';
 import 'package:mobile/modules/home/home_page.dart';
@@ -76,6 +77,9 @@ class MyApp extends StatelessWidget {
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
         "/events": (context) => EventsPage(
+              device: ModalRoute.of(context)!.settings.arguments as Device,
+            ),
+        "/forgot_device_password": (context) => ForgotDevicePasswordPage(
               device: ModalRoute.of(context)!.settings.arguments as Device,
             ),
         "/notifications": (context) => const NotificationsPage(),

@@ -111,7 +111,7 @@ class DeviceController {
     final form = passwordFormKey.currentState;
 
     if (form!.validate()) {
-      final response = await dio.post('device/resetPassword/$deviceId',
+      final response = await dio.post('device/changePassword/$deviceId',
           data: formData, options: Options());
       ServerResponse data = ServerResponse.fromJson(response.data);
       return data;
