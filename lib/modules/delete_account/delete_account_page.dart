@@ -128,12 +128,31 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                           height: 20,
                         ),
                         Text(
-                          'Um código de 6 dígitos será enviado para seu email para prosseguir com a exclusão da conta. Caso já possua o código, basta escolher a opção "INSERIR CÓDIGO".',
-                          style: TextStyles.inviteTextAnswerGoBack,
+                          'Um código de 6 dígitos será enviado para seu email para prosseguir com a exclusão da conta.',
+                          style: TextStyles.addDeviceIntro,
                           textAlign: TextAlign.justify,
                         ),
                         const SizedBox(
-                          height: 30,
+                          height: 20,
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: Align(
+                            alignment: FractionalOffset.bottomRight,
+                            child: Ink(
+                              child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _mode = false;
+                                    });
+                                  },
+                                  child: Text("Já possuo o código",
+                                      style: TextStyles.inputBold)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 50,
                         ),
                         LabelButtonWidget(
                             onLoading: _loading,
@@ -144,15 +163,6 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        LabelButtonWidget(
-                            onLoading: _loading,
-                            label: 'INSERIR CÓDIGO',
-                            reversed: true,
-                            onPressed: () {
-                              setState(() {
-                                _mode = false;
-                              });
-                            }),
                       ],
                     )
                   : Column(
