@@ -241,6 +241,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
       final res = await deviceController.deleteDevice(widget.device.id);
       if (res != null) {
         if (!mounted) return;
+        Navigator.pop(context);
         GlobalToast.show(
             context,
             res.message != ""
@@ -655,6 +656,7 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                 InkWell(
                   onTap: () {
                     Navigator.pop(context);
+                    showBottomSheet(context, 'STATUS');
                     handleDeleteDevice();
                   },
                   child: Padding(
