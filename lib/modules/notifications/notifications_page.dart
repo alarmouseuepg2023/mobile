@@ -173,6 +173,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                           Navigator.pushNamed(context, '/invite', arguments: {
                             'notification': notification,
                             'notificationsCount': totalItems
+                          }).then((_) {
+                            if (mounted) {
+                              refresh();
+                            }
                           });
                         }),
                     const SizedBox(
