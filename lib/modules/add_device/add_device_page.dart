@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:esp_smartconfig/esp_smartconfig.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart' as location_lib;
 import 'package:mobile/modules/add_device/add_device_controller.dart';
@@ -14,14 +12,12 @@ import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/snackbar/snackbar_widget.dart';
 import 'package:mobile/shared/widgets/text_input/text_input.dart';
 import 'package:mobile/shared/widgets/toast/toast_widget.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
 import '../../shared/themes/app_text_styles.dart';
-import '../../providers/mqtt/mqtt_client.dart';
 import '../../shared/widgets/label_button/label_button.dart';
 import '../../shared/widgets/pin_input/pin_input_widget.dart';
 import '../../shared/widgets/step_button/step_button_widget.dart';
@@ -34,7 +30,7 @@ class AddDevicePage extends ConsumerStatefulWidget {
 }
 
 class _AddDevicePageState extends ConsumerState<AddDevicePage> {
-  late MQTTClientManager mqttManager;
+  //late MQTTClientManager mqttManager;
   bool locationServicesActivated = false;
   TextEditingController wifiPassword = TextEditingController();
   TextEditingController ownerPassword = TextEditingController();
@@ -57,12 +53,12 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
 
   @override
   void initState() {
-    mqttManager = ref.read(mqttProvider);
-    espResponseTopic =
-        '/alarmouse/mqtt/em/${dotenv.env['MQTT_PUBLIC_HASH']}/device/configure/${ref.read(authProvider).user!.id}';
+    // mqttManager = ref.read(mqttProvider);
+    // espResponseTopic =
+    //     '/alarmouse/mqtt/em/${dotenv.env['MQTT_PUBLIC_HASH']}/device/configure/${ref.read(authProvider).user!.id}';
     turnOnLocationServices();
-    subscribeToConfig();
-    setupUpdatesListener();
+    // subscribeToConfig();
+    //setupUpdatesListener();
     super.initState();
   }
 
@@ -145,6 +141,12 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
         if (provisioner.running) {
           provisioner.stop();
         }
+        if (mounted) {
+          setState(() {
+            macAddress = response.bssidText.toUpperCase();
+            espAnswered = true;
+          });
+        }
       });
 
       try {
@@ -180,42 +182,42 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     }
   }
 
-  Future<void> subscribeToConfig() async {
-    mqttManager.subscribe(espResponseTopic);
-  }
+  // Future<void> subscribeToConfig() async {
+  //   mqttManager.subscribe(espResponseTopic);
+  // }
 
-  void setupUpdatesListener() {
-    mqttManager
-        .getMessagesStream()!
-        .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-      final recMess = c![0].payload as MqttPublishMessage;
-      final message =
-          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      final topic = c[0].topic;
+  // void setupUpdatesListener() {
+  //   mqttManager
+  //       .getMessagesStream()!
+  //       .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+  //     final recMess = c![0].payload as MqttPublishMessage;
+  //     final message =
+  //         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+  //     final topic = c[0].topic;
 
-      if (topic == espResponseTopic) {
-        handleMacAddressReceived(message);
-      }
-    });
-  }
+  //     if (topic == espResponseTopic) {
+  //       handleMacAddressReceived(message);
+  //     }
+  //   });
+  // }
 
-  void handleMacAddressReceived(String message) {
-    final decoded = jsonDecode(message);
-    RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
-    String decodedMac = decoded['macAddress'];
+  // void handleMacAddressReceived(String message) {
+  //   final decoded = jsonDecode(message);
+  //   RegExp regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
+  //   String decodedMac = decoded['macAddress'];
 
-    if (regex.hasMatch(decodedMac) && mounted) {
-      _timer.cancel();
+  //   if (regex.hasMatch(decodedMac) && mounted) {
+  //     // _timer.cancel();
 
-      if (provisioner.running) {
-        provisioner.stop();
-      }
-      setState(() {
-        macAddress = decodedMac;
-        espAnswered = true;
-      });
-    }
-  }
+  //     // if (provisioner.running) {
+  //     //   provisioner.stop();
+  //     // }
+  //     // setState(() {
+  //     //   macAddress = decodedMac;
+  //     //   espAnswered = true;
+  //     // });
+  //   }
+  // }
 
   Future<void> openQRScanner(BuildContext context) async {
     final camera = await Permission.camera.status;
@@ -247,7 +249,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
     wifiPassword.dispose();
     ownerPassword.dispose();
     _timer.cancel();
-    mqttManager.unsubscribe(espResponseTopic);
+    //mqttManager.unsubscribe(espResponseTopic);
     if (provisioner.running) {
       provisioner.stop();
     }
