@@ -27,11 +27,10 @@ class DioApi {
             (Response response, ResponseInterceptorHandler responseHandler) =>
                 responseHandler.next(response),
         onError: (DioError error, ErrorInterceptorHandler errorHandler) async {
-          final pref = await SharedPreferences.getInstance();
-          final storedRefreshToken =
-              pref.getString('ALARMOUSE:refreshToken') ?? "";
-
           if (error.response?.statusCode == 400) {
+            final pref = await SharedPreferences.getInstance();
+            final storedRefreshToken =
+                pref.getString('ALARMOUSE:refreshToken') ?? "";
             ServerResponse rawServerResponse =
                 ServerResponse.fromJson(error.response?.data);
 
@@ -47,6 +46,9 @@ class DioApi {
           }
 
           if (error.response?.statusCode == 401) {
+            final pref = await SharedPreferences.getInstance();
+            final storedRefreshToken =
+                pref.getString('ALARMOUSE:refreshToken') ?? "";
             ServerResponse serverResponse =
                 ServerResponse.fromJson(error.response?.data);
 
@@ -97,10 +99,12 @@ class DioApi {
               } on DioError catch (error) {
                 errorHandler.reject(error);
               }
+              return;
             }
-          } else {
-            return errorHandler.reject(error);
+            return;
           }
+
+          return errorHandler.reject(error);
         }));
   }
 }
