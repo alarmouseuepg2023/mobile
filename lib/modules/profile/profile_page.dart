@@ -1,9 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile/modules/profile/profile_controller.dart';
 import 'package:mobile/providers/auth/auth_provider.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/themes/app_text_styles.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
+
+import '../../shared/models/Response/server_response_model.dart';
+import '../../shared/widgets/toast/toast_widget.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -13,9 +18,65 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  void handleSignOut() {
-    ref.read(authProvider).clearUser();
-    Navigator.pushReplacementNamed(context, '/login');
+  final profileController = ProfileController();
+  bool loading = false;
+
+  void handleSignOut() async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      await profileController.sendToken();
+
+      if (!mounted) return;
+
+      ref.read(authProvider).clearUser();
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao sair. Tente novamente.");
+      } else {
+        GlobalToast.show(context, "Ocorreu um erro ao sair. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  void showBottomSheet(context, String feature) {
+    showModalBottomSheet(
+        enableDrag: false,
+        context: context,
+        isScrollControlled: true,
+        backgroundColor:
+            feature == 'STATUS' ? Colors.transparent : Colors.white,
+        builder: (BuildContext bc) {
+          return WillPopScope(
+            onWillPop: () async {
+              if (loading) return false;
+              return true;
+            },
+            child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter bottomState) {
+              if (feature == 'STATUS') {
+                return Container(
+                  color: Colors.transparent,
+                  child: const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                );
+              }
+              return const SizedBox();
+            }),
+          );
+        });
   }
 
   @override
@@ -107,7 +168,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               label: "SAIR",
               reversed: true,
               style: TextStyles.primaryLabel,
-              onPressed: handleSignOut),
+              onPressed: () {
+                showBottomSheet(context, 'STATUS');
+                handleSignOut();
+              }),
         ],
       ),
     );
