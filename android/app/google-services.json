@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "25137608488",
+    "project_id": "alarmouse-6e8df",
+    "storage_bucket": "alarmouse-6e8df.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25137608488:android:032715777caf783c56021d",
+        "android_client_info": {
+          "package_name": "com.example.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "25137608488-b6lob0kqe6l99i4rch7kcv84nccjc58v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mobile",
+            "certificate_hash": "28af47c1e05d6c6d8435a95bec6b942bfe61f4ac"
+          }
+        },
+        {
+          "client_id": "25137608488-n725hlmv2sv90kvnrcjfqgbtrkq7ielq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrZG0aC53zzIyZxYQDeEqmLLna4T7Q43c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "25137608488-n725hlmv2sv90kvnrcjfqgbtrkq7ielq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

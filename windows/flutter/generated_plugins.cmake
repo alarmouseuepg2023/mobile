@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  firebase_core
   network_info_plus
   permission_handler_windows
   smart_auth
