@@ -1,6 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:mobile/service/index.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
+
+import '../shared/models/PushNotification/push_notification_response_model.dart';
 
 class FirebaseMessagingService {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -10,21 +14,33 @@ class FirebaseMessagingService {
     configurePermissions();
     onMessage();
     FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-      print(fcmToken);
+      print("ON REFRESH ->>>> $fcmToken");
+      sendToken(fcmToken);
     }).onError((err) {
       // Error getting token.
     });
   }
 
+  Future<PushNotificationResponse?> sendToken(String token) async {
+    final dio = DioApi().dio;
+    final formData = {'token': token};
+
+    final response = await dio.patch('pushNotifications',
+        data: formData, options: Options());
+    PushNotificationResponse data =
+        PushNotificationResponse.fromJson(response.data);
+    return data;
+  }
+
   Future<void> configurePermissions() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    const android = AndroidInitializationSettings(
-        '@drawable/ic_alarmouse_logo_invertido_fundo_transparente');
-    const initializationSettings = InitializationSettings(android: android);
-    flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-    );
+    // const android = AndroidInitializationSettings(
+    //     '@mipmap/ic_notification');
+    // const initializationSettings = InitializationSettings(android: android);
+    // flutterLocalNotificationsPlugin.initialize(
+    //   initializationSettings,
+    // );
 
     await messaging.requestPermission(
       alert: true,
@@ -55,11 +71,11 @@ class FirebaseMessagingService {
       AndroidNotificationDetails androidNotificationDetails =
           AndroidNotificationDetails('Alarmouse', 'Alarmouse',
               importance: Importance.high,
-              color: AppColors.text,
               styleInformation: bigTextStyleInformation,
               priority: Priority.high,
               playSound: true,
-              icon: '@mipmap/ic_alarmouse_logo_invertido_fundo_transparente');
+              color: AppColors.textFaded,
+              icon: '@drawable/ic_notification');
       NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidNotificationDetails,
       );
