@@ -26,7 +26,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       setState(() {
         loading = true;
       });
-      await profileController.sendToken();
+      await profileController.deleteToken();
 
       if (!mounted) return;
 

@@ -11,6 +11,7 @@ import 'package:mobile/shared/utils/validators/input_validators.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
 import 'package:mobile/shared/widgets/text_input/text_input.dart';
 import 'package:mobile/shared/widgets/toast/toast_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -29,8 +30,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         loading = true;
       });
       await _loginController.sendToken();
+      await Permission.notification.isDenied.then((value) {
+        if (value) {
+          Permission.notification.request();
+        }
+      });
       if (!mounted) return;
-
       Navigator.pushReplacementNamed(context, "/home");
     } catch (e) {
       if (e is DioError) {

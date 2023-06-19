@@ -1,17 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:mobile/shared/models/Response/server_response_model.dart';
 
 import '../../service/index.dart';
-import '../../shared/models/PushNotification/push_notification_response_model.dart';
 
 class ProfileController {
-  Future<PushNotificationResponse?> sendToken() async {
+  Future<ServerResponse?> deleteToken() async {
     final dio = DioApi().dio;
-    final formData = {'token': "dfujaiendme"};
 
-    final response = await dio.patch('pushNotifications',
-        data: formData, options: Options());
-    PushNotificationResponse data =
-        PushNotificationResponse.fromJson(response.data);
+    final response = await dio.delete('pushNotifications', options: Options());
+    ServerResponse data = ServerResponse.fromJson(response.data);
     return data;
   }
 }
