@@ -785,7 +785,7 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
                                         .read(notificationsProvider)
                                         .setNotifications(0);
                                     Navigator.pushReplacementNamed(
-                                        context, '/home');
+                                        context, '/device');
                                   })
                             ],
                           ),

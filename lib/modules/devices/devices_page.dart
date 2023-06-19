@@ -43,13 +43,13 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
 
   @override
   void initState() {
+    getDevices();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       espResponseTopic =
           '/alarmouse/mqtt/sm/${dotenv.env['MQTT_PUBLIC_HASH']}/notification/status/change';
 
       mqttManager = ref.read(mqttProvider);
 
-      getDevices();
       if (mqttManager.client != null) {
         setupUpdatesListener();
       }
