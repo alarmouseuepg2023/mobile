@@ -112,7 +112,11 @@ class _GuestsPageState extends State<GuestsPage> {
 
       setState(() {
         guests.removeWhere((element) => element.id == guestId);
+        totalItems -= 1;
       });
+
+      if (!mounted) return;
+      Navigator.pop(context);
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
