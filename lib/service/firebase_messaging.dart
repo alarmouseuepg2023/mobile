@@ -35,13 +35,6 @@ class FirebaseMessagingService {
   Future<void> configurePermissions() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    // const android = AndroidInitializationSettings(
-    //     '@mipmap/ic_notification');
-    // const initializationSettings = InitializationSettings(android: android);
-    // flutterLocalNotificationsPlugin.initialize(
-    //   initializationSettings,
-    // );
-
     await messaging.requestPermission(
       alert: true,
       announcement: false,
