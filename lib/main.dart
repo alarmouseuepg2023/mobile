@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -22,12 +24,26 @@ import 'package:mobile/modules/register/register_page.dart';
 import 'package:mobile/modules/reset_device/reset_device_page.dart';
 import 'package:mobile/modules/reset_password/reset_password_page.dart';
 import 'package:mobile/modules/splash/splash_page.dart';
+import 'package:mobile/service/firebase_messaging.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 
+import 'firebase_options.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
 Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessagingService();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const ProviderScope(child: MyApp()));
 }
 

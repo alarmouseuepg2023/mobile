@@ -23,26 +23,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _loginController = LoginController();
   bool loading = false;
 
-  Future<void> handleSignIn(BuildContext context) async {
+  Future<void> handleNotificationToken() async {
     try {
       setState(() {
         loading = true;
       });
+      await _loginController.sendToken();
+      if (!mounted) return;
 
-      final res = await _loginController.signIn();
-
-      if (res != null) {
-        Map<String, dynamic> decodedAccessToken =
-            JwtDecoder.decode(res.content.accessToken);
-
-        User userData = User.fromMap(decodedAccessToken);
-
-        ref.read(authProvider).setUser(
-            userData, res.content.refreshToken, res.content.accessToken);
-
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, "/home");
-      }
+      Navigator.pushReplacementNamed(context, "/home");
     } catch (e) {
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
@@ -59,6 +48,46 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       setState(() {
         loading = false;
       });
+    }
+  }
+
+  Future<void> handleSignIn(BuildContext context) async {
+    try {
+      setState(() {
+        loading = true;
+      });
+
+      final res = await _loginController.signIn();
+
+      if (!_loginController.formKey.currentState!.validate()) {
+        setState(() {
+          loading = false;
+        });
+      }
+
+      if (res != null) {
+        Map<String, dynamic> decodedAccessToken =
+            JwtDecoder.decode(res.content.accessToken);
+
+        User userData = User.fromMap(decodedAccessToken);
+
+        ref.read(authProvider).setUser(
+            userData, res.content.refreshToken, res.content.accessToken);
+
+        handleNotificationToken();
+      }
+    } catch (e) {
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao entrar. Tente novamente.");
+      } else {
+        GlobalToast.show(
+            context, "Ocorreu um erro ao entrar. Tente novamente.");
+      }
     }
   }
 
