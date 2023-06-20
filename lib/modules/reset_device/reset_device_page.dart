@@ -137,15 +137,15 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
       final wifiBSSID = await info.getWifiBSSID();
 
       provisioner.listen((response) {
-        _timer.cancel();
+        // _timer.cancel();
 
-        if (provisioner.running) {
-          provisioner.stop();
-        }
-        setState(() {
-          espAnswered = true;
-          _pageMode = 2;
-        });
+        // if (provisioner.running) {
+        //   provisioner.stop();
+        // }
+        // setState(() {
+        //   espAnswered = true;
+        //   _pageMode = 2;
+        // });
       });
 
       try {
