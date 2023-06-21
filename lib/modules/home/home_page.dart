@@ -104,9 +104,7 @@ class _HomePageState extends ConsumerState<HomePage>
   void handleNotificationArrived(String message) {
     print(
         "HOME_PAGE: MENSAGEM: $message - MOUNTED: $mounted ${_notification?.index}");
-    if (mounted &&
-        _homeController.currentPage != 1 &&
-        _notification?.index == 0) {
+    if (mounted && _homeController.currentPage != 1) {
       final currentNotificationsCount =
           ref.read(notificationsProvider).notificationsCount ?? 0;
 
