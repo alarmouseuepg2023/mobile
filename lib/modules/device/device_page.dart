@@ -30,7 +30,8 @@ class DevicePage extends ConsumerStatefulWidget {
   ConsumerState<DevicePage> createState() => _DevicePageState();
 }
 
-class _DevicePageState extends ConsumerState<DevicePage> {
+class _DevicePageState extends ConsumerState<DevicePage>
+    with WidgetsBindingObserver {
   final deviceController = DeviceController();
   bool loading = false;
   bool bottomload = false;
@@ -45,11 +46,13 @@ class _DevicePageState extends ConsumerState<DevicePage> {
   late MQTTClientManager mqttManager;
   Timer _timer = Timer(const Duration(seconds: 60), () {});
   int _counter = 0;
+  AppLifecycleState _notification = AppLifecycleState.resumed;
 
   bool _ownerPermissions(String role) => role == 'DEVICE_OWNER' ? true : false;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     mqttManager = ref.read(mqttProvider);
     setupUpdatesListener();
     deviceController.onChangeDeviceUnlock(password: widget.devicePassword);
@@ -65,12 +68,26 @@ class _DevicePageState extends ConsumerState<DevicePage> {
     super.initState();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("DEVICE TRIGGER: $_notification");
+    _notification = state;
+
+    if (state == AppLifecycleState.resumed && mounted) {
+      setState(() {});
+    }
+  }
+
   void startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_counter < 5 && mounted) {
-        setState(() {
+        if (_notification.index == 0) {
+          setState(() {
+            _counter++;
+          });
+        } else {
           _counter++;
-        });
+        }
       } else {
         if (mounted) {
           _timer.cancel();
@@ -105,24 +122,40 @@ class _DevicePageState extends ConsumerState<DevicePage> {
     print("DEVICE_PAGE: $macAddress O STATUS: $status MOUNTED: $mounted");
     if (macAddress == widget.device.macAddress && mounted) {
       if (status != 4) {
-        setState(() {
+        if (_notification.index == 0) {
+          setState(() {
+            waitingDeviceResponse = false;
+            _status = getDeviceStatusLabel(status.toString());
+          });
+        } else {
           waitingDeviceResponse = false;
           _status = getDeviceStatusLabel(status.toString());
-        });
+        }
 
         return;
       }
 
       if (status == 4 && status.toString() != getDeviceStatusCode(_status)) {
-        setState(() {
+        if (_notification.index == 0) {
+          setState(() {
+            _counter = 0;
+            waitingDeviceResponse = true;
+            _status = getDeviceStatusLabel(status.toString());
+          });
+          startTimer();
+        } else {
+          _counter = 0;
+          waitingDeviceResponse = true;
           _status = getDeviceStatusLabel(status.toString());
-        });
+          startTimer();
+        }
       }
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _password.dispose();
     _confirmPassword.dispose();
     _nicknameController.dispose();
@@ -368,58 +401,6 @@ class _DevicePageState extends ConsumerState<DevicePage> {
                   ),
                 );
               }
-              // if (feature == 'STATUS') {
-              //   return Padding(
-              //     padding: EdgeInsets.only(
-              //         bottom: MediaQuery.of(context).viewInsets.bottom,
-              //         top: 20,
-              //         left: 20,
-              //         right: 20),
-              //     child: Column(
-              //       mainAxisSize: MainAxisSize.min,
-              //       children: [
-              //         Text(
-              //           "Mudar o estado do dispositivo",
-              //           style: TextStyles.inviteAGuest,
-              //         ),
-              //         const SizedBox(height: 30),
-              //         Form(
-              //           key: deviceController.statusFormKey,
-              //           child: Column(
-              //             crossAxisAlignment: CrossAxisAlignment.start,
-              //             children: [
-              //               PinInputWidget(
-              //                 autoFocus: true,
-              //                 onComplete: (value) {
-              //                   deviceController.onChangeStatus(
-              //                       password: value);
-              //                   handleChangeStatus(bottomState);
-              //                 },
-              //                 onChanged: (value) => deviceController
-              //                     .onChangeStatus(password: value),
-              //                 validator: validatePin,
-              //               ),
-              //             ],
-              //           ),
-              //         ),
-              //         const SizedBox(
-              //           height: 40,
-              //         ),
-              //         loading
-              //             ? const SizedBox(
-              //                 height: 40,
-              //                 width: 40,
-              //                 child: CircularProgressIndicator(
-              //                     color: AppColors.primary),
-              //               )
-              //             : const SizedBox(),
-              //         const SizedBox(
-              //           height: 40,
-              //         ),
-              //       ],
-              //     ),
-              //   );
-              // }
               if (feature == 'SHARE') {
                 return Padding(
                     padding: EdgeInsets.only(
