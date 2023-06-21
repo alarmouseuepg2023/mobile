@@ -63,9 +63,7 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print(state);
-    if (mounted) {
-      _notification = state;
-    }
+    _notification = state;
   }
 
   @override

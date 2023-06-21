@@ -69,12 +69,10 @@ class _DevicesPageState extends ConsumerState<DevicesPage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print("DEVICES TRIGGER: $_notification");
-    if (mounted) {
-      _notification = state;
+    _notification = state;
 
-      if (state == AppLifecycleState.resumed) {
-        setState(() {});
-      }
+    if (state == AppLifecycleState.resumed && mounted) {
+      setState(() {});
     }
   }
 
@@ -136,20 +134,16 @@ class _DevicesPageState extends ConsumerState<DevicesPage>
       } else {
         devices[devicePosition] = newDevice;
       }
-      if (status == 3) {
-        GlobalToast.show(
-            context, "O dispositivo ${newDevice.nickname} disparou!!!");
-      }
     }
   }
 
   Future<void> getDevices() async {
+    print('GET DEVICES $_notification $mounted');
     if (!mounted || loading) return;
     try {
       setState(() {
         loading = true;
       });
-      print('GET DEVICES $_notification $mounted');
 
       final res = await _devicesController.getDevices(_pageNumber, _size);
       if (!mounted) return;

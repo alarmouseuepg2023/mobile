@@ -463,6 +463,10 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
               _restartTimer
                   ? InkWell(
                       onTap: () {
+                        _timer.cancel();
+                        if (provisioner.running) {
+                          provisioner.stop();
+                        }
                         setState(() {
                           _restartTimer = false;
                           _counter = 59;
@@ -785,7 +789,7 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
                                         .read(notificationsProvider)
                                         .setNotifications(0);
                                     Navigator.pushReplacementNamed(
-                                        context, '/device');
+                                        context, '/home');
                                   })
                             ],
                           ),

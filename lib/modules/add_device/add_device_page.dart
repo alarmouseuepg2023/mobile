@@ -510,6 +510,10 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
               _restartTimer
                   ? InkWell(
                       onTap: () {
+                        _timer.cancel();
+                        if (provisioner.running) {
+                          provisioner.stop();
+                        }
                         setState(() {
                           _restartTimer = false;
                           _counter = 59;
