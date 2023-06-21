@@ -113,6 +113,8 @@ class _EventsPageState extends State<EventsPage> {
   Future refresh() async {
     _eventsController.onChange(
         date: AlarmEventDateFilter(start: '', end: ''), status: '');
+    initialDate.clear();
+    finalDate.clear();
     setState(() {
       loading = false;
       _hasMore = true;
