@@ -240,6 +240,7 @@ class _DevicesPageState extends ConsumerState<DevicesPage>
         builder: (BuildContext bc) {
           return WillPopScope(onWillPop: () async {
             if (bottomLoading) return false;
+            devicePassword.clear();
             return true;
           }, child: StatefulBuilder(
               builder: (BuildContext context, StateSetter bottomState) {
