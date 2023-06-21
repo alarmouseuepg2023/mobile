@@ -139,19 +139,19 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
       final info = NetworkInfo();
       final wifiBSSID = await info.getWifiBSSID();
 
-      provisioner.listen((response) {
-        // _timer.cancel();
+      // provisioner.listen((response) {
+      //   // _timer.cancel();
 
-        // if (provisioner.running) {
-        //   provisioner.stop();
-        // }
-        // if (mounted) {
-        //   setState(() {
-        //     macAddress = response.bssidText.toUpperCase();
-        //     espAnswered = true;
-        //   });
-        // }
-      });
+      //   // if (provisioner.running) {
+      //   //   provisioner.stop();
+      //   // }
+      //   // if (mounted) {
+      //   //   setState(() {
+      //   //     macAddress = response.bssidText.toUpperCase();
+      //   //     espAnswered = true;
+      //   //   });
+      //   // }
+      // });
 
       try {
         provisionStarted
@@ -172,7 +172,7 @@ class _AddDevicePageState extends ConsumerState<AddDevicePage> {
         });
         _startTimer();
 
-        await Future.delayed(const Duration(seconds: 60));
+        await Future.delayed(const Duration(seconds: 59));
       } catch (e) {
         const GlobalSnackBar(
             message: "Ocorreu um problema ao conectar-se ao dispositivo.");
