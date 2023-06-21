@@ -195,10 +195,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                             ),
                           ),
                         )
-                      : Center(
-                          child: Text("Não há convites para mostrar",
-                              style: TextStyles.emptyList),
-                        );
+                      : notifications.isEmpty
+                          ? Center(
+                              child: Text("Não há convites para mostrar",
+                                  style: TextStyles.emptyList),
+                            )
+                          : const Center();
                 }
               },
             ),

@@ -289,10 +289,12 @@ class _EventsPageState extends State<EventsPage> {
                                   ),
                                 ),
                               )
-                            : Center(
-                                child: Text("Não há eventos para mostrar",
-                                    style: TextStyles.emptyList),
-                              );
+                            : events.isEmpty
+                                ? Center(
+                                    child: Text("Não há eventos para mostrar",
+                                        style: TextStyles.emptyList),
+                                  )
+                                : const Center();
                       }
                     },
                   ),

@@ -360,10 +360,12 @@ class _DevicesPageState extends ConsumerState<DevicesPage>
                             ),
                           ),
                         )
-                      : Center(
-                          child: Text("Não há dispositivos para mostrar",
-                              style: TextStyles.emptyList),
-                        );
+                      : devices.isEmpty
+                          ? Center(
+                              child: Text("Não há dispositivos para mostrar",
+                                  style: TextStyles.emptyList),
+                            )
+                          : const Center();
                 }
               },
             ),

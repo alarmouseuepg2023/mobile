@@ -234,10 +234,12 @@ class _GuestsPageState extends State<GuestsPage> {
                                 ),
                               ),
                             )
-                          : Center(
-                              child: Text("Não há convidados para mostrar",
-                                  style: TextStyles.emptyList),
-                            );
+                          : guests.isEmpty
+                              ? Center(
+                                  child: Text("Não há convidados para mostrar",
+                                      style: TextStyles.emptyList),
+                                )
+                              : const Center();
                     }
                   },
                 ),
