@@ -26,7 +26,8 @@ class DevicesPage extends ConsumerStatefulWidget {
   ConsumerState<DevicesPage> createState() => _DevicesPageState();
 }
 
-class _DevicesPageState extends ConsumerState<DevicesPage> {
+class _DevicesPageState extends ConsumerState<DevicesPage>
+    with WidgetsBindingObserver {
   final _devicesController = DevicesController();
   bool loading = false;
   bool bottomLoading = false;
@@ -40,9 +41,11 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
   List<String> pageTopics = [];
   late String espResponseTopic;
   TextEditingController devicePassword = TextEditingController();
+  AppLifecycleState _notification = AppLifecycleState.resumed;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     getDevices();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       espResponseTopic =
@@ -64,25 +67,42 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("DEVICES TRIGGER: $_notification");
+    if (mounted) {
+      _notification = state;
+
+      if (state == AppLifecycleState.resumed) {
+        setState(() {});
+      }
+    }
+  }
+
+  @override
   void dispose() {
     scrollController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   void setupUpdatesListener() {
-    mqttManager
-        .getMessagesStream()!
-        .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-      final recMess = c![0].payload as MqttPublishMessage;
-      final topic = c[0].topic;
-      final message =
-          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+    print('LISTENER ${mqttManager.client?.connectionStatus?.state.index}');
+    if (mqttManager.client != null &&
+        mqttManager.client?.connectionStatus?.state.index == 3) {
+      mqttManager
+          .getMessagesStream()!
+          .listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+        final recMess = c![0].payload as MqttPublishMessage;
+        final topic = c[0].topic;
+        final message =
+            MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
-      if (topic == espResponseTopic) {
-        handleStatusChange(message);
-        return;
-      }
-    });
+        if (topic == espResponseTopic) {
+          handleStatusChange(message);
+          return;
+        }
+      });
+    }
   }
 
   void handleStatusChange(String message) {
@@ -90,7 +110,8 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
     String macAddress = decoded['macAddress'];
     int status = decoded['status'];
 
-    print("DEVICES_PAGE: $macAddress O STATUS: $status - MOUNTED: $mounted");
+    print(
+        "DEVICES_PAGE: $macAddress O STATUS: $status - MOUNTED: $mounted ${_notification.index}");
     if (devices
             .where((element) => element.macAddress == macAddress)
             .isNotEmpty &&
@@ -108,9 +129,13 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
           role: deviceChanged[0].role,
           status: getDeviceStatusLabel(status.toString()));
 
-      setState(() {
+      if (_notification.index == 0) {
+        setState(() {
+          devices[devicePosition] = newDevice;
+        });
+      } else {
         devices[devicePosition] = newDevice;
-      });
+      }
       if (status == 3) {
         GlobalToast.show(
             context, "O dispositivo ${newDevice.nickname} disparou!!!");
@@ -124,6 +149,7 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
       setState(() {
         loading = true;
       });
+      print('GET DEVICES $_notification $mounted');
 
       final res = await _devicesController.getDevices(_pageNumber, _size);
       if (!mounted) return;

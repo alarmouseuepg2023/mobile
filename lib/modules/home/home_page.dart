@@ -26,7 +26,8 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
+class _HomePageState extends ConsumerState<HomePage>
+    with WidgetsBindingObserver {
   final _homeController = HomeController();
   final _notificationsController = NotificationsController();
   bool _notificationsPreLoad = true;
@@ -35,11 +36,13 @@ class _HomePageState extends ConsumerState<HomePage> {
   final StreamController<String> _streamController = StreamController<String>();
   Stream<String> get _stream => _streamController.stream;
   late MQTTClientManager mqttManager;
+  AppLifecycleState? _notification;
 
   String displayUserName(String name) => name.split(" ")[0];
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String userId = ref.read(authProvider).user!.id;
       espResponseTopic =
@@ -58,7 +61,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print(state);
+    if (mounted) {
+      _notification = state;
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _streamController.close();
     super.dispose();
   }
@@ -92,8 +104,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void handleNotificationArrived(String message) {
-    print("HOME_PAGE: MENSAGEM: $message - MOUNTED: $mounted");
-    if (mounted && _homeController.currentPage != 1) {
+    print(
+        "HOME_PAGE: MENSAGEM: $message - MOUNTED: $mounted ${_notification?.index}");
+    if (mounted &&
+        _homeController.currentPage != 1 &&
+        _notification?.index == 0) {
       final currentNotificationsCount =
           ref.read(notificationsProvider).notificationsCount ?? 0;
 

@@ -67,14 +67,14 @@ class _DevicePageState extends ConsumerState<DevicePage> {
 
   void startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_counter < 5) {
+      if (_counter < 5 && mounted) {
         setState(() {
           _counter++;
         });
       } else {
-        setState(() {
+        if (mounted) {
           _timer.cancel();
-        });
+        }
       }
     });
   }

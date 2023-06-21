@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/modules/profile/profile_controller.dart';
 import 'package:mobile/providers/auth/auth_provider.dart';
+import 'package:mobile/providers/notifications/notifications_provider.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
 import 'package:mobile/shared/themes/app_text_styles.dart';
 import 'package:mobile/shared/widgets/label_button/label_button.dart';
@@ -31,6 +32,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       if (!mounted) return;
 
       ref.read(authProvider).clearUser();
+      ref.read(notificationsProvider).setNotifications(0);
       Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       if (e is DioError) {

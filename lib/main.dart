@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,13 +29,17 @@ import 'package:mobile/service/firebase_messaging.dart';
 import 'package:mobile/shared/models/Device/device_model.dart';
 import 'package:mobile/shared/models/Notifications/notification_model.dart';
 import 'package:mobile/shared/themes/app_colors.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'firebase_options.dart';
 
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+Future<dynamic> backgroundMessagingHandler(RemoteMessage message) async {
+  print('BACKGROUND MESSAGE ${message.notification?.body}');
 }
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,8 +47,21 @@ Future main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FirebaseMessagingService();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  final status = await Permission.notification.status;
+  if (!status.isGranted) {
+    await [Permission.notification].request();
+  }
+  try {
+    final RemoteMessage? remoteMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (remoteMessage != null) {
+      print("INITIAL MESSAGE: ${remoteMessage.toString()}");
+    }
+    await FirebaseMessagingService.initialize(flutterLocalNotificationsPlugin);
+    FirebaseMessaging.onBackgroundMessage(backgroundMessagingHandler);
+  } catch (e) {}
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
