@@ -130,4 +130,12 @@ class DeviceController {
 
     return data;
   }
+
+  Future<ServerResponse?> leaveDevice(String deviceId) async {
+    final dio = DioApi().dio;
+    final response = await dio.post('guest/exit/$deviceId', options: Options());
+    ServerResponse data = ServerResponse.fromJson(response.data);
+
+    return data;
+  }
 }

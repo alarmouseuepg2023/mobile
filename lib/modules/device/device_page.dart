@@ -302,6 +302,40 @@ class _DevicePageState extends ConsumerState<DevicePage>
     }
   }
 
+  Future<void> handleLeaveDevice() async {
+    try {
+      setState(() {
+        loading = true;
+      });
+      final res = await deviceController.leaveDevice(widget.device.id);
+      if (res != null) {
+        if (!mounted) return;
+        Navigator.pop(context);
+        GlobalToast.show(context,
+            res.message != "" ? res.message : "Acesso removido com sucesso!");
+
+        Navigator.pushReplacementNamed(context, "/home");
+      }
+    } catch (e) {
+      print(e);
+      if (e is DioError) {
+        ServerResponse response = ServerResponse.fromJson(e.response?.data);
+        GlobalToast.show(
+            context,
+            response.message != ""
+                ? response.message
+                : "Ocorreu um erro ao cancelar o acesso ao dispositivo. Tente novamente.");
+      } else {
+        GlobalToast.show(context,
+            "Ocorreu um erro ao cancelar o acesso ao dispositivo. Tente novamente.");
+      }
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
   Future<void> handleChangeNickname(StateSetter bottomState) async {
     try {
       setState(() {
@@ -639,6 +673,49 @@ class _DevicePageState extends ConsumerState<DevicePage>
                     Navigator.pop(context);
                     showBottomSheet(context, 'STATUS');
                     handleDeleteDevice();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text(
+                      "Continuar",
+                      style: TextStyles.deleteDevice,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Cancelar",
+                      style: TextStyles.cancelDialog,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+          if (feature == 'LEAVE') {
+            return AlertDialog(
+              title: Center(
+                child: Text(
+                  "Atenção!",
+                  style: TextStyles.addDeviceIntroBold,
+                ),
+              ),
+              content: Text(
+                "Tem certeza que deseja cancelar seu acesso a este dispositivo?",
+                style: TextStyles.addDeviceIntro,
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    showBottomSheet(context, 'STATUS');
+                    handleLeaveDevice();
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8),
@@ -1158,6 +1235,37 @@ class _DevicePageState extends ConsumerState<DevicePage>
                               ),
                             ],
                           ),
+                          !_ownerPermissions(widget.device.role)
+                              ? const SizedBox(
+                                  height: 20,
+                                )
+                              : const SizedBox(),
+                          !_ownerPermissions(widget.device.role)
+                              ? Ink(
+                                  child: InkWell(
+                                      onTap: () {
+                                        showAlertDialog(context, 'LEAVE');
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.exit_to_app,
+                                                size: 30,
+                                                color: AppColors.primary),
+                                            const SizedBox(
+                                              width: 20,
+                                            ),
+                                            Text(
+                                              "Cancelar meu acesso",
+                                              style:
+                                                  TextStyles.deviceActivities,
+                                            )
+                                          ],
+                                        ),
+                                      )),
+                                )
+                              : const SizedBox(),
                           const SizedBox(
                             height: 50,
                           ),
