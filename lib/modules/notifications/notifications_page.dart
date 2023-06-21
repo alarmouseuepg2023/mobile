@@ -15,6 +15,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import '../../providers/mqtt/mqtt_client.dart';
 import '../../shared/models/Response/server_response_model.dart';
 import '../../shared/themes/app_colors.dart';
+import '../../shared/themes/app_text_styles.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -194,7 +195,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                             ),
                           ),
                         )
-                      : const Center();
+                      : Center(
+                          child: Text("Não há convites para mostrar",
+                              style: TextStyles.emptyList),
+                        );
                 }
               },
             ),
