@@ -24,7 +24,8 @@ class NotificationsPage extends ConsumerStatefulWidget {
   ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-class _NotificationsPageState extends ConsumerState<NotificationsPage> {
+class _NotificationsPageState extends ConsumerState<NotificationsPage>
+    with WidgetsBindingObserver {
   final _notificationsController = NotificationsController();
   bool loading = false;
   List<NotificationModel> notifications = [];
@@ -34,9 +35,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   final int _size = 10;
   final scrollController = ScrollController();
   late MQTTClientManager mqttManager;
+  AppLifecycleState _notification = AppLifecycleState.resumed;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       mqttManager = ref.read(mqttProvider);
 
@@ -55,7 +58,16 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _notification = state;
+    if (state == AppLifecycleState.resumed && mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     scrollController.dispose();
     super.dispose();
   }
@@ -90,9 +102,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           .where((element) => element.id == notification.id)
           .toList()
           .isEmpty) {
-        setState(() {
+        if (_notification.index == 0) {
+          setState(() {
+            notifications.add(notification);
+          });
+        } else {
           notifications.add(notification);
-        });
+        }
       }
     }
   }

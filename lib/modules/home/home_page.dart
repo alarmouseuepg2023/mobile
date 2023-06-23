@@ -36,7 +36,7 @@ class _HomePageState extends ConsumerState<HomePage>
   final StreamController<String> _streamController = StreamController<String>();
   Stream<String> get _stream => _streamController.stream;
   late MQTTClientManager mqttManager;
-  AppLifecycleState? _notification;
+  AppLifecycleState _notification = AppLifecycleState.resumed;
 
   String displayUserName(String name) => name.split(" ")[0];
 
@@ -62,7 +62,6 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print(state);
     _notification = state;
   }
 
@@ -103,7 +102,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
   void handleNotificationArrived(String message) {
     print(
-        "HOME_PAGE: MENSAGEM: $message - MOUNTED: $mounted ${_notification?.index}");
+        "HOME_PAGE: MENSAGEM: $message - MOUNTED: $mounted ${_notification.index}");
     if (mounted && _homeController.currentPage != 1) {
       final currentNotificationsCount =
           ref.read(notificationsProvider).notificationsCount ?? 0;
