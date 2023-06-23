@@ -29,8 +29,6 @@ class DioApi {
         onError: (DioError error, ErrorInterceptorHandler errorHandler) async {
           if (error.response?.statusCode == 400) {
             final pref = await SharedPreferences.getInstance();
-            final storedRefreshToken =
-                pref.getString('ALARMOUSE:refreshToken') ?? "";
             ServerResponse rawServerResponse =
                 ServerResponse.fromJson(error.response?.data);
 
