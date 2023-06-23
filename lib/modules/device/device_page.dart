@@ -317,7 +317,6 @@ class _DevicePageState extends ConsumerState<DevicePage>
         Navigator.pushReplacementNamed(context, "/home");
       }
     } catch (e) {
-      print(e);
       if (e is DioError) {
         ServerResponse response = ServerResponse.fromJson(e.response?.data);
         GlobalToast.show(

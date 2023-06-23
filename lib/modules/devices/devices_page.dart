@@ -84,7 +84,6 @@ class _DevicesPageState extends ConsumerState<DevicesPage>
   }
 
   void setupUpdatesListener() {
-    print('LISTENER ${mqttManager.client?.connectionStatus?.state.index}');
     if (mqttManager.client != null &&
         mqttManager.client?.connectionStatus?.state.index == 3) {
       mqttManager
@@ -138,7 +137,6 @@ class _DevicesPageState extends ConsumerState<DevicesPage>
   }
 
   Future<void> getDevices() async {
-    print('GET DEVICES $_notification $mounted');
     if (!mounted || loading) return;
     try {
       setState(() {

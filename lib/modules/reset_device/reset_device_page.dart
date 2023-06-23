@@ -154,7 +154,6 @@ class _ResetDevicePageState extends ConsumerState<ResetDevicePage> {
                 provisionStarted = false;
               })
             : null;
-        print("$wifiSsid - ${wifiPassword.text} - $qrCode $wifiBSSID");
         await provisioner.start(ProvisioningRequest.fromStrings(
             ssid: wifiSsid,
             bssid: wifiBSSID ?? '',

@@ -38,8 +38,6 @@ class AddDeviceController {
         formKeys.every((element) => element.currentState!.validate());
 
     if (allFormValid) {
-      final formData = model.toJson();
-      print(formData);
       return true;
     }
     return false;

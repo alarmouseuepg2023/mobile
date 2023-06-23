@@ -60,7 +60,9 @@ Future main() async {
     }
     await FirebaseMessagingService.initialize(flutterLocalNotificationsPlugin);
     FirebaseMessaging.onBackgroundMessage(backgroundMessagingHandler);
-  } catch (e) {}
+  } catch (e) {
+    print("FIREBASE INITIALIZE: $e");
+  }
 
   runApp(const ProviderScope(child: MyApp()));
 }

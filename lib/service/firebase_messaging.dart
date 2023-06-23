@@ -42,47 +42,4 @@ class FirebaseMessagingService {
         message.notification?.body, platformChannelSpecifics,
         payload: message.data['title']);
   }
-  // FirebaseMessagingService() {
-  //   configurePermissions();
-  //   onMessage();
-  //   FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-  //     print("ON REFRESH ->>>> $fcmToken");
-  //     sendToken(fcmToken);
-  //   }).onError((err) {
-  //     // Error getting token.
-  //   });
-  // }
-
-  // Future<PushNotificationResponse?> sendToken(String token) async {
-  //   final dio = DioApi().dio;
-  //   final formData = {'token': token};
-
-  //   final response = await dio.patch('pushNotifications',
-  //       data: formData, options: Options());
-  //   PushNotificationResponse data =
-  //       PushNotificationResponse.fromJson(response.data);
-  //   return data;
-  // }
-
-  // Future<void> configurePermissions() async {
-  //   FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-  //   await messaging.requestPermission(
-  //     alert: true,
-  //     announcement: false,
-  //     badge: true,
-  //     carPlay: false,
-  //     criticalAlert: false,
-  //     provisional: false,
-  //     sound: true,
-  //   );
-
-  //   await FirebaseMessaging.instance
-  //       .setForegroundNotificationPresentationOptions(
-  //     badge: true,
-  //     sound: true,
-  //     alert: true,
-  //   );
-  // }
-
 }
